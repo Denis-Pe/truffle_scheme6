@@ -1,0 +1,44 @@
+plugins {
+    id 'java'
+}
+
+group = 'p.denis'
+version = '1.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    graal_version = '22.3.1'
+}
+
+dependencies {
+    implementation "org.graalvm.truffle:truffle-api:$graal_version"
+    annotationProcessor "org.graalvm.truffle:truffle-dsl-processor:$graal_version"
+
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+    useJUnitPlatform()
+
+    jvmArgs '-ea',
+            '--add-exports',
+            'org.graalvm.truffle/com.oracle.truffle.api=ALL-UNNAMED',
+            '--add-exports',
+            'org.graalvm.truffle/com.oracle.truffle.api.nodes=ALL-UNNAMED',
+            '--add-exports',
+            'org.graalvm.truffle/com.oracle.truffle.api.staticobject=ALL-UNNAMED'
+
+    testLogging {
+        events 'failed'
+        exceptionFormat 'full'
+    }
+}
