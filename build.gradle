@@ -12,14 +12,26 @@ java {
 
 repositories {
     mavenCentral()
+    maven { url "https://repo.clojars.org" }
 }
 
 ext {
     graal_version = '22.3.1'
 }
 
+sourceSets {
+    main {
+        resources {
+            srcDirs "src/$name/resources", "src/main/clojure"
+        }
+    }
+}
+
 dependencies {
     implementation "org.graalvm.truffle:truffle-api:$graal_version"
+    implementation "org.clojure:clojure:1.11.1"
+    implementation "instaparse:instaparse:1.4.12"
+    implementation "org.clojure:core.match:1.0.1"
     annotationProcessor "org.graalvm.truffle:truffle-dsl-processor:$graal_version"
 
     testImplementation platform('org.junit:junit-bom:5.10.0')
