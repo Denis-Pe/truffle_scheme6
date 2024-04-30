@@ -1,6 +1,6 @@
 package truffle_scheme6;
 
-import truffle_scheme6.nodes.atoms.Identifier;
+import truffle_scheme6.nodes.atoms.SIdentifierLiteralNode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +10,7 @@ import java.util.Map;
 //  nan.0
 //  inf.0
 public final class GlobalScopeObject {
-    private final Map<Identifier, SchemeObject> vars = new HashMap<>();
+    private final Map<SIdentifierLiteralNode, SchemeNode> vars = new HashMap<>();
 
     /**
      *
@@ -18,11 +18,11 @@ public final class GlobalScopeObject {
      * @param val value of the variable
      * @return true if the variable is new. false if it is changing the value of an existing variable
      */
-    public boolean newVar(Identifier name, SchemeObject val) {
+    public boolean newVar(SIdentifierLiteralNode name, SchemeNode val) {
         return vars.put(name, val) == null;
     }
 
-    public SchemeObject getVar(Identifier name) {
+    public SchemeNode getVar(SIdentifierLiteralNode name) {
         return vars.get(name);
     }
 }

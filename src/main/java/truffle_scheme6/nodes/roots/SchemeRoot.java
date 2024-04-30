@@ -3,12 +3,12 @@ package truffle_scheme6.nodes.roots;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
-import truffle_scheme6.SchemeObject;
+import truffle_scheme6.SchemeNode;
 
 public class SchemeRoot extends RootNode {
-    SchemeObject obj;
+    SchemeNode obj;
 
-    public SchemeRoot(TruffleLanguage<?> language, SchemeObject obj) {
+    public SchemeRoot(TruffleLanguage<?> language, SchemeNode obj) {
         super(language);
         this.obj = obj;
     }

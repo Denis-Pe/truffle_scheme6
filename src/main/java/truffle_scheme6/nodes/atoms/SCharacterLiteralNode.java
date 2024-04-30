@@ -4,20 +4,21 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.api.strings.TruffleStringBuilder;
 import truffle_scheme6.Constants;
-import truffle_scheme6.SchemeObject;
+import truffle_scheme6.SchemeNode;
+import truffle_scheme6.runtime.SChar;
 
-public class SCharacter extends SchemeObject {
+public class SCharacterLiteralNode extends SchemeNode {
     // todo one character string for now. Will look into turning this into a byte[] later,
     //  for now I don't want to spend much time on it
     private final TruffleString value;
     private static final TruffleString.ToJavaStringNode converter = TruffleString.ToJavaStringNode.create();
 
 
-    public SCharacter(char c) {
+    public SCharacterLiteralNode(char c) {
         this((int) c);
     }
 
-    public SCharacter(int unsignedCodepointInt) {
+    public SCharacterLiteralNode(int unsignedCodepointInt) {
         var builder = TruffleStringBuilder.create(Constants.ENCODING);
         var appender = TruffleStringBuilder.AppendCodePointNode.create();
 
@@ -28,13 +29,13 @@ public class SCharacter extends SchemeObject {
 
 
     @Override
-    public SchemeObject execute(VirtualFrame frame) {
-        return this;
+    public Object execute(VirtualFrame frame) {
+        return new SChar(value);
     }
 
     @Override
-    public SchemeObject executeFrozen(VirtualFrame frame) {
-        return this;
+    public Object executeFrozen(VirtualFrame frame) {
+        return new SChar(value);
     }
 
     public TruffleString getValue() {
@@ -46,8 +47,4 @@ public class SCharacter extends SchemeObject {
         return "#\\" + converter.execute(value);
     }
 
-    @Override
-    public String dbg() {
-        return "%s{%s}".formatted(this.getClass().getSimpleName(), this.toString());
-    }
 }

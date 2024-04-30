@@ -1,16 +1,17 @@
-package truffle_scheme6.nodes.atoms;
+package truffle_scheme6.runtime;
 
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.api.strings.TruffleStringBuilder;
 import truffle_scheme6.Constants;
-import truffle_scheme6.SchemeObject;
 
 import java.util.stream.IntStream;
 
-public final class SString extends SchemeObject {
+public class SString {
     private final TruffleString value;
-    private static final TruffleString.ToJavaStringNode converter = TruffleString.ToJavaStringNode.create();
+
+    public SString(TruffleString value) {
+        this.value = value;
+    }
 
     public SString(int[] codepoints) {
         TruffleStringBuilder builder = TruffleStringBuilder.create(Constants.ENCODING);
@@ -31,23 +32,12 @@ public final class SString extends SchemeObject {
         this(str.codePoints());
     }
 
-    @Override
-    public SchemeObject execute(VirtualFrame frame) {
-        return this;
-    }
-
-    @Override
-    public SchemeObject executeFrozen(VirtualFrame frame) {
-        return this;
+    public TruffleString getValue() {
+        return value;
     }
 
     @Override
     public String toString() {
-        return "\"" + converter.execute(value) + "\"";
-    }
-
-    @Override
-    public String dbg() {
-        return "%s{%s}".formatted(this.getClass().getSimpleName(), this.toString());
+        return "\"" + value.toJavaStringUncached() + "\"";
     }
 }
