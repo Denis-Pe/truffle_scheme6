@@ -14,10 +14,12 @@ public class SPair {
         } else {
             var curr = new SPair(null, objects[objects.length - 1]);
 
-            for (int i = objects.length - 2; i >= 0; i--) {
+            for (int i = objects.length - 2; i >= 1; i--) {
                 curr.setCar(objects[i]);
                 curr = new SPair(null, curr);
             }
+
+            curr.setCar(objects[0]);
 
             return curr;
         }

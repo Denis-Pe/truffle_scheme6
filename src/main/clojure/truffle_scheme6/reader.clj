@@ -202,19 +202,9 @@
           (fn [& args]
             (let [[f & _r :as args] args]
               (cond
-                (empty? args) :nil
+                (empty? args) (throw (Exception. "Wrong syntax: unquoted nil"))
                 (instance? SIdentifierLiteralNode f) (-> f (.getValue) (.toJavaStringUncached))
                 :else :default))))
-
-(defmethod transform-list :nil [& _args]
-  (SNilLiteralNode.))
-
-(defmethod transform-list "quote" [_quote-sym & args]
-  (condp = (count args)
-    ; todo special malformed form exceptions
-    0 (throw (IllegalArgumentException. "No args given to quote"))
-    1 (SQuoteNode. (first args))
-    (throw (IllegalArgumentException. "Too many args given to quote"))))
 
 (defmethod transform-list "if" [_if-sym & args]
   (let [[condition then else] args]
@@ -233,6 +223,18 @@
                               (remove #(= "." %) args)
                               (concat args [(SNilLiteralNode.)]))))))
 
+(defn transform-quote
+  [& args]
+  (if (not= 1 (count args))
+    (throw (Exception. "Wrong syntax: quote given wrong amount of arguments"))
+    (SQuoteNode. (first args))))
+
+(defn transform-quoted-list
+  [& args]
+  (if (empty? args)
+    (SNilLiteralNode.)
+    (SListNode. (first args) (into-array SchemeNode (rest args)))))
+
 (defn transform-octet
   [[radix] [_int-kword & digits]]
   (let [r (condp = radix
@@ -250,18 +252,56 @@
     (->> source
          parse-strictly)))
 
-(defn produce-nodes
-  [ast]
-  (insta/transform {:list              transform-list
-                    :vector            #(SVectorLiteralNode. (into-array SchemeNode %&))
-                    :bytevector        #(SByteVectorLiteralNode. (into-array SOctetLiteralNode %&))
+(defn- identifier-vec
+  [s]
+  (reduce conj [:identifier] (map str s)))
 
-                    :number            transform-number
-                    :octet             transform-octet
-                    :identifier        transform-identifier
-                    :string            transform-string
-                    :inline-hex-escape #(Integer/parseUnsignedInt % 16)
-                    :character         transform-character
-                    :true              (fn [& r] (STrueLiteralNode.))
-                    :false             (fn [& r] (SFalseLiteralNode.))}
-                   ast))
+(defn- tag-quotes
+  [ast]
+  (->> ast
+       (insta/transform
+         {:list (fn [& args]
+                  (cond
+                    (empty? args) [:list]                   ; the nil case is handled later on by transform-list
+                    (= (identifier-vec "quote") (first args)) (reduce conj [:quote] (rest args))
+                    :else (reduce conj [:list] args)))})
+       (insta/transform
+         {:quote (fn [& args]
+                   (reduce conj [:quote] (insta/transform
+                                           {:quote (fn [& args]
+                                                     (reduce conj
+                                                             [:quoted-list
+                                                              (identifier-vec "quote")]
+                                                             args))
+                                            :list  (fn [& args]
+                                                     (reduce conj
+                                                             [:quoted-list]
+                                                             args))}
+                                           args)))})))
+
+(defn- produce-nodes
+  [ast]
+  (insta/transform
+    {:list              transform-list
+     :vector            #(SVectorLiteralNode. (into-array SchemeNode %&))
+     :bytevector        #(SByteVectorLiteralNode. (into-array SOctetLiteralNode %&))
+
+     :quote             transform-quote
+     :quoted-list       transform-quoted-list
+
+     :number            transform-number
+     :octet             transform-octet
+     :identifier        transform-identifier
+     :string            transform-string
+     :inline-hex-escape #(Integer/parseUnsignedInt % 16)
+     :character         transform-character
+     :true              (fn [& r] (STrueLiteralNode.))
+     :false             (fn [& r] (SFalseLiteralNode.))}
+    ast))
+
+(defn read-scheme
+  [source]
+  (->> source
+       (parse)
+       (tag-quotes)
+       (produce-nodes)))

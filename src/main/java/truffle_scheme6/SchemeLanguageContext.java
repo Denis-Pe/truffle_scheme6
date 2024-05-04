@@ -1,9 +1,11 @@
 package truffle_scheme6;
 
+import truffle_scheme6.runtime.GlobalScope;
+
 public class SchemeLanguageContext {
-    public final GlobalScopeObject globalScopeObject;
+    public final GlobalScope globalScope;
 
     public SchemeLanguageContext() {
-        this.globalScopeObject = new GlobalScopeObject();
+        this.globalScope = new GlobalScope();
     }
 }

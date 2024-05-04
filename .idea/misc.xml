@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="EntryPointsManager">
+    <list size="1">
+      <item index="0" class="java.lang.String" itemvalue="com.oracle.truffle.api.nodes.Node.Children" />
+    </list>
     <writeAnnotations>
       <writeAnnotation name="com.oracle.truffle.api.nodes.Node.Child" />
       <writeAnnotation name="com.oracle.truffle.api.nodes.Node.Children" />
