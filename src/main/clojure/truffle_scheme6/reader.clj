@@ -161,6 +161,10 @@
                      "\\r"  0x000D
                      "\\\"" 0x0022})
 
+(defn node-array
+  [aseq]
+  (into-array SchemeNode aseq))
+
 (defn transform-identifier
   [& args]
   (->> args
@@ -203,6 +207,7 @@
             (let [[f & _r :as args] args]
               (cond
                 (empty? args) (throw (Exception. "Wrong syntax: unquoted nil"))
+                (some #{"."} args) (throw (Exception. (str "Wrong syntax:" args)))
                 (instance? SIdentifierLiteralNode f) (-> f (.getValue) (.toJavaStringUncached))
                 :else :default))))
 
@@ -218,10 +223,7 @@
 (defmethod transform-list :default [& args]
   (let [[form & args] args]
     (SListNode. form
-                (into-array SchemeNode
-                            (if (some #(= "." %) args)
-                              (remove #(= "." %) args)
-                              (concat args [(SNilLiteralNode.)]))))))
+                (node-array (concat args [(SNilLiteralNode.)])))))
 
 (defn transform-quote
   [& args]
@@ -231,9 +233,14 @@
 
 (defn transform-quoted-list
   [& args]
-  (if (empty? args)
-    (SNilLiteralNode.)
-    (SListNode. (first args) (into-array SchemeNode (rest args)))))
+  (cond
+    (empty? args) (SNilLiteralNode.)
+    (some #{"."} args) (let [args (remove #{"."} args)]
+                         (SListNode. (first args)
+                                     (node-array (rest args))))
+    :else (let [args (conj (vec args) (SNilLiteralNode.))]
+            (SListNode. (first args)
+                        (node-array (rest args))))))
 
 (defn transform-octet
   [[radix] [_int-kword & digits]]
@@ -283,7 +290,7 @@
   [ast]
   (insta/transform
     {:list              transform-list
-     :vector            #(SVectorLiteralNode. (into-array SchemeNode %&))
+     :vector            #(SVectorLiteralNode. (node-array %&))
      :bytevector        #(SByteVectorLiteralNode. (into-array SOctetLiteralNode %&))
 
      :quote             transform-quote
