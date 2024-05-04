@@ -130,7 +130,7 @@
   (* USELESS STUFF *)
   <comment> = <single-line-comment> / <block-comment> / <form-comment> / '#!r6rs'
   single-line-comment = #';.*'                                                   (* dot doesn't match line breaks *)
-  block-comment = '#|' ( block-comment / #'((?!\\|#)(.|\\n))' )* '|#'
+  block-comment = '#|' ( block-comment / #'[^|#]' / !'#' '|' !'#' / !'|' '#' !'|' )* '|#'
   form-comment = '#;' ( whitespace? | comment? )* expression
 
   <whitespace> = <#'\\s+'>
@@ -203,13 +203,13 @@
     (SCharacterLiteralNode. ^char (.charAt (second args) 0))))
 
 (defmulti transform-list
-          (fn [& args]
-            (let [[f & _r :as args] args]
-              (cond
-                (empty? args) (throw (Exception. "Wrong syntax: unquoted nil"))
-                (some #{"."} args) (throw (Exception. (str "Wrong syntax:" args)))
-                (instance? SIdentifierLiteralNode f) (-> f (.getValue) (.toJavaStringUncached))
-                :else :default))))
+  (fn [& args]
+    (let [[f & _r :as args] args]
+      (cond
+        (empty? args) (throw (Exception. "Wrong syntax: unquoted nil"))
+        (some #{"."} args) (throw (Exception. (str "Wrong syntax:" args)))
+        (instance? SIdentifierLiteralNode f) (-> f (.getValue) (.toJavaStringUncached))
+        :else :default))))
 
 (defmethod transform-list "if" [_if-sym & args]
   (let [[condition then else] args]

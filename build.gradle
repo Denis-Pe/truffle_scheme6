@@ -25,6 +25,12 @@ sourceSets {
             srcDirs "src/$name/resources", "src/main/clojure"
         }
     }
+
+    test {
+        resources {
+            srcDirs "src/$name/resources", "src/test/clojure"
+        }
+    }
 }
 
 dependencies {
