@@ -6,6 +6,12 @@
   [o]
   (instance? instaparse.gll/failure-type o))
 
+(defn- node?
+  [node-type node]
+  (= (first node) node-type))
+
+;;; COMMENTS
+
 (deftest r6rs-comment-success
   (is (= (parse "#!r6rs") '("#!r6rs"))))
 
@@ -52,6 +58,35 @@
   (form-comment-failure)
   (block-comment-failure))
 
+;;; NUMBERS
+
+(deftest positive-integers
+  (are [src] (= (parse src)
+                (list [:number
+                       [:prefix10 [:exactness] [:radix10]]
+                       [:complex10 [:real10 [:sign] [:ureal10 (reduce conj
+                                                                      [:uinteger10]
+                                                                      (map str src))]]]]))
+    "0"
+    "1"
+    "123456789"))
+
+(deftest negative-integers
+  (are [src] (= (parse src)
+                (list [:number
+                       [:prefix10 [:exactness] [:radix10]]
+                       [:complex10 [:real10 [:sign "-"] [:ureal10 (reduce conj
+                                                                          [:uinteger10]
+                                                                          (map str (rest src)))]]]]))
+    "-0"
+    "-1"
+    "-123456789"))
+
+(deftest numbers
+  (positive-integers)
+  (negative-integers))
+
 (defn test-ns-hook []
   (comment-successes)
-  (comment-failures))
+  (comment-failures)
+  (numbers))
