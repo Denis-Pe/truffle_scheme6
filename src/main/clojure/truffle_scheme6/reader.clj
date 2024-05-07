@@ -6,7 +6,7 @@
            (truffle_scheme6.nodes.atoms.bools SFalseLiteralNode STrueLiteralNode)
            (truffle_scheme6.nodes.atoms.numbers SOctetLiteralNode)
            (truffle_scheme6.nodes.composites SByteVectorLiteralNode SListNode SVectorLiteralNode)
-           (truffle_scheme6.nodes.special SIfNode SQuoteNode)))
+           (truffle_scheme6.nodes.special SBeginNode SIfNode SQuoteNode)))
 
 (insta/defparser parser
   "
@@ -219,6 +219,9 @@
       2 (SIfNode. condition then nil)
       3 (SIfNode. condition then else)
       (throw (IllegalArgumentException. "Too many args given to if")))))
+
+(defmethod transform-list "begin" [_if-system & args]
+  (SBeginNode. (node-array args)))
 
 (defmethod transform-list :default [& args]
   (let [[form & args] args]
