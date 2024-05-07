@@ -6,7 +6,7 @@ import truffle_scheme6.runtime.SIdentifier;
 import truffle_scheme6.runtime.SNil;
 import truffle_scheme6.runtime.SPair;
 
-public class SQuoteNode extends SchemeNode {
+public class SQuoteNode extends SSpecialNode {
     @Child private SchemeNode child;
 
     public SQuoteNode(SchemeNode child) {
@@ -16,13 +16,6 @@ public class SQuoteNode extends SchemeNode {
     @Override
     public Object execute(VirtualFrame frame) {
         return child.executeFrozen(frame);
-    }
-
-    @Override
-    public Object executeFrozen(VirtualFrame frame) {
-        return new SPair(new SIdentifier("quote"),
-                new SPair(child.executeFrozen(frame),
-                        SNil.SINGLETON));
     }
 
     @Override

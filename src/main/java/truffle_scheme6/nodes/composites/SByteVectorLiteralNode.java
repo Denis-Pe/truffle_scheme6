@@ -1,14 +1,10 @@
 package truffle_scheme6.nodes.composites;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import truffle_scheme6.SchemeNode;
-import truffle_scheme6.nodes.STypesGen;
 import truffle_scheme6.nodes.atoms.numbers.SOctetLiteralNode;
-import truffle_scheme6.runtime.ByteVector;
+import truffle_scheme6.runtime.SByteVector;
 import truffle_scheme6.utils.StringFormatting;
-
-import java.util.Arrays;
 
 public final class SByteVectorLiteralNode extends SchemeNode {
     // ByteVectors can only contain literal octets
@@ -31,7 +27,7 @@ public final class SByteVectorLiteralNode extends SchemeNode {
             res[i] = octets[i].execute(frame);
         }
 
-        return new ByteVector(res);
+        return new SByteVector(res);
     }
 
     @Override

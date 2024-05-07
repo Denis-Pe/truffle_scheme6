@@ -7,7 +7,7 @@ import truffle_scheme6.runtime.SIdentifier;
 import truffle_scheme6.runtime.SNil;
 import truffle_scheme6.runtime.SPair;
 
-public class SIfNode extends SchemeNode {
+public class SIfNode extends SSpecialNode {
     @Child private SchemeNode conditionNode;
     @Child private SchemeNode thenNode;
     @Child private SchemeNode elseNode; // optional
@@ -33,38 +33,6 @@ public class SIfNode extends SchemeNode {
                 return SNil.SINGLETON;
             }
         }
-    }
-
-    @Override
-    public Object executeFrozen(VirtualFrame frame) {
-        if (elseNode != null) {
-            return SPair.from(
-                    new SIdentifier("if"),
-                    conditionNode.executeFrozen(frame),
-                    thenNode.executeFrozen(frame),
-                    elseNode.executeFrozen(frame),
-                    SNil.SINGLETON
-            );
-        } else {
-            return SPair.from(
-                    new SIdentifier("if"),
-                    conditionNode.executeFrozen(frame),
-                    thenNode.executeFrozen(frame),
-                    SNil.SINGLETON
-            );
-        }
-    }
-
-    public SchemeNode getConditionNode() {
-        return conditionNode;
-    }
-
-    public SchemeNode getThenNode() {
-        return thenNode;
-    }
-
-    public SchemeNode getElseNode() {
-        return elseNode;
     }
 
     @Override

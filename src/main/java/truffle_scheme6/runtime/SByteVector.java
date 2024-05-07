@@ -2,12 +2,10 @@ package truffle_scheme6.runtime;
 
 import truffle_scheme6.utils.StringFormatting;
 
-import java.util.Arrays;
-
-public class ByteVector {
+public class SByteVector {
     private final byte[] value;
 
-    public ByteVector(byte[] value) {
+    public SByteVector(byte[] value) {
         this.value = value;
     }
 

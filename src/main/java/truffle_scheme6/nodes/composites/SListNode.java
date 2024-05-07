@@ -13,7 +13,7 @@ public class SListNode extends SchemeNode {
     @Child
     private SchemeNode form;
     @Children
-    private SchemeNode[] args; // may be nil-terminated if it was coded as such
+    private SchemeNode[] args; // always nil-terminated if not quoted
 
     public SListNode(SchemeNode form, SchemeNode[] args) {
         this.form = form;
