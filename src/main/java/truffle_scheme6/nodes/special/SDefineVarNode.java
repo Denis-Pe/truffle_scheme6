@@ -21,7 +21,7 @@ public class SDefineVarNode extends SSpecialNode {
     public Object execute(VirtualFrame frame) {
         this.getCurrentContext().globalScope.setVar(
                 identifier.execute(frame),
-                expr == null ? SNil.SINGLETON : expr.execute(frame));
+                expr == null ? Constants.UNSPECIFIED : expr.execute(frame));
         return Constants.UNSPECIFIED;
     }
 }

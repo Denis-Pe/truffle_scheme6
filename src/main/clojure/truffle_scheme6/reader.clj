@@ -318,6 +318,8 @@
       (throw (IllegalArgumentException. "Too many args given to if")))))
 
 (defmethod transform-list "begin" [_begin-sym & args]
+  (when (empty args)
+    (throw (IllegalArgumentException. "Can't create begin form with no body")))
   (SBeginNode. (node-array args)))
 
 (defmethod transform-list :default [& args]

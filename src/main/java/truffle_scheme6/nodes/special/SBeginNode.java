@@ -17,7 +17,7 @@ public class SBeginNode extends SSpecialNode {
 
     @Override
     public Object execute(VirtualFrame frame) {
-        Object res = SNil.SINGLETON;
+        Object res = null;
 
         for (var node : nodes) {
             res = node.execute(frame);
