@@ -15,4 +15,8 @@ public abstract class SchemeNode extends Node {
     public boolean isNil() {
         return this instanceof SNilLiteralNode;
     }
+
+    public SchemeLanguageContext getCurrentContext() {
+        return SchemeLanguageContext.get(this);
+    }
 }

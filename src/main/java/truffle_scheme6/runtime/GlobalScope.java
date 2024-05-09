@@ -1,7 +1,5 @@
 package truffle_scheme6.runtime;
 
-import truffle_scheme6.nodes.atoms.SIdentifierLiteralNode;
-
 import java.util.IdentityHashMap;
 import java.util.Map;
 
@@ -17,7 +15,7 @@ public final class GlobalScope {
      * @param val  value of the variable
      * @return true if the variable is new. false if it is changing the value of an existing variable
      */
-    public boolean newVar(SIdentifier name, Object val) {
+    public boolean setVar(SIdentifier name, Object val) {
         return vars.put(name, val) == null;
     }
 

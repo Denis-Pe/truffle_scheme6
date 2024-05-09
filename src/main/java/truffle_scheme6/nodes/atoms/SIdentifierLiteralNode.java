@@ -33,7 +33,7 @@ public final class SIdentifierLiteralNode extends SchemeNode {
     }
 
     @Override
-    public Object execute(VirtualFrame frame) {
+    public SIdentifier execute(VirtualFrame frame) {
         // todo
         return new SIdentifier(value);
     }

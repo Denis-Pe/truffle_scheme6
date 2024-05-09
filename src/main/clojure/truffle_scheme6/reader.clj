@@ -1,12 +1,15 @@
 (ns truffle-scheme6.reader
   (:require [instaparse.core :as insta]
-            [truffle-scheme6.number-transformers :refer [transform-number]])
-  (:import (truffle_scheme6 SchemeNode)
+            [truffle-scheme6.number-transformers :refer [transform-number]]
+            [clojure.core.match :refer [match]]
+            [clojure.zip :as zip])
+  (:import (java.util ArrayList List)
+           (truffle_scheme6 SchemeNode)
            (truffle_scheme6.nodes.atoms SIdentifierLiteralNode SNilLiteralNode SCharacterLiteralNode SStringLiteralNode)
            (truffle_scheme6.nodes.atoms.bools SFalseLiteralNode STrueLiteralNode)
            (truffle_scheme6.nodes.atoms.numbers SOctetLiteralNode)
            (truffle_scheme6.nodes.composites SByteVectorLiteralNode SListNode SVectorLiteralNode)
-           (truffle_scheme6.nodes.special SBeginNode SIfNode SQuoteNode)))
+           (truffle_scheme6.nodes.special SBeginNode SDefineVarNode SIfNode SQuoteNode)))
 
 (insta/defparser parser
   "
@@ -161,9 +164,79 @@
                      "\\r"  0x000D
                      "\\\"" 0x0022})
 
+(def define-tag "define-")
+
 (defn node-array
   [aseq]
   (into-array SchemeNode aseq))
+
+(defn idnode->string
+  [identifier-node]
+  (-> identifier-node (.getValue) (.toJavaStringUncached)))
+
+(defn idnode?
+  [node]
+  (instance? SIdentifierLiteralNode node))
+
+(defn- identifier-vec
+  [s]
+  (reduce conj [:identifier] (map str s)))
+
+(defn general-zipper
+  [tree]
+  (zip/zipper #(or (vector? %) (seq? %))
+              seq
+              (fn [node children]
+                (with-meta (if (seq? node)
+                             children
+                             (vec children))
+                           (meta node)))
+              tree))
+
+(defn zip-walk
+  [f z]
+  (if (zip/end? z)
+    (zip/root z)
+    (recur f (zip/next (f z)))))
+
+(defn edit-node-tags
+  [f tree]
+  (let [z (general-zipper tree)]
+    (zip-walk (fn [node]
+                (cond
+                  (zip/branch? node) node
+                  (and (keyword? (first node))
+                       (empty? (zip/lefts node))) (zip/edit node f)
+                  :else node))
+              z)))
+
+(defn prefix-nodes
+  [prefix tree]
+  (edit-node-tags
+    (fn [k] (keyword (str prefix (name k))))
+    tree))
+
+(defn unprefix-nodes
+  [prefix tree]
+  (edit-node-tags
+    (fn [k] (keyword (apply str (drop (count prefix) (name k)))))
+    tree))
+
+;; for special forms that require extra special treatment
+;;  for example, define allows dots in its inner lists, something that is normally not allowed.
+;;  I therefore have to tag nodes inside a define node and re-evaluate them in transform-list's
+(defmulti tag-special-list
+  (fn [& args]
+    (let [[f & _r :as args] args]
+      f)))
+
+(defmethod tag-special-list (identifier-vec "define") [define-ident & args]
+  (reduce conj
+          [:list define-ident]
+          (prefix-nodes define-tag args)))
+
+(defmethod tag-special-list :default [& args]
+  (reduce conj [:list] args))
 
 (defn transform-identifier
   [& args]
@@ -207,9 +280,33 @@
     (let [[f & _r :as args] args]
       (cond
         (empty? args) (throw (Exception. "Wrong syntax: unquoted nil"))
-        (some #{"."} args) (throw (Exception. (str "Wrong syntax:" args)))
-        (instance? SIdentifierLiteralNode f) (-> f (.getValue) (.toJavaStringUncached))
+        (some #{"."} args) (if (idnode? f)                  ; define and lambda use dots in their syntax
+                             (idnode->string f)
+                             (throw (Exception. (str "Wrong syntax:" args))))
+        (idnode? f) (idnode->string f)
         :else :default))))
+
+(defmethod transform-list "define" [_define-sym & args]
+  (let [args (unprefix-nodes define-tag args)
+        node? (fn node?
+                ([tag node] (and (sequential? node) (= tag (first node))))
+                ([tag] #(node? tag %)))]
+    (match (vec args)
+      [(_ :guard (node? :identifier))]
+      (let [[var-name] (produce-nodes args)]
+        (SDefineVarNode. var-name nil))
+
+
+      [(_ :guard (node? :identifier))
+       _]
+      (let [[var-name expr] (produce-nodes args)]
+        (SDefineVarNode var-name expr))
+
+      [(_ :guard (node? :list))
+       [_body-first & _body-rest]]
+      (throw (UnsupportedOperationException. "Define procedure not implemented yet"))
+
+      :else (throw (Exception. (str "Wrong syntax: " "Malformed define form"))))))
 
 (defmethod transform-list "if" [_if-sym & args]
   (let [[condition then else] args]
@@ -220,7 +317,7 @@
       3 (SIfNode. condition then else)
       (throw (IllegalArgumentException. "Too many args given to if")))))
 
-(defmethod transform-list "begin" [_if-system & args]
+(defmethod transform-list "begin" [_begin-sym & args]
   (SBeginNode. (node-array args)))
 
 (defmethod transform-list :default [& args]
@@ -262,10 +359,6 @@
     (->> source
          parse-strictly)))
 
-(defn- identifier-vec
-  [s]
-  (reduce conj [:identifier] (map str s)))
-
 (defn- tag-quotes
   [ast]
   (->> ast
@@ -288,6 +381,12 @@
                                                              [:quoted-list]
                                                              args))}
                                            args)))})))
+
+(defn- tag-specials
+  [ast]
+  (->> ast
+       (insta/transform
+         {:list tag-special-list})))
 
 (defn- produce-nodes
   [ast]
@@ -314,4 +413,5 @@
   (->> source
        (parse)
        (tag-quotes)
+       (tag-specials)
        (produce-nodes)))

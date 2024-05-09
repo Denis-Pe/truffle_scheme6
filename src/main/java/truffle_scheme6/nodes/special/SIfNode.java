@@ -2,6 +2,7 @@ package truffle_scheme6.nodes.special;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.profiles.ConditionProfile;
+import truffle_scheme6.Constants;
 import truffle_scheme6.SchemeNode;
 import truffle_scheme6.runtime.SIdentifier;
 import truffle_scheme6.runtime.SNil;
@@ -30,7 +31,7 @@ public class SIfNode extends SSpecialNode {
             if (elseNode != null) {
                 return elseNode.execute(frame);
             } else {
-                return SNil.SINGLETON;
+                return Constants.UNSPECIFIED;
             }
         }
     }
