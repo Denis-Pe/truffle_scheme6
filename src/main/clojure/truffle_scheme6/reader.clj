@@ -9,6 +9,7 @@
            (truffle_scheme6.nodes.atoms.bools SFalseLiteralNode STrueLiteralNode)
            (truffle_scheme6.nodes.atoms.numbers SOctetLiteralNode)
            (truffle_scheme6.nodes.composites SByteVectorLiteralNode SListNode SVectorLiteralNode)
+           (truffle_scheme6.nodes.roots SchemeRoot)
            (truffle_scheme6.nodes.special SBeginNode SDefineVarNode SIfNode SQuoteNode)))
 
 (insta/defparser parser
@@ -166,6 +167,8 @@
 
 (def define-tag "define-")
 
+(declare produce-nodes)
+
 (defn node-array
   [aseq]
   (into-array SchemeNode aseq))
@@ -280,9 +283,7 @@
     (let [[f & _r :as args] args]
       (cond
         (empty? args) (throw (Exception. "Wrong syntax: unquoted nil"))
-        (some #{"."} args) (if (idnode? f)                  ; define and lambda use dots in their syntax
-                             (idnode->string f)
-                             (throw (Exception. (str "Wrong syntax:" args))))
+        (some #{"."} args) (throw (Exception. (str "Wrong syntax:" args)))
         (idnode? f) (idnode->string f)
         :else :default))))
 
@@ -300,7 +301,7 @@
       [(_ :guard (node? :identifier))
        _]
       (let [[var-name expr] (produce-nodes args)]
-        (SDefineVarNode var-name expr))
+        (SDefineVarNode. var-name expr))
 
       [(_ :guard (node? :list))
        [_body-first & _body-rest]]
