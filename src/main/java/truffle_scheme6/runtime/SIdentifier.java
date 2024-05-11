@@ -40,6 +40,20 @@ public class SIdentifier {
 
     @Override
     public String toString() {
-        return value.toJavaStringUncached();
+        return converter.execute(value);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SIdentifier that = (SIdentifier) o;
+        return value.equals(that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
     }
 }

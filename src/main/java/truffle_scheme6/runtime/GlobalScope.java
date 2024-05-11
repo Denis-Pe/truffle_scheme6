@@ -1,5 +1,6 @@
 package truffle_scheme6.runtime;
 
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
@@ -8,7 +9,7 @@ import java.util.Map;
 //  nan.0
 //  inf.0
 public final class GlobalScope {
-    private final Map<SIdentifier, Object> vars = new IdentityHashMap<>();
+    private final Map<SIdentifier, Object> vars = new HashMap<>();
 
     /**
      * @param name name of the variable

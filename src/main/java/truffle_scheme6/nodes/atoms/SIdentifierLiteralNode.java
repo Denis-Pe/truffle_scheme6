@@ -33,13 +33,19 @@ public final class SIdentifierLiteralNode extends SchemeNode {
     }
 
     @Override
-    public SIdentifier execute(VirtualFrame frame) {
-        // todo
-        return new SIdentifier(value);
+    public Object execute(VirtualFrame frame) {
+        var id = new SIdentifier(value);
+
+        var val = this.getCurrentContext().globalScope.getVar(id);
+        if (val != null) {
+            return val;
+        } else {
+            throw new RuntimeException("Symbol " + this + " is not bound to a variable");
+        }
     }
 
     @Override
-    public Object executeFrozen(VirtualFrame frame) {
+    public SIdentifier executeFrozen(VirtualFrame frame) {
         return new SIdentifier(value);
     }
 
