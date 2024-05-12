@@ -27,7 +27,7 @@ public final class SSymbolLiteralNode extends SchemeNode {
         if (val != null) {
             return val;
         } else {
-            throw new RuntimeException("Symbol " + this + " is not bound to a variable");
+            throw new RuntimeException("Symbol " + this + " is not bound");
         }
     }
 
