@@ -5,7 +5,7 @@
             [clojure.zip :as zip])
   (:import (java.util ArrayList List)
            (truffle_scheme6 SchemeNode)
-           (truffle_scheme6.nodes.atoms SIdentifierLiteralNode SNilLiteralNode SCharacterLiteralNode SStringLiteralNode)
+           (truffle_scheme6.nodes.atoms SSymbolLiteralNode SNilLiteralNode SCharacterLiteralNode SStringLiteralNode)
            (truffle_scheme6.nodes.atoms.bools SFalseLiteralNode STrueLiteralNode)
            (truffle_scheme6.nodes.atoms.numbers SOctetLiteralNode)
            (truffle_scheme6.nodes.composites SByteVectorLiteralNode SListNode SVectorLiteralNode)
@@ -43,25 +43,25 @@
   <cbr> = <']'>
 
   (* ATOMS *)
-  <atom> = bool / number / identifier / string / character
+  <atom> = bool / number / symbol / string / character
 
   <bool> = true | false
   true = <'#t'> | <'#T'>
   false = <'#f'> | <'#F'>
 
-    (* identifiers *)
-  identifier = identifier-initial identifier-subsequent* | peculiar-identifier
+    (* symbols *)
+  symbol = symbol-initial symbol-subsequent* | peculiar-symbol
 
-  <identifier-initial> = identifier-constituent | identifier-special-initial | inline-hex-escape
-  <identifier-constituent> = #'[A-Za-z]' | #'[\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Mn}\\p{Nl}\\p{No}\\p{Pd}\\p{Pc}\\p{Po}\\p{Sc}\\p{Sm}\\p{Sk}\\p{So}\\p{Co}&&[^\\x00-\\x7F]]'
-  <identifier-special-initial> = #'[!$%&*/:<=>?^_~]'
+  <symbol-initial> = symbol-constituent | symbol-special-initial | inline-hex-escape
+  <symbol-constituent> = #'[A-Za-z]' | #'[\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Mn}\\p{Nl}\\p{No}\\p{Pd}\\p{Pc}\\p{Po}\\p{Sc}\\p{Sm}\\p{Sk}\\p{So}\\p{Co}&&[^\\x00-\\x7F]]'
+  <symbol-special-initial> = #'[!$%&*/:<=>?^_~]'
   inline-hex-escape = <'\\\\x'> hex-scalar-value <';'>
   <hex-scalar-value> = #'[0-9a-fA-F]+'
 
-  <identifier-subsequent> = identifier-initial | #'[0-9]' | #'[\\p{Nd}\\p{Mc}\\p{Me}]' | identifier-special-subsequent
-  <identifier-special-subsequent> = #'[+-.@]'
+  <symbol-subsequent> = symbol-initial | #'[0-9]' | #'[\\p{Nd}\\p{Mc}\\p{Me}]' | symbol-special-subsequent
+  <symbol-special-subsequent> = #'[+-.@]'
 
-  <peculiar-identifier> = '+' | '-' | '...' | '->' identifier-subsequent*
+  <peculiar-symbol> = '+' | '-' | '...' | '->' symbol-subsequent*
 
     (* strings *)
   string = <'\"'> string-element* <'\"'>
@@ -173,17 +173,17 @@
   [aseq]
   (into-array SchemeNode aseq))
 
-(defn idnode->string
-  [identifier-node]
-  (-> identifier-node (.getValue) (.toJavaStringUncached)))
+(defn symnode->string
+  [symbol-node]
+  (-> symbol-node (.getValue) (.getValue) (.toJavaStringUncached)))
 
 (defn idnode?
   [node]
-  (instance? SIdentifierLiteralNode node))
+  (instance? SSymbolLiteralNode node))
 
-(defn- identifier-vec
+(defn- symbol-vec
   [s]
-  (reduce conj [:identifier] (map str s)))
+  (reduce conj [:symbol] (map str s)))
 
 (defn general-zipper
   [tree]
@@ -233,7 +233,7 @@
     (let [[f & _r :as args] args]
       f)))
 
-(defmethod tag-special-list (identifier-vec "define") [define-ident & args]
+(defmethod tag-special-list (symbol-vec "define") [define-ident & args]
   (reduce conj
           [:list define-ident]
           (prefix-nodes define-tag args)))
@@ -241,7 +241,7 @@
 (defmethod tag-special-list :default [& args]
   (reduce conj [:list] args))
 
-(defn transform-identifier
+(defn transform-symbol
   [& args]
   (->> args
        (map (fn [str|cpoint]
@@ -250,7 +250,7 @@
                 [str|cpoint])))
        (flatten)
        (int-array)
-       (SIdentifierLiteralNode.)))
+       (SSymbolLiteralNode.)))
 
 (defn transform-string
   [& args]
@@ -284,7 +284,7 @@
       (cond
         (empty? args) (throw (Exception. "Wrong syntax: unquoted nil"))
         (some #{"."} args) (throw (Exception. (str "Wrong syntax:" args)))
-        (idnode? f) (idnode->string f)
+        (idnode? f) (symnode->string f)
         :else :default))))
 
 (defmethod transform-list "define" [_define-sym & args]
@@ -293,12 +293,12 @@
                 ([tag node] (and (sequential? node) (= tag (first node))))
                 ([tag] #(node? tag %)))]
     (match (vec args)
-      [(_ :guard (node? :identifier))]
+      [(_ :guard (node? :symbol))]
       (let [[var-name] (produce-nodes args)]
         (SDefineVarNode. var-name nil))
 
 
-      [(_ :guard (node? :identifier))
+      [(_ :guard (node? :symbol))
        _]
       (let [[var-name expr] (produce-nodes args)]
         (SDefineVarNode. var-name expr))
@@ -369,7 +369,7 @@
          {:list (fn [& args]
                   (cond
                     (empty? args) [:list]                   ; the nil case is handled later on by transform-list
-                    (= (identifier-vec "quote") (first args)) (reduce conj [:quote] (rest args))
+                    (= (symbol-vec "quote") (first args)) (reduce conj [:quote] (rest args))
                     :else (reduce conj [:list] args)))})
        (insta/transform
          {:quote (fn [& args]
@@ -377,7 +377,7 @@
                                            {:quote (fn [& args]
                                                      (reduce conj
                                                              [:quoted-list
-                                                              (identifier-vec "quote")]
+                                                              (symbol-vec "quote")]
                                                              args))
                                             :list  (fn [& args]
                                                      (reduce conj
@@ -403,7 +403,7 @@
 
      :number            transform-number
      :octet             transform-octet
-     :identifier        transform-identifier
+     :symbol            transform-symbol
      :string            transform-string
      :inline-hex-escape #(Integer/parseUnsignedInt % 16)
      :character         transform-character

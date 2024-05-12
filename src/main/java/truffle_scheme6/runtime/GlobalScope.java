@@ -9,18 +9,18 @@ import java.util.Map;
 //  nan.0
 //  inf.0
 public final class GlobalScope {
-    private final Map<SIdentifier, Object> vars = new HashMap<>();
+    private final Map<SSymbol, Object> vars = new HashMap<>();
 
     /**
      * @param name name of the variable
      * @param val  value of the variable
      * @return true if the variable is new. false if it is changing the value of an existing variable
      */
-    public boolean setVar(SIdentifier name, Object val) {
+    public boolean setVar(SSymbol name, Object val) {
         return vars.put(name, val) == null;
     }
 
-    public Object getVar(SIdentifier name) {
+    public Object getVar(SSymbol name) {
         return vars.get(name);
     }
 }

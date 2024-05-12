@@ -2,9 +2,6 @@ package truffle_scheme6.nodes.special;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import truffle_scheme6.SchemeNode;
-import truffle_scheme6.runtime.SIdentifier;
-import truffle_scheme6.runtime.SNil;
-import truffle_scheme6.runtime.SPair;
 
 public class SQuoteNode extends SSpecialNode {
     @Child private SchemeNode child;

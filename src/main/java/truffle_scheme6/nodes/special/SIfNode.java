@@ -4,9 +4,6 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.profiles.ConditionProfile;
 import truffle_scheme6.Constants;
 import truffle_scheme6.SchemeNode;
-import truffle_scheme6.runtime.SIdentifier;
-import truffle_scheme6.runtime.SNil;
-import truffle_scheme6.runtime.SPair;
 
 public class SIfNode extends SSpecialNode {
     @Child private SchemeNode conditionNode;
