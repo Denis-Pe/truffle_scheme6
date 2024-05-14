@@ -5,15 +5,12 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
 import truffle_scheme6.Constants;
 import truffle_scheme6.SchemeNode;
-import truffle_scheme6.utils.StringFormatting;
 
-import java.util.Arrays;
-
-public class SchemeRoot extends RootNode {
+public class SLambdaRoot extends RootNode {
     @Children
     private final SchemeNode[] nodes;
 
-    public SchemeRoot(TruffleLanguage<?> language, SchemeNode... nodes) {
+    public SLambdaRoot(TruffleLanguage<?> language, SchemeNode... nodes) {
         super(language);
         this.nodes = nodes;
     }
@@ -22,15 +19,10 @@ public class SchemeRoot extends RootNode {
     public Object execute(VirtualFrame frame) {
         Object res = Constants.UNSPECIFIED;
 
-        for (var node : nodes) {
-            res = node.execute(frame);
+        for (var n : nodes) {
+            res = n.execute(frame);
         }
 
         return res;
-    }
-
-    @Override
-    public String toString() {
-        return StringFormatting.separatedBy("\n", nodes);
     }
 }

@@ -1,8 +1,11 @@
 package truffle_scheme6.nodes.composites;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import truffle_scheme6.SchemeNode;
 import truffle_scheme6.nodes.atoms.SNilLiteralNode;
+import truffle_scheme6.nodes.functions.SFuncDispatchNode;
+import truffle_scheme6.nodes.functions.SFuncDispatchNodeGen;
 import truffle_scheme6.runtime.SNil;
 import truffle_scheme6.runtime.SPair;
 
@@ -14,21 +17,35 @@ public class SListNode extends SchemeNode {
     private SchemeNode form;
     @Children
     private SchemeNode[] args; // always nil-terminated if not quoted
+    @Child
+    private SFuncDispatchNode dispatchNode;
 
     public SListNode(SchemeNode form, SchemeNode[] args) {
         this.form = form;
 
+        // remember that we are dealing with explicit nils
         if (args.length == 0) {
             throw new RuntimeException("Attempted to build list with empty args. This is not possible");
         }
 
         this.args = args;
+        this.dispatchNode = SFuncDispatchNodeGen.create();
     }
 
     @Override
+    @ExplodeLoop
     public Object execute(VirtualFrame frame) {
-        // todo
-        return null;
+        Object eForm = form.execute(frame);
+
+        int length = args.length - 1; // skip the nil
+
+        Object[] eArgs = new Object[length];
+
+        for (int i = 0; i < length; i++) {
+            eArgs[i] = args[i].execute(frame);
+        }
+
+        return dispatchNode.execute(eForm, eArgs);
     }
 
     @Override
