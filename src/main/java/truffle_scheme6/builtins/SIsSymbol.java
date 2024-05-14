@@ -3,15 +3,14 @@ package truffle_scheme6.builtins;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import truffle_scheme6.nodes.functions.SReadSetArgsNode;
+import truffle_scheme6.nodes.functions.SReadArgNode;
 import truffle_scheme6.runtime.SSymbol;
 
 @NodeInfo(shortName = "symbol?")
-@NodeChild(value = "arg", type = SReadSetArgsNode.class)
+@NodeChild(value = "arg", type = SReadArgNode.class)
 public abstract class SIsSymbol extends SBuiltin {
     @Specialization
-    public boolean isSymbol(Object[] args) {
-        var arg = args[0];
+    public boolean isSymbol(Object arg) {
         return arg instanceof SSymbol;
     }
 }
