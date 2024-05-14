@@ -23,4 +23,9 @@ public class SDefineVarNode extends SSpecialNode {
                 expr == null ? Constants.UNSPECIFIED : expr.execute(frame));
         return Constants.UNSPECIFIED;
     }
+
+    @Override
+    public String toString() {
+        return "(define %s %s)".formatted(symbol, expr);
+    }
 }
