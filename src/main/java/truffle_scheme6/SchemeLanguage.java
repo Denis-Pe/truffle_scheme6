@@ -3,7 +3,7 @@ package truffle_scheme6;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.TruffleLanguage;
 import truffle_scheme6.builtins.SIsSymbolNodeGen;
-import truffle_scheme6.nodes.functions.SReadArgNode;
+import truffle_scheme6.nodes.functions.SReadArgSlotNode;
 import truffle_scheme6.nodes.roots.SLambdaRoot;
 import truffle_scheme6.runtime.SLambda;
 import truffle_scheme6.runtime.SSymbol;
@@ -20,7 +20,7 @@ public final class SchemeLanguage extends TruffleLanguage<SchemeLanguageContext>
     protected SchemeLanguageContext createContext(Env env) {
         var ctx = new SchemeLanguageContext();
 
-        var isSymbol = new SLambdaRoot(this, SIsSymbolNodeGen.create(new SReadArgNode(0)));
+        var isSymbol = new SLambdaRoot(this, SIsSymbolNodeGen.create(new SReadArgSlotNode(0)));
         ctx.globalScope.setVar(SSymbol.get("symbol?"), new SLambda(isSymbol.getCallTarget()));
 
         return ctx;
