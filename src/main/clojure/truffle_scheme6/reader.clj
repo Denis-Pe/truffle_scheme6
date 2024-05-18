@@ -259,19 +259,20 @@
 
     [(spec :guard (tagged? :list))
      & [body-first & body-rest]]
-    (let [spec (rest spec)]
+    (let [spec (rest spec)
+          body (reduce conj [:s-define-proc-body body-first] body-rest)]
       (match (vec spec)
         [(var-name :guard (tagged? :symbol)) "." (varargs-name :guard (tagged? :symbol))]
         [:s-define-proc
          [:s-define-name var-name]
          [:s-formals [:s-formal-varargs varargs-name 0]]
-         (reduce conj [:s-define-proc-body body-first] body-rest)]
+         body]
 
         [(var-name :guard (tagged? :symbol)) (formals :guard (tagged? :list))]
         [:s-define-proc
          [:s-define-name var-name]
          (formalize-list formals)
-         (reduce conj [:s-define-proc-body body-first] body-rest)]
+         body]
 
         :else (throw (Exception. (str "Wrong syntax: " "Malformed define form")))))
 
