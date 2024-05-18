@@ -230,6 +230,20 @@
     (fn [k] (keyword (apply str (drop (count prefix) (name k)))))
     tree))
 
+(defn formalize-list
+  [formals]
+  (let [clean-formals (remove #{"."} (rest formals))
+        build-slots (fn [args] (reduce #(conj %1 [:s-formal-slot %2]) [:s-formals] args))]
+    (cond
+      (and (tagged? :list formals) (some #{"."} formals))
+      (-> (build-slots (butlast clean-formals))
+          (conj [:s-formal-varargs (last clean-formals) (dec (count clean-formals))]))
+
+      (tagged? :list formals)
+      (build-slots clean-formals)
+
+      :else (throw (Exception. (str "Malformed formals list: " formals))))))
+
 (defmulti tag-special-list
   (fn [& args]
     (let [[f & _r :as args] args]
@@ -243,9 +257,23 @@
     [(var-name :guard (tagged? :symbol)) value]
     [:s-define-var [:s-define-name var-name] [:s-define-value value]]
 
-    [(_ :guard (tagged? :list))
-     [_body-first & _body-rest]]
-    (throw (UnsupportedOperationException. "Define procedure not implemented yet"))
+    [(spec :guard (tagged? :list))
+     & [body-first & body-rest]]
+    (let [spec (rest spec)]
+      (match (vec spec)
+        [(var-name :guard (tagged? :symbol)) "." (varargs-name :guard (tagged? :symbol))]
+        [:s-define-proc
+         [:s-define-name var-name]
+         [:s-formals [:s-formal-varargs varargs-name 0]]
+         (reduce conj [:s-define-proc-body body-first] body-rest)]
+
+        [(var-name :guard (tagged? :symbol)) (formals :guard (tagged? :list))]
+        [:s-define-proc
+         [:s-define-name var-name]
+         (formalize-list formals)
+         (reduce conj [:s-define-proc-body body-first] body-rest)]
+
+        :else (throw (Exception. (str "Wrong syntax: " "Malformed define form")))))
 
     :else (throw (Exception. (str "Wrong syntax: " "Malformed define form")))))
 
@@ -257,18 +285,12 @@
     (cond
       (tagged? :symbol formals)
       [:s-lambda
-       [:s-lambda-formals [:s-lambda-var-args formals]]
-       body-node]
-
-      (and (tagged? :list formals) (some #{"."} formals))
-      [:s-lambda
-       (-> (reduce #(conj %1 [:s-lambda-slot %2]) [:s-lambda-formals] (rest (remove #{"."} formals)))
-           (conj [:s-lambda-var-args (last formals)]))
+       [:s-formals [:s-formal-varargs formals 0]]
        body-node]
 
       (tagged? :list formals)
       [:s-lambda
-       (reduce #(conj %1 [:s-lambda-slot %2]) [:s-lambda-formals] (rest formals))
+       (formalize-list formals)
        body-node]
 
       :else (throw (Exception. (str "Wrong syntax: " "Malformed lambda form"))))))

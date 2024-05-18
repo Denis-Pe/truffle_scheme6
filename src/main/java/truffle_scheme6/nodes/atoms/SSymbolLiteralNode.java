@@ -81,7 +81,9 @@ public final class SSymbolLiteralNode extends SchemeNode {
     public SSymbolLiteralNode(int[] codepoints, ReadVarDispatch varDispatch) {
         this.symbol = SSymbol.get(codepoints);
         this.varDispatch = varDispatch;
-        this.varDispatch.parent = this;
+        if (varDispatch != null) {
+            this.varDispatch.parent = this;
+        }
     }
 
     public SSymbolLiteralNode(IntStream codepoints, ReadVarDispatch varDispatch) {
