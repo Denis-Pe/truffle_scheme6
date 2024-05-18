@@ -76,7 +76,7 @@ public final class SSymbolLiteralNode extends SchemeNode {
     }
 
     private final SSymbol symbol;
-    private final ReadVarDispatch varDispatch;
+    private ReadVarDispatch varDispatch;
 
     public SSymbolLiteralNode(int[] codepoints, ReadVarDispatch varDispatch) {
         this.symbol = SSymbol.get(codepoints);
@@ -94,7 +94,11 @@ public final class SSymbolLiteralNode extends SchemeNode {
 
     @Override
     public Object execute(VirtualFrame frame) {
-        return varDispatch.execute(frame);
+        if (this.varDispatch != null) {
+            return varDispatch.execute(frame);
+        } else {
+            throw new RuntimeException("Symbol " + this + " is not bound");
+        }
     }
 
     @Override
@@ -102,8 +106,16 @@ public final class SSymbolLiteralNode extends SchemeNode {
         return symbol;
     }
 
-    public SSymbol getValue() {
+    public SSymbol getSymbol() {
         return symbol;
+    }
+
+    public void setVarDispatch(ReadVarDispatch varDispatch) {
+        this.varDispatch = varDispatch;
+    }
+
+    public ReadVarDispatch getVarDispatch() {
+        return varDispatch;
     }
 
     @Override

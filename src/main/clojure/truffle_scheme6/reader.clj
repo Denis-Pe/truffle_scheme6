@@ -166,6 +166,7 @@
                      "\\\"" 0x0022})
 
 (def define-tag "define-")
+(def lambda-tag "lambda-")
 
 (declare produce-nodes)
 
@@ -175,11 +176,15 @@
 
 (defn symnode->string
   [symbol-node]
-  (-> symbol-node (.getValue) (.getValue) (.toJavaStringUncached)))
+  (-> symbol-node (.getSymbol) (.getValue) (.toJavaStringUncached)))
 
-(defn idnode?
+(defn symnode?
   [node]
   (instance? SSymbolLiteralNode node))
+
+(defn tagged?
+  ([tag node] (and (sequential? node) (= tag (first node))))
+  ([tag] #(tagged? tag %)))
 
 (defn- symbol-vec
   [s]
@@ -225,32 +230,78 @@
     (fn [k] (keyword (apply str (drop (count prefix) (name k)))))
     tree))
 
-;; for special forms that require extra special treatment
-;;  for example, define allows dots in its inner lists, something that is normally not allowed.
-;;  I therefore have to tag nodes inside a define node and re-evaluate them in transform-list's
 (defmulti tag-special-list
   (fn [& args]
     (let [[f & _r :as args] args]
       f)))
 
-(defmethod tag-special-list (symbol-vec "define") [define-ident & args]
-  (reduce conj
-          [:list define-ident]
-          (prefix-nodes define-tag args)))
+(defmethod tag-special-list (symbol-vec "define") [_define-sym & args]
+  (match (vec args)
+    [(var-name :guard (tagged? :symbol))]
+    [:s-define-var [:s-define-name var-name] [:s-define-value nil]]
+
+    [(var-name :guard (tagged? :symbol)) value]
+    [:s-define-var [:s-define-name var-name] [:s-define-value value]]
+
+    [(_ :guard (tagged? :list))
+     [_body-first & _body-rest]]
+    (throw (UnsupportedOperationException. "Define procedure not implemented yet"))
+
+    :else (throw (Exception. (str "Wrong syntax: " "Malformed define form")))))
+
+(defmethod tag-special-list (symbol-vec "lambda") [_lambda-sym & args]
+  (when (<= (count args) 1)
+    (throw (throw (Exception. (str "Wrong syntax: " "Malformed define form")))))
+  (let [[formals & body :as args] args
+        body-node (reduce conj [:s-lambda-body] body)]
+    (cond
+      (tagged? :symbol formals)
+      [:s-lambda
+       [:s-lambda-formals [:s-lambda-var-args formals]]
+       body-node]
+
+      (and (tagged? :list formals) (some #{"."} formals))
+      [:s-lambda
+       (-> (reduce #(conj %1 [:s-lambda-slot %2]) [:s-lambda-formals] (rest (remove #{"."} formals)))
+           (conj [:s-lambda-var-args (last formals)]))
+       body-node]
+
+      (tagged? :list formals)
+      [:s-lambda
+       (reduce #(conj %1 [:s-lambda-slot %2]) [:s-lambda-formals] (rest formals))
+       body-node]
+
+      :else (throw (Exception. (str "Wrong syntax: " "Malformed lambda form"))))))
+
+(defmethod tag-special-list (symbol-vec "if") [_if-sym & args]
+  (let [[condition then else] args]
+    (condp = (count args)
+      0 (throw (IllegalArgumentException. "Not enough args given to if"))
+      1 (throw (IllegalArgumentException. "Not enough args given to if"))
+      2 [:s-if [:s-if-condition condition] [:s-if-then then] [:s-if-else nil]]
+      3 [:s-if [:s-if-condition condition] [:s-if-then then] [:s-if-else else]]
+      (throw (IllegalArgumentException. "Too many args given to if")))))
+
+(defmethod tag-special-list (symbol-vec "begin") [_begin-sym & args]
+  (prn _begin-sym args)
+  (when (empty? args)
+    (throw (IllegalArgumentException. "Can't create begin form with no body")))
+  (reduce conj [:s-begin] args))
 
 (defmethod tag-special-list :default [& args]
   (reduce conj [:list] args))
 
 (defn transform-symbol
   [& args]
-  (->> args
-       (map (fn [str|cpoint]
-              (if (string? str|cpoint)
-                (vec (.toList (.boxed (.codePoints str|cpoint))))
-                [str|cpoint])))
-       (flatten)
-       (int-array)
-       (SSymbolLiteralNode.)))
+  (SSymbolLiteralNode. (->> args
+                            (map (fn [str|cpoint]
+                                   (if (string? str|cpoint)
+                                     (vec (.toList (.boxed (.codePoints str|cpoint))))
+                                     [str|cpoint])))
+                            (flatten)
+                            (int-array))
+                       ; var dispatch is initialized by the forms that initialize those contexts
+                       nil))
 
 (defn transform-string
   [& args]
@@ -278,52 +329,8 @@
     (= 1 (count (second args)))
     (SCharacterLiteralNode. ^char (.charAt (second args) 0))))
 
-(defmulti transform-list
-  (fn [& args]
-    (let [[f & _r :as args] args]
-      (cond
-        (empty? args) (throw (Exception. "Wrong syntax: unquoted nil"))
-        (some #{"."} args) (throw (Exception. (str "Wrong syntax:" args)))
-        (idnode? f) (symnode->string f)
-        :else :default))))
-
-(defmethod transform-list "define" [_define-sym & args]
-  (let [args (unprefix-nodes define-tag args)
-        node? (fn node?
-                ([tag node] (and (sequential? node) (= tag (first node))))
-                ([tag] #(node? tag %)))]
-    (match (vec args)
-      [(_ :guard (node? :symbol))]
-      (let [[var-name] (produce-nodes args)]
-        (SDefineVarNode. var-name nil))
-
-
-      [(_ :guard (node? :symbol))
-       _]
-      (let [[var-name expr] (produce-nodes args)]
-        (SDefineVarNode. var-name expr))
-
-      [(_ :guard (node? :list))
-       [_body-first & _body-rest]]
-      (throw (UnsupportedOperationException. "Define procedure not implemented yet"))
-
-      :else (throw (Exception. (str "Wrong syntax: " "Malformed define form"))))))
-
-(defmethod transform-list "if" [_if-sym & args]
-  (let [[condition then else] args]
-    (condp = (count args)
-      0 (throw (IllegalArgumentException. "Not enough args given to if"))
-      1 (throw (IllegalArgumentException. "Not enough args given to if"))
-      2 (SIfNode. condition then nil)
-      3 (SIfNode. condition then else)
-      (throw (IllegalArgumentException. "Too many args given to if")))))
-
-(defmethod transform-list "begin" [_begin-sym & args]
-  (when (empty args)
-    (throw (IllegalArgumentException. "Can't create begin form with no body")))
-  (SBeginNode. (node-array args)))
-
-(defmethod transform-list :default [& args]
+(defn transform-list
+  [args]
   (let [[form & args] args]
     (SListNode. form
                 (node-array (concat args [(SNilLiteralNode.)])))))
@@ -355,6 +362,20 @@
     (if (and (>= n 0) (<= n 255))
       (SOctetLiteralNode. (unchecked-byte n))
       (throw (Exception. "Octet given was not valid. Has to be an unsigned 8-bit integer")))))
+
+(defn transform-define-var-form
+  [args]
+  (let [[[_ name] [_ value]] args]
+    (SDefineVarNode. name value)))
+
+(defn transform-if-form
+  [args]
+  (let [[[_ condition] [_ then] [_ else]] args]
+    (SIfNode. condition then else)))
+
+(defn transform-begin-form
+  [args]
+  (SBeginNode. (node-array args)))
 
 (defn parse
   [^CharSequence source & {:keys [starting-at]}]
@@ -400,6 +421,10 @@
 
      :quote             transform-quote
      :quoted-list       transform-quoted-list
+
+     :s-define-var      transform-define-var-form
+     :s-if              transform-if-form
+     :s-begin           transform-begin-form
 
      :number            transform-number
      :octet             transform-octet
