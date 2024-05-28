@@ -13,7 +13,7 @@
 ;;; COMMENTS
 
 (deftest r6rs-comment-success
-  (is (= (parse "#!r6rs") '("#!r6rs"))))
+  (is (= '("#!r6rs") (parse "#!r6rs"))))
 
 (deftest line-comment-success
   (are [src parse-result] (= (parse src) parse-result)
@@ -107,16 +107,69 @@
     "-0011"))
 
 (deftest number-prefixes
-  (is (= (parse "#b#i" :starting-at :prefix2) [:prefix2 [:radix2 "#b"] [:exactness "#i"]]))
-  (is (= (parse "#b" :starting-at :prefix2) [:prefix2 [:exactness] [:radix2 "#b"]]))
-  (is (= (parse "#E" :starting-at :prefix10) [:prefix10 [:exactness "#E"] [:radix10]]))
-  (is (= (parse "#E#d" :starting-at :prefix10) [:prefix10 [:exactness "#E"] [:radix10 "#d"]])))
+  (is (= [:prefix2 [:radix2 "#b"] [:exactness "#i"]] (parse "#b#i" :starting-at :prefix2)))
+  (is (= [:prefix2 [:exactness] [:radix2 "#b"]] (parse "#b" :starting-at :prefix2)))
+  (is (= [:prefix10 [:exactness "#E"] [:radix10]] (parse "#E" :starting-at :prefix10)))
+  (is (= [:prefix10 [:exactness "#E"] [:radix10 "#d"]] (parse "#E#d" :starting-at :prefix10))))
 
 (deftest number-suffixes
-  (is (= (parse "" :starting-at :suffix) [:suffix]))
+  (is (= [:suffix] (parse "" :starting-at :suffix)))
   (let [src "d+16"]
-    (is (= (parse src :starting-at :suffix) [:suffix [:exponent-marker "d"] [:sign "+"] "1" "6"])))
+    (is (= [:suffix [:exponent-marker "d"] [:sign "+"] "1" "6"] (parse src :starting-at :suffix))))
   (is (failure? (parse "L" :starting-at :suffix))))
+
+(deftest decimal10
+  (let [parse #(parse % :starting-at :decimal10)]
+    (is (= [:decimal10 [:uinteger10 "0"] [:suffix]]
+           (parse "0")))
+    (is (= [:decimal10 "2" "." "0" [:suffix [:exponent-marker "d"] [:sign "+"] "1" "0"]]
+           (parse "2.0d+10")))
+    (is (= [:decimal10 "." "1" "2" "3" "4" [:suffix]]
+           (parse ".1234")))
+    (is (= [:decimal10 "1" "2" "3" "4" "." [:suffix [:exponent-marker "L"] [:sign "-"] "1" "1" "1" "1"]]
+           (parse "1234.L-1111")))))
+
+(deftest ureal2-8-16
+  (let [parse2 #(parse % :starting-at :ureal2)
+        parse8 #(parse % :starting-at :ureal8)
+        parse16 #(parse % :starting-at :ureal16)]
+    (are [src] (= [:ureal2 (reduce conj [:uinteger2] (map str src))] (parse2 src))
+      "0"
+      "111")
+    (are [src] (= [:ureal8 (reduce conj [:uinteger8] (map str src))] (parse8 src))
+      "0"
+      "01234567")
+    (are [src] (= [:ureal16 (reduce conj [:uinteger16] (map str src))] (parse16 src))
+      "0"
+      "0123456789abcdefABCDEF")
+    (is (= [:ureal2 [:uinteger2 "0"] "/" [:uinteger2 "1"]] (parse2 "0/1")))
+    (is (= [:ureal8 [:uinteger8 "1" "2" "3"] "/" [:uinteger8 "0"]] (parse8 "123/0")))
+    (is (= [:ureal16 [:uinteger16 "a"] "/" [:uinteger16 "1" "0" "b"]] (parse16 "a/10b")))
+    (is (failure? (parse2 "1/")))
+    (is (failure? (parse8 "5/")))
+    (is (failure? (parse16 "d/")))
+    (is (failure? (parse2 "/1")))
+    (is (failure? (parse8 "/7")))
+    (is (failure? (parse16 "/f")))))
+
+(deftest ureal10
+  (let [parse #(parse % :starting-at :ureal10)]
+    (are [src] (= [:ureal10 (reduce conj [:uinteger10] (map str src))]
+                  (parse src))
+      "0"
+      "1234567890")
+    (is (= [:ureal10 [:uinteger10 "1"] "/" [:uinteger10 "9"]]
+           (parse "1/9")))
+    (is (failure? (parse "9/")))
+    (is (failure? (parse "/9")))
+    (is (= [:ureal10 [:decimal10 "2" "." [:suffix [:exponent-marker "s"] [:sign "+"] "1" "6"]] [:mantissa-width "|" "1" "2" "8"]]
+           (parse "2.s+16|128")))
+    (is (= [:ureal10 [:decimal10 "1" "." "5" [:suffix]] [:mantissa-width]]
+           (parse "1.5")))))
+
+(deftest ureals
+  (ureal2-8-16)
+  (ureal10))
 
 (deftest numbers
   (uinteger2)
@@ -124,7 +177,9 @@
   (uinteger10)
   (uinteger16)
   (number-prefixes)
-  (number-suffixes))
+  (number-suffixes)
+  (decimal10)
+  (ureals))
 
 (defn test-ns-hook []
   (comment-successes)
