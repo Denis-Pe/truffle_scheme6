@@ -171,6 +171,24 @@
   (ureal2-8-16)
   (ureal10))
 
+(deftest naninf
+  ; nan & inf
+  (let [parse #(parse % :starting-at :real10)]
+    (are [naninf-str] (= (parse naninf-str)
+                         [:real10 (str (first naninf-str)) [:naninf  (apply str (rest naninf-str))]])
+      "+nan.0"
+      "-nan.0"
+      "+inf.0"
+      "-inf.0")
+    (are [naninf-failure] (failure? (parse naninf-failure))
+      "nan.0"
+      "inf.0"
+      "nan"
+      "inf")))
+
+(deftest top-level-numbers
+  ())
+
 (deftest numbers
   (uinteger2)
   (uinteger8)
@@ -179,7 +197,9 @@
   (number-prefixes)
   (number-suffixes)
   (decimal10)
-  (ureals))
+  (ureals)
+  (naninf)
+  (top-level-numbers))
 
 (defn test-ns-hook []
   (comment-successes)
