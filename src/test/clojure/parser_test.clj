@@ -289,8 +289,35 @@
 
     (is (failure? (parse "#\\")))))
 
+(deftest strings
+  (let [parse #(parse % :starting-at :string)]
+    (is (failure? (parse "\"")))
+
+    (is (= (parse "\"\"")
+           [:string]))
+
+    (is (= (parse "\"abcdefg\"")
+           [:string "a" "b" "c" "d" "e" "f" "g"]))
+
+    (is (= (parse "\"abc\\a\\b\\t\\n\\v\\f\\r\\\"\\\\\"")
+           [:string "a" "b" "c" "\\a" "\\b" "\\t" "\\n" "\\v" "\\f" "\\r" "\\\"" "\\\\"]))
+
+    (is (= (parse "\"úüñíçödé\"")
+           [:string "ú" "ü" "ñ" "í" "ç" "ö" "d" "é"]))
+
+    (is (= (parse "\"a\\    \n    b\"")
+           [:string "a" "b"]))
+
+    (is (= (parse "\":smiley:\\x1F600;\"")
+           [:string ":" "s" "m" "i" "l" "e" "y" ":" [:inline-hex-escape "1F600"]]))
+
+    (is (failure? (parse "\"no end")))
+    (is (failure? (parse "\"no end but nested quote \\\" ")))
+    (is (failure? (parse "\"\\x63\"")))))
+
 (defn test-ns-hook []
   (comment-successes)
   (comment-failures)
   (numbers)
-  (characters))
+  (characters)
+  (strings))
