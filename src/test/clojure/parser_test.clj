@@ -258,7 +258,39 @@
   (naninf)
   (top-level-numbers))
 
+(deftest characters
+  (let [parse #(parse % :starting-at :character)]
+    (is (= (parse "#\\a")
+           [:character "#\\" "a"]))
+
+    (is (= (parse "#\\x")
+           [:character "#\\" "x"]))
+
+    (are [character-name] (= (parse character-name)
+                             [:character "#\\" [:character-name (apply str (drop 2 character-name))]])
+      "#\\nul"
+      "#\\alarm"
+      "#\\backspace"
+      "#\\tab"
+      "#\\linefeed"
+      "#\\newline"
+      "#\\vtab"
+      "#\\page"
+      "#\\return"
+      "#\\esc"
+      "#\\space"
+      "#\\delete")
+
+    (are [character-code] (= (parse character-code)
+                             [:character "#\\x" (apply str (drop 3 character-code))])
+      "#\\x1"
+      "#\\x1F603"
+      "#\\x0")
+
+    (is (failure? (parse "#\\")))))
+
 (defn test-ns-hook []
   (comment-successes)
   (comment-failures)
-  (numbers))
+  (numbers)
+  (characters))
