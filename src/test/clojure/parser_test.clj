@@ -175,7 +175,7 @@
   ; nan & inf
   (let [parse #(parse % :starting-at :real10)]
     (are [naninf-str] (= (parse naninf-str)
-                         [:real10 (str (first naninf-str)) [:naninf  (apply str (rest naninf-str))]])
+                         [:real10 (str (first naninf-str)) [:naninf (apply str (rest naninf-str))]])
       "+nan.0"
       "-nan.0"
       "+inf.0"
@@ -187,7 +187,64 @@
       "inf")))
 
 (deftest top-level-numbers
-  ())
+  (let [parse #(parse % :starting-at :number)]
+    (is (= (parse "#b-1101")
+           [:number
+            [:prefix2 [:exactness] [:radix2 "#b"]]
+            [:complex2 [:real2 [:sign "-"] [:ureal2 [:uinteger2 "1" "1" "0" "1"]]]]]))
+
+    (is (= (parse "#e-1.5@.99d10|100")
+           [:number
+            [:prefix10 [:exactness "#e"] [:radix10]]
+            [:complex10
+             [:real10 [:sign "-"] [:ureal10 [:decimal10 "1" "." "5" [:suffix]] [:mantissa-width]]]
+             "@"
+             [:real10
+              [:sign]
+              [:ureal10
+               [:decimal10 "." "9" "9" [:suffix [:exponent-marker "d"] [:sign] "1" "0"]]
+               [:mantissa-width "|" "1" "0" "0"]]]]]))
+
+    (is (= (parse "1/5+1i")
+           [:number
+            [:prefix10 [:exactness] [:radix10]]
+            [:complex10
+             [:real10 [:sign] [:ureal10 [:uinteger10 "1"] "/" [:uinteger10 "5"]]]
+             "+"
+             [:ureal10 [:uinteger10 "1"]]
+             "i"]]))
+
+    (is (= (parse "1-inf.0i")
+           [:number
+            [:prefix10 [:exactness] [:radix10]]
+            [:complex10
+             [:real10 [:sign] [:ureal10 [:uinteger10 "1"]]]
+             "-"
+             [:naninf "inf.0"]
+             "i"]]))
+
+    (is (= (parse "-9.999i")
+           [:number
+            [:prefix10 [:exactness] [:radix10]]
+            [:complex10
+             "-"
+             [:ureal10 [:decimal10 "9" "." "9" "9" "9" [:suffix]] [:mantissa-width]]
+             "i"]]))
+
+    (is (= (parse "+nan.0i")
+           [:number
+            [:prefix10 [:exactness] [:radix10]]
+            [:complex10
+             "+"
+             [:naninf "nan.0"]
+             "i"]]))
+
+    (is (= (parse "-i")
+           [:number
+            [:prefix10 [:exactness] [:radix10]]
+            [:complex10
+             "-"
+             "i"]]))))
 
 (deftest numbers
   (uinteger2)
