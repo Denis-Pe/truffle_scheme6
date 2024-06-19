@@ -315,9 +315,94 @@
     (is (failure? (parse "\"no end but nested quote \\\" ")))
     (is (failure? (parse "\"\\x63\"")))))
 
+(deftest symbols
+  (let [parse #(parse % :starting-at :symbol)]
+    (are [peculiar-symbol] (= (parse peculiar-symbol)
+                              [:symbol peculiar-symbol])
+      "+"
+      "-"
+      "..."
+      "->")
+
+    (is (= (parse "->arrow") [:symbol "->" "a" "r" "r" "o" "w"]))
+    (are [wrong-symbol] (failure? (parse wrong-symbol))
+      "+no"
+      "-no"
+      "...mega-no")
+
+    (is (= (parse "mutates!")
+           [:symbol "m" "u" "t" "a" "t" "e" "s" "!"]))))
+
+(deftest bools
+  (let [parse #(parse % :starting-at :bool)]
+    (are [t] (= (parse t)
+                '([:true]))
+      "#T"
+      "#t")
+    (are [f] (= (parse f)
+                '([:false]))
+      "#F"
+      "#f")))
+
+(deftest lists
+  (let [parse #(parse % :starting-at :list)]
+    (is (= (parse "()")
+           [:list]))
+    (is (= (parse "[]")
+           [:list]))
+
+    (is (= (parse "( () () () )")
+           [:list [:list] [:list] [:list]]))
+
+    (is (= (parse "(() () . () )")
+           [:list [:list] [:list] "." [:list]]))
+
+    (is (failure? (parse "(")))
+    (is (failure? (parse ")")))
+
+    (is (failure? (parse "( ( ( () ()) ) ")))
+    (is (failure? (parse "  ( ( () ()) ) )")))
+
+    (is (failure? (parse "( . ())")))
+    (is (failure? (parse "(() . )")))))
+
+(deftest vectors
+  (let [parse #(parse % :starting-at :vector)]
+    (is (= (parse "#()")
+           [:vector]))
+
+    (is (= (parse "#( #() #() #() )")
+          [:vector [:vector] [:vector] [:vector]]))
+
+    (is (failure? (parse ")")))
+    (is (failure? (parse "#(")))))
+
+(deftest bytevectors
+  (let [parse #(parse % :starting-at :bytevector)]
+    (is (= (parse "#vu8()")
+           [:bytevector]))
+
+    (is (= (parse "#vu8(0 255 1000)")
+           [:bytevector
+            [:octet [:radix10] [:uinteger10 "0"]]
+            [:octet [:radix10] [:uinteger10 "2" "5" "5"]]
+            [:octet [:radix10] [:uinteger10 "1" "0" "0" "0"]]]))
+
+    (is (= (parse "#vu8(#b101 0 #d9 #xDEADBEEF)")
+           [:bytevector
+            [:octet [:radix2 "#b"] [:uinteger2 "1" "0" "1"]]
+            [:octet [:radix10] [:uinteger10 "0"]]
+            [:octet [:radix10 "#d"] [:uinteger10 "9"]]
+            [:octet [:radix16 "#x"] [:uinteger16 "D" "E" "A" "D" "B" "E" "E" "F"]]]))))
+
 (defn test-ns-hook []
   (comment-successes)
   (comment-failures)
   (numbers)
   (characters)
-  (strings))
+  (strings)
+  (symbols)
+  (bools)
+  (lists)
+  (vectors)
+  (bytevectors))

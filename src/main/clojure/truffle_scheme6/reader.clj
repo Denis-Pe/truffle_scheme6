@@ -14,7 +14,8 @@
 
 (insta/defparser parser
   "
-  <expressions> = whitespace? (expression (whitespace expression)*)? whitespace?
+  <root-expressions> = whitespace? (expression (whitespace expression)*)? whitespace?
+  <expressions> = whitespace? (expression (whitespace expression)*) whitespace?
   <expression> = comment / reader / composite / atom
 
   (* READER SYNTAX *)
@@ -30,6 +31,7 @@
 
   (* COMPOSITES *)
   <composite> = bytevector / vector / list
+
   bytevector = <'#vu8('> octets? <')'>
   <octets> = whitespace? (octet (whitespace octet)*)? whitespace?
   octet = radix2 uinteger2 | radix8 uinteger8 | radix10 uinteger10 | radix16 uinteger16 (* I'll validate further at the node-producing level *)
@@ -466,3 +468,6 @@
        (tag-quotes)
        (tag-specials)
        (produce-nodes)))
+
+
+
