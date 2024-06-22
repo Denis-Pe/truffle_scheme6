@@ -1,6 +1,7 @@
 (ns truffle-scheme6.reader
   (:require [instaparse.core :as insta]
             [truffle-scheme6.number-transformers :refer [transform-number]]
+            [truffle-scheme6.parser-types :refer :all]
             [clojure.core.match :refer [match]]
             [clojure.zip :as zip])
   (:import (java.util ArrayList List)
@@ -440,25 +441,9 @@
 (defn- produce-nodes
   [ast]
   (insta/transform
-    {:list              transform-list
-     :vector            #(SVectorLiteralNode. (node-array %&))
-     :bytevector        #(SByteVectorLiteralNode. (into-array SOctetLiteralNode %&))
-
-     :quote             transform-quote
-     :quoted-list       transform-quoted-list
-
-     :s-define-var      transform-define-var-form
-     :s-if              transform-if-form
-     :s-begin           transform-begin-form
-
-     :number            transform-number
-     :octet             transform-octet
-     :symbol            transform-symbol
-     :string            transform-string
-     :inline-hex-escape #(Integer/parseUnsignedInt % 16)
-     :character         transform-character
-     :true              (fn [& r] (STrueLiteralNode.))
-     :false             (fn [& r] (SFalseLiteralNode.))}
+    {
+     :true  ->TrueLiteral
+     :false ->FalseLiteral}
     ast))
 
 (defn read-scheme
