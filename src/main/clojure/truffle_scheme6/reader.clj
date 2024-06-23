@@ -1,16 +1,12 @@
 (ns truffle-scheme6.reader
-  (:require [instaparse.core :as insta]
-            [truffle-scheme6.number-transformers :refer [transform-number]]
-            [truffle-scheme6.parser-types :refer :all]
-            [clojure.core.match :refer [match]]
-            [clojure.zip :as zip])
-  (:import (java.util ArrayList List)
-           (truffle_scheme6 SchemeNode)
-           (truffle_scheme6.nodes.atoms SSymbolLiteralNode SNilLiteralNode SCharacterLiteralNode SStringLiteralNode)
-           (truffle_scheme6.nodes.atoms.bools SFalseLiteralNode STrueLiteralNode)
+  (:require [clojure.core.match :refer [match]]
+            [clojure.zip :as zip]
+            [instaparse.core :as insta]
+            [truffle-scheme6.parser-types :refer :all])
+  (:import (truffle_scheme6 SchemeNode)
+           (truffle_scheme6.nodes.atoms SCharacterLiteralNode SNilLiteralNode SStringLiteralNode SSymbolLiteralNode)
            (truffle_scheme6.nodes.atoms.numbers SOctetLiteralNode)
-           (truffle_scheme6.nodes.composites SByteVectorLiteralNode SListNode SVectorLiteralNode)
-           (truffle_scheme6.nodes.roots SchemeRoot)
+           (truffle_scheme6.nodes.composites SListNode)
            (truffle_scheme6.nodes.special SBeginNode SDefineVarNode SIfNode SQuoteNode)))
 
 (insta/defparser parser
