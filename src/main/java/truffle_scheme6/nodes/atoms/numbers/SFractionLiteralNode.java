@@ -39,7 +39,7 @@ public class SFractionLiteralNode extends SNumberLiteralNode {
     }
 
     @Override
-    public SNumberLiteralNode pow(int exponent) {
+    public SNumberLiteralNode applyExp(int exponent) {
         throw SNumberLiteralNode.notUsedByParser(this);
     }
 

@@ -23,7 +23,11 @@
                                      [exp-mark exp-val] (if (= suffix [:suffix])
                                                           [nil nil]
                                                           [(second (first suffix-content))
-                                                           (Integer/parseInt (str (second (second suffix-content)) (str/join (drop 2 suffix-content))))])]
+                                                           (Integer/parseInt (str
+                                                                               ; the sign of the exponent
+                                                                               (second (second suffix-content))
+                                                                               ; the digits of the exponent
+                                                                               (str/join (drop 2 suffix-content))))])]
                                  (->DecimalLiteral exact? sign decimal-str exp-mark exp-val (str/join (rest mantissa-width)))))))
 
 (defn transform-complex

@@ -47,7 +47,7 @@ public class SInexactReal32Node extends SNumberLiteralNode {
     }
 
     @Override
-    public SNumberLiteralNode pow(int exponent) {
+    public SNumberLiteralNode applyExp(int exponent) {
         return new SInexactReal32Node((float) Math.pow(value, exponent));
     }
 

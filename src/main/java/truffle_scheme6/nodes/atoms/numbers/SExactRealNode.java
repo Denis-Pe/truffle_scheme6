@@ -3,6 +3,9 @@ package truffle_scheme6.nodes.atoms.numbers;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 import java.math.BigDecimal;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 public class SExactRealNode extends SNumberLiteralNode {
     private final BigDecimal value;
@@ -31,8 +34,24 @@ public class SExactRealNode extends SNumberLiteralNode {
     }
 
     @Override
-    public SNumberLiteralNode pow(int exponent) {
-        return new SExactRealNode(value.pow(exponent));
+    public SNumberLiteralNode applyExp(int exponent) {
+        Function<BigDecimal, BigDecimal> operation = switch ((int) Math.signum(exponent)) {
+            case -1 -> (bd) -> bd.divide(BigDecimal.TEN);
+            case 1 -> (bd) -> bd.multiply(BigDecimal.TEN);
+            default -> throw new IllegalStateException("Unreachable code");
+        };
+
+        if (exponent == 0) {
+            return this;
+        } else {
+            BigDecimal bigValue = value;
+
+            for (int i = 0; i < Math.abs(exponent); i++) {
+                bigValue = operation.apply(bigValue);
+            }
+
+            return new SExactRealNode(bigValue);
+        }
     }
 
     @Override

@@ -8,7 +8,7 @@ public abstract class SNumberLiteralNode extends SchemeNode {
     public abstract SNumberLiteralNode asReal32();
     public abstract SNumberLiteralNode asReal64();
 
-    public abstract SNumberLiteralNode pow(int exponent);
+    public abstract SNumberLiteralNode applyExp(int exponent);
 
     public abstract SNumberLiteralNode asExact();
     public abstract SNumberLiteralNode asInexact();

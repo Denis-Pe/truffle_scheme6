@@ -37,7 +37,7 @@
     (let [val (cond exact? (SExactRealNode. ^BigDecimal (BigDecimal. ^String decimal-str))
                     (some #{"s" "S" "f" "F"} [exp-mark]) (SInexactReal32Node. (Float/parseFloat decimal-str))
                     :else (SInexactReal64Node. (Double/parseDouble decimal-str)))
-          val (if exp-val (.pow val exp-val) val)
+          val (if exp-val (.applyExp val exp-val) val)
           val (if (= sign "-") (.negate val) val)]
       val)))
 
