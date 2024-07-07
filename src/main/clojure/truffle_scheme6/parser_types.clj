@@ -42,3 +42,12 @@
           val (if exp-val (.pow val exp-val) val)
           val (if (= sign "-") (.negate val) val)]
       val)))
+
+(defrecord NanInfLiteral [sign literal]
+  PSchemeNode
+  (to-java [this]
+    (let [num (condp = [sign literal]
+                ["-" "inf.0"] Float/NEGATIVE_INFINITY
+                ["+" "inf.0"] Float/POSITIVE_INFINITY
+                Float/NaN)]
+      (SInexactReal32Node. num))))
