@@ -2,7 +2,8 @@
   (:require [clojure.core.match :refer [match]]
             [clojure.zip :as zip]
             [instaparse.core :as insta]
-            [truffle-scheme6.parser-types :refer :all])
+            [truffle-scheme6.parser-types :refer :all]
+            [truffle-scheme6.number-transformers :refer [transform-number]])
   (:import (truffle_scheme6 SchemeNode)
            (truffle_scheme6.nodes.atoms SCharacterLiteralNode SNilLiteralNode SStringLiteralNode SSymbolLiteralNode)
            (truffle_scheme6.nodes.atoms.numbers SOctetLiteralNode)
@@ -437,7 +438,7 @@
 (defn- produce-nodes
   [ast]
   (insta/transform
-    {
+    {:number transform-number
      :true  ->TrueLiteral
      :false ->FalseLiteral}
     ast))
