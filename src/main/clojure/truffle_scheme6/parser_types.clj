@@ -1,7 +1,7 @@
 (ns truffle-scheme6.parser-types
   (:require [clojure.string :as str])
   (:import (truffle_scheme6.nodes.atoms.bools SFalseLiteralNode STrueLiteralNode)
-           (truffle_scheme6.nodes.atoms.numbers SExactIntegerNode SExactRealNode SFractionLiteralNode SInexactIntegerNode SInexactReal32Node SInexactReal64Node)))
+           (truffle_scheme6.nodes.atoms.numbers SComplexLiteralNode SExactIntegerNode SExactRealNode SFractionLiteralNode SInexactIntegerNode SInexactReal32Node SInexactReal64Node)))
 
 (defprotocol PSchemeNode
   (to-java [this] "Transforms a given node to a Java object"))
@@ -26,12 +26,10 @@
         (.negate val)
         val))))
 
-(defrecord FractionLiteral [exact? radix sign numerator-str denominator-str]
+(defrecord FractionLiteral [numerator-int-literal denominator-int-literal]
   PSchemeNode
   (to-java [this]
-    (let [numerator (->IntegerLiteral exact? radix sign numerator-str)
-          denominator (->IntegerLiteral exact? radix "+" denominator-str)]
-      (SFractionLiteralNode. (to-java numerator) (to-java denominator)))))
+    (SFractionLiteralNode. (to-java numerator-int-literal) (to-java denominator-int-literal))))
 
 (defrecord DecimalLiteral [exact? sign decimal-str exp-mark exp-val mantissa-width] ; mantissa is ignored for now
   PSchemeNode
@@ -51,3 +49,8 @@
                 ["+" "inf.0"] Float/POSITIVE_INFINITY
                 Float/NaN)]
       (SInexactReal32Node. num))))
+
+(defrecord ComplexLiteral [real-literal imaginary-literal]
+  PSchemeNode
+  (to-java [this]
+    (SComplexLiteralNode. (to-java real-literal) (to-java imaginary-literal))))
