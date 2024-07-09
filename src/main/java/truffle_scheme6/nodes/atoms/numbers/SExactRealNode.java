@@ -35,15 +35,15 @@ public class SExactRealNode extends SNumberLiteralNode {
 
     @Override
     public SNumberLiteralNode applyExp(int exponent) {
-        Function<BigDecimal, BigDecimal> operation = switch ((int) Math.signum(exponent)) {
-            case -1 -> (bd) -> bd.divide(BigDecimal.TEN);
-            case 1 -> (bd) -> bd.multiply(BigDecimal.TEN);
-            default -> throw new IllegalStateException("Unreachable code");
-        };
-
         if (exponent == 0) {
             return this;
         } else {
+            Function<BigDecimal, BigDecimal> operation = switch (Math.round(Math.signum(exponent))) {
+                case -1 -> (bd) -> bd.divide(BigDecimal.TEN);
+                case 1 -> (bd) -> bd.multiply(BigDecimal.TEN);
+                default -> throw new IllegalStateException("Unreachable code");
+            };
+
             BigDecimal bigValue = value;
 
             for (int i = 0; i < Math.abs(exponent); i++) {

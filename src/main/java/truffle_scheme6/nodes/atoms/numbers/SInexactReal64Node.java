@@ -2,6 +2,8 @@ package truffle_scheme6.nodes.atoms.numbers;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 
+import java.util.function.Function;
+
 public class SInexactReal64Node extends SNumberLiteralNode {
     private final double value;
 
@@ -48,7 +50,23 @@ public class SInexactReal64Node extends SNumberLiteralNode {
 
     @Override
     public SNumberLiteralNode applyExp(int exponent) {
-        return new SInexactReal64Node(Math.pow(value, exponent));
+        if (exponent == 0) {
+            return this;
+        } else {
+            Function<Double, Double> operation = switch (Math.round(Math.signum(exponent))) {
+                case -1 -> (dob) -> dob / 10.0;
+                case 1 -> (dob) -> dob * 10.0;
+                default -> throw new IllegalStateException("Unreachable code");
+            };
+
+            double doubleValue = value;
+
+            for (int i = 0; i < Math.abs(exponent); i++) {
+                doubleValue = operation.apply(doubleValue);
+            }
+
+            return new SExactRealNode(doubleValue);
+        }
     }
 
     @Override
