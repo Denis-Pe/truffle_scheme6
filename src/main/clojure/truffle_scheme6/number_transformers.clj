@@ -5,9 +5,16 @@
             [instaparse.core :as insta])
   (:import (truffle_scheme6.nodes.atoms.numbers SComplexLiteralNode SExactIntegerNode SFractionLiteralNode SInexactIntegerNode SInexactReal64Node)))
 
+(defn transform-ureal
+  ([exact? radix ureal-node]
+   (transform-ureal exact? radix "+" ureal-node))
+  ([exact? radix sign ureal-node]
+   (let [uint-str (str/join (rest (second ureal-node)))]
+     (->IntegerLiteral exact? radix sign uint-str))))
+
 (defn transform-real
   [exact? radix real-node]
-  (let [real-node (rest real-node) ; skip tag
+  (let [real-node (rest real-node)                          ; skip tag
         sign (first real-node)
         value (vec (rest (second real-node)))]
     ; in naninf, the sign is kind of hardcoded whereas in the rest we have the dedicated sign node
@@ -33,15 +40,54 @@
 (defn transform-complex
   [exact? radix & args]
   (match (vec args)
-    [real] (transform-real exact? radix real)))
+    [real] (transform-real exact? radix real)
+    [real "@" real-imaginary] (->ComplexLiteral
+                                (transform-real exact? radix real)
+                                (transform-real exact? radix real-imaginary))
+    [real "+" [:naninf naninf-lit] "i"] (->ComplexLiteral
+                                          (transform-real exact? radix real)
+                                          (->NanInfLiteral "+" naninf-lit))
+    [real "-" [:naninf naninf-lit] "i"] (->ComplexLiteral
+                                          (transform-real exact? radix real)
+                                          (->NanInfLiteral "-" naninf-lit))
+    [real "+" ureal-imaginary "i"] (->ComplexLiteral
+                                     (transform-real exact? radix real)
+                                     (transform-ureal exact? radix ureal-imaginary))
+    [real "-" ureal-imaginary "i"] (->ComplexLiteral
+                                     (transform-real exact? radix real)
+                                     (transform-ureal exact? radix "-" ureal-imaginary))
+    [real "+" "i"] (->ComplexLiteral
+                     (transform-real exact? radix real)
+                     (->IntegerLiteral exact? radix "+" "1"))
+    [real "-" "i"] (->ComplexLiteral
+                     (transform-real exact? radix real)
+                     (->IntegerLiteral exact? radix "-" "1"))
+    ["+" [:naninf naninf-lit] "i"] (->ComplexLiteral
+                                     (->IntegerLiteral exact? radix "+" 0)
+                                     (->NanInfLiteral "+" naninf-lit))
+    ["-" [:naninf naninf-lit] "i"] (->ComplexLiteral
+                                     (->IntegerLiteral exact? radix "+" 0)
+                                     (->NanInfLiteral "-" naninf-lit))
+    ["+" ureal-imag "i"] (->ComplexLiteral
+                           (->IntegerLiteral exact? radix "+" "0")
+                           (transform-ureal exact? radix ureal-imag))
+    ["-" ureal-imag "i"] (->ComplexLiteral
+                           (->IntegerLiteral exact? radix "+" "0")
+                           (transform-ureal exact? radix "-" ureal-imag))
+    ["+" "i"] (->ComplexLiteral
+                (->IntegerLiteral exact? radix "+" "0")
+                (->IntegerLiteral exact? radix "+" "1"))
+    ["-" "i"] (->ComplexLiteral
+                (->IntegerLiteral exact? radix "+" "0")
+                (->IntegerLiteral exact? radix "-" "1"))))
 
 (defn transform-number
   [prefix content]
-  (let [prefix (rest prefix) ; skip tag
+  (let [prefix (rest prefix)                                ; skip tag
         exactness (if (= (ffirst prefix) :exactness) (second (first prefix)) (second (second prefix)))
         exact? (and (some? exactness) (= (str/lower-case exactness) "#e"))
-        transformed (insta/transform {:complex2 (partial transform-complex exact? 2)
-                                      :complex8 (partial transform-complex exact? 8)
+        transformed (insta/transform {:complex2  (partial transform-complex exact? 2)
+                                      :complex8  (partial transform-complex exact? 8)
                                       :complex10 (partial transform-complex exact? 10)
                                       :complex16 (partial transform-complex exact? 16)}
                                      content)]
