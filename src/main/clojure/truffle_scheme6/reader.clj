@@ -10,7 +10,8 @@
            (truffle_scheme6.nodes.composites SListNode)
            (truffle_scheme6.nodes.special SBeginNode SDefineVarNode SIfNode SQuoteNode)))
 
-(insta/defparser parser
+(insta/defparser
+  parser
   "
   <root-expressions> = whitespace? (expression (whitespace expression)*)? whitespace?
   <expressions> = whitespace? (expression (whitespace expression)*) whitespace?
@@ -142,28 +143,6 @@
   (* MISC *)
   <empty> = ''
   ")
-
-(def named-chars {:nul       0x0000
-                  :alarm     0x0007
-                  :backspace 0x0008
-                  :tab       0x0009
-                  :linefeed  0x000A
-                  :newline   0x000A
-                  :vtab      0x000B
-                  :page      0x000C
-                  :return    0x000D
-                  :esc       0x001B
-                  :space     0x0020
-                  :delete    0x007F})
-
-(def string-escapes {"\\a"  0x0007
-                     "\\b"  0x0008
-                     "\\t"  0x0009
-                     "\\n"  0x000A
-                     "\\v"  0x000B
-                     "\\f"  0x000C
-                     "\\r"  0x000D
-                     "\\\"" 0x0022})
 
 (def define-tag "define-")
 (def lambda-tag "lambda-")
@@ -316,16 +295,23 @@
 
 (defn transform-symbol
   [& args]
-  (SSymbolLiteralNode. (->> args
-                            (map (fn [str|cpoint]
-                                   (if (string? str|cpoint)
-                                     (vec (.toList (.boxed (.codePoints str|cpoint))))
-                                     [str|cpoint])))
-                            (flatten)
-                            (int-array))
-                       ; var dispatch is initialized by the forms that initialize those contexts
-                       nil))
+  (->SymbolLiteral
+    (->> args
+         (map (fn [str|cpoint]
+                (if (string? str|cpoint)
+                  (vec (.toList (.boxed (.codePoints str|cpoint))))
+                  [str|cpoint])))
+         (flatten))))
 
+(def string-escapes {"\\a"  0x0007
+                     "\\b"  0x0008
+                     "\\t"  0x0009
+                     "\\n"  0x000A
+                     "\\v"  0x000B
+                     "\\f"  0x000C
+                     "\\r"  0x000D
+                     "\\\"" 0x0022
+                     "\\\\" 0x005C})
 (defn transform-string
   [& args]
   (->> args
@@ -335,22 +321,27 @@
                 (string? elm) (vec (.toList (.boxed (.codePoints elm))))
                 :else [elm])))
        (flatten)
-       (int-array)
-       (SStringLiteralNode.)))
+       (->StringLiteral)))
 
+(def named-chars {"nul"       0x0000
+                  "alarm"     0x0007
+                  "backspace" 0x0008
+                  "tab"       0x0009
+                  "linefeed"  0x000A
+                  "newline"   0x000A
+                  "vtab"      0x000B
+                  "page"      0x000C
+                  "return"    0x000D
+                  "esc"       0x001B
+                  "space"     0x0020
+                  "delete"    0x007F})
 (defn transform-character
   [& args]
-  (cond
-    (= (first args) "#\\x")
-    (let [n (Integer/parseUnsignedInt (second args) 16)]
-      (SCharacterLiteralNode. n))
-
-    (and (vector? (second args)) (= (first (second args)) :character-name))
-    (let [char-name (second (second args))]
-      (SCharacterLiteralNode. ^int (named-chars (keyword char-name))))
-
-    (= 1 (count (second args)))
-    (SCharacterLiteralNode. ^char (.charAt (second args) 0))))
+  (->CharacterLiteral
+    (match (vec args)
+      ["#\\x" uint-str] (Integer/parseUnsignedInt uint-str)
+      ["#\\" [:character-name c-name]] (named-chars c-name)
+      ["#\\" c] (.codePointAt c 0))))
 
 (defn transform-list
   [args]
@@ -438,9 +429,13 @@
 (defn- produce-nodes
   [ast]
   (insta/transform
-    {:number transform-number
-     :true  ->TrueLiteral
-     :false ->FalseLiteral}
+    {:inline-hex-escape #(Integer/parseUnsignedInt % 16)
+
+     :number            transform-number
+     :true              ->TrueLiteral
+     :false             ->FalseLiteral
+     :character         transform-character
+     :string            transform-string}
     ast))
 
 (defn read-scheme

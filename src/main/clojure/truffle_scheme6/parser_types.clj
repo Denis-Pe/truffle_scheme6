@@ -1,6 +1,8 @@
 (ns truffle-scheme6.parser-types
   (:require [clojure.string :as str])
-  (:import (truffle_scheme6.nodes.atoms.bools SFalseLiteralNode STrueLiteralNode)
+  (:import (java.util.stream IntStream Stream)
+           (truffle_scheme6.nodes.atoms SCharacterLiteralNode SStringLiteralNode SSymbolLiteralNode)
+           (truffle_scheme6.nodes.atoms.bools SFalseLiteralNode STrueLiteralNode)
            (truffle_scheme6.nodes.atoms.numbers SComplexLiteralNode SExactIntegerNode SExactRealNode SFractionLiteralNode SInexactIntegerNode SInexactReal32Node SInexactReal64Node)))
 
 (defprotocol PSchemeNode
@@ -54,3 +56,18 @@
   PSchemeNode
   (to-java [this]
     (SComplexLiteralNode. (to-java real-literal) (to-java imaginary-literal))))
+
+(defrecord CharacterLiteral [utf32value]
+  PSchemeNode
+  (to-java [this]
+    (SCharacterLiteralNode. ^int utf32value)))
+
+(defrecord StringLiteral [utf32codepoints]
+  PSchemeNode
+  (to-java [this]
+    (SStringLiteralNode. (int-array utf32codepoints))))
+
+(defrecord SymbolLiteral [utf32codepoints]
+  PSchemeNode
+  (to-java [this]
+    (SSymbolLiteralNode. (int-array utf32codepoints))))
