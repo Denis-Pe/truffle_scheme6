@@ -1,12 +1,23 @@
 (ns truffle-scheme6.parser-types
   (:require [clojure.string :as str])
   (:import (java.util.stream IntStream Stream)
-           (truffle_scheme6.nodes.atoms SCharacterLiteralNode SStringLiteralNode SSymbolLiteralNode)
+           (truffle_scheme6 SchemeNode)
+           (truffle_scheme6.nodes.atoms SCharacterLiteralNode SNilLiteralNode SStringLiteralNode SSymbolLiteralNode)
            (truffle_scheme6.nodes.atoms.bools SFalseLiteralNode STrueLiteralNode)
-           (truffle_scheme6.nodes.atoms.numbers SComplexLiteralNode SExactIntegerNode SExactRealNode SFractionLiteralNode SInexactIntegerNode SInexactReal32Node SInexactReal64Node)))
+           (truffle_scheme6.nodes.atoms.numbers SComplexLiteralNode SExactIntegerNode SExactRealNode SFractionLiteralNode SInexactIntegerNode SInexactReal32Node SInexactReal64Node SOctetLiteralNode)
+           (truffle_scheme6.nodes.composites SByteVectorLiteralNode SListNode SVectorLiteralNode)
+           (truffle_scheme6.nodes.special SBeginNode SDefineVarNode SIfNode SQuoteNode)))
+
+(defn- node-array
+  [aseq]
+  (into-array SchemeNode aseq))
 
 (defprotocol PSchemeNode
   (to-java [this] "Transforms a given node to a Java object"))
+
+(extend-protocol PSchemeNode
+  nil
+  (to-java [this] nil))
 
 (defrecord FalseLiteral []
   PSchemeNode
@@ -57,6 +68,14 @@
   (to-java [this]
     (SComplexLiteralNode. (to-java real-literal) (to-java imaginary-literal))))
 
+(defrecord OctetLiteral [radix octet-str]
+  PSchemeNode
+  (to-java [this]
+    (let [parsed (Integer/parseUnsignedInt octet-str radix)]
+      (if (and (>= parsed 0) (<= parsed 255))
+        (SOctetLiteralNode. (unchecked-byte parsed))
+        (throw (Exception. "Octet given was not valid. Has to be an unsigned 8-bit integer"))))))
+
 (defrecord CharacterLiteral [utf32value]
   PSchemeNode
   (to-java [this]
@@ -71,3 +90,43 @@
   PSchemeNode
   (to-java [this]
     (SSymbolLiteralNode. (int-array utf32codepoints))))
+
+(defrecord NilLiteral []
+  PSchemeNode
+  (to-java [this]
+    (SNilLiteralNode.)))
+
+(defrecord ListNode [f rs]
+  PSchemeNode
+  (to-java [this]
+    (SListNode. (to-java f) (node-array (map to-java rs)))))
+
+(defrecord VectorNode [xs]
+  PSchemeNode
+  (to-java [this]
+    (SVectorLiteralNode. (node-array (map to-java xs)))))
+
+(defrecord ByteVectorNode [octets]
+  PSchemeNode
+  (to-java [this]
+    (SByteVectorLiteralNode. (into-array SOctetLiteralNode (map to-java octets)))))
+
+(defrecord QuoteNode [quoted-child]
+  PSchemeNode
+  (to-java [this]
+    (SQuoteNode. (to-java quoted-child))))
+
+(defrecord IfNode [condition then else]
+  PSchemeNode
+  (to-java [this]
+    (SIfNode. (to-java condition) (to-java then) (to-java else))))
+
+(defrecord DefVarNode [sym v]
+  PSchemeNode
+  (to-java [this]
+    (SDefineVarNode. (to-java sym) (to-java v))))
+
+(defrecord BeginNode [forms]
+  PSchemeNode
+  (to-java [this]
+    (SBeginNode. (node-array (map to-java forms)))))
