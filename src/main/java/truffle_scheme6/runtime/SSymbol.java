@@ -1,5 +1,9 @@
 package truffle_scheme6.runtime;
 
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.library.ExportLibrary;
+import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.api.strings.TruffleStringBuilder;
 import truffle_scheme6.Constants;
@@ -13,7 +17,8 @@ import java.util.stream.IntStream;
 // > Unlike strings, two symbols whose names are spelled the same way are never distinguishable.
 // Therefore, the API for symbols at runtime has private constructors, with the static methods to create
 // them hooking into a set of symbols to make sure that no two symbols have the same value
-public class SSymbol {
+@ExportLibrary(InteropLibrary.class)
+public class SSymbol implements TruffleObject {
     private final TruffleString value;
     private static final TruffleString.ToJavaStringNode converter = TruffleString.ToJavaStringNode.create();
 
@@ -76,6 +81,26 @@ public class SSymbol {
 
     public TruffleString getValue() {
         return value;
+    }
+
+    @ExportMessage
+    boolean isString() {
+        return true; // for the sake of interop
+    }
+
+    @ExportMessage
+    String asString() {
+        return converter.execute(value);
+    }
+
+    @ExportMessage
+    TruffleString asTruffleString() {
+        return value;
+    }
+
+    @ExportMessage
+    Object toDisplayString(boolean allowSideEffects) {
+        return this.toString();
     }
 
     @Override
