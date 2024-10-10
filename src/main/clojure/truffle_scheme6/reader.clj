@@ -1,13 +1,15 @@
 (ns truffle-scheme6.reader
   (:require [clojure.core.match :refer [match]]
             [instaparse.core :as insta]
+            [clojure.string :as str]
             [truffle-scheme6.number-transformers :refer [transform-number]]
-            [truffle-scheme6.parser-types :refer :all]))
+            [truffle-scheme6.parser-types :refer :all])
+  (:import (truffle_scheme6.nodes.atoms SSymbolLiteralNode SSymbolLiteralNode$ReadGlobal)))
 
 (insta/defparser
   parser
   "
-  <root-expressions> = whitespace? (expression (whitespace expression)*)? whitespace?
+  <opt-expressions> = whitespace? (expression (whitespace expression)*)? whitespace?
   <expressions> = whitespace? (expression (whitespace expression)*) whitespace?
   <expression> = comment / reader / composite / atom
 
@@ -31,7 +33,7 @@
 
   vector = <'#('> expressions? <')'>
 
-  list = opar expressions? cpar | obr expressions? cbr | opar expressions whitespace '.' whitespace expression whitespace? cpar | obr expressions whitespace '.' whitespace expression whitespace? cbr
+  list = opar opt-expressions cpar | obr opt-expressions cbr | opar expressions whitespace '.' whitespace expression whitespace? cpar | obr expressions whitespace '.' whitespace expression whitespace? cbr
   <opar> = <'('>
   <cpar> = <')'>
   <obr> = <'['>
@@ -143,14 +145,15 @@
   (reduce conj [:symbol] (map str s)))
 
 (defn transform-symbol
-  [& args]
-  (->SymbolLiteral
-    (->> args
-         (map (fn [str|cpoint]
-                (if (string? str|cpoint)
-                  (vec (.toList (.boxed (.codePoints str|cpoint))))
-                  [str|cpoint])))
-         (flatten))))
+  ([& args]
+   (->SymbolLiteral
+     (->> args
+          (map (fn [str|cpoint]
+                 (if (string? str|cpoint)
+                   (vec (.toList (.boxed (.codePoints str|cpoint))))
+                   [str|cpoint])))
+          (flatten))
+     (SSymbolLiteralNode$ReadGlobal.))))
 
 (def string-escapes {"\\a"  0x0007
                      "\\b"  0x0008
@@ -194,9 +197,11 @@
 
 (defn transform-list
   [& args]
-  (let [[form & args] args]
-    (->ListNode form
-                (concat args [(->NilLiteral)]))))
+  (if (empty? args)
+    (->NilLiteral)
+    (let [[form & args] args]
+      (->ListNode form
+                  (concat args [(->NilLiteral)])))))
 
 (defn transform-vector
   [& args]
