@@ -1,12 +1,17 @@
 package truffle_scheme6.runtime;
 
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.library.ExportLibrary;
+import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.api.strings.TruffleStringBuilder;
 import truffle_scheme6.Constants;
 
 import java.util.stream.IntStream;
 
-public class SString {
+@ExportLibrary(InteropLibrary.class)
+public class SString implements TruffleObject {
     private final TruffleString value;
     private final TruffleString.ToJavaStringNode converter;
 
@@ -37,6 +42,26 @@ public class SString {
 
     public TruffleString getValue() {
         return value;
+    }
+
+    @ExportMessage
+    boolean isString() {
+        return true;
+    }
+
+    @ExportMessage
+    String asString() {
+        return converter.execute(value);
+    }
+
+    @ExportMessage
+    TruffleString asTruffleString() {
+        return value;
+    }
+
+    @ExportMessage
+    Object toDisplayString(boolean allowSideEffects) {
+        return this.toString();
     }
 
     @Override
