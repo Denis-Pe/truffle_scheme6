@@ -1,6 +1,7 @@
 package truffle_scheme6.nodes.special;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
+import truffle_scheme6.Constants;
 import truffle_scheme6.SchemeNode;
 import truffle_scheme6.runtime.SNil;
 import truffle_scheme6.utils.StringFormatting;
@@ -17,7 +18,7 @@ public class SBeginNode extends SSpecialNode {
 
     @Override
     public Object execute(VirtualFrame frame) {
-        Object res = null;
+        Object res = Constants.UNSPECIFIED;
 
         for (var node : nodes) {
             res = node.execute(frame);
