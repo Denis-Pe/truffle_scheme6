@@ -4,11 +4,6 @@
   (:import (truffle_scheme6 SchemeNode)
            (truffle_scheme6.nodes.roots SchemeRoot)))
 
-(defn probe
-  [x]
-  (prn x)
-  x)
-
 (defn parse
   [l s]
   (->> s
