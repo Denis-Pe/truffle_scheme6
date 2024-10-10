@@ -8,9 +8,11 @@ import java.util.stream.IntStream;
 
 public class SString {
     private final TruffleString value;
+    private final TruffleString.ToJavaStringNode converter;
 
     public SString(TruffleString value) {
         this.value = value;
+        this.converter = TruffleString.ToJavaStringNode.create();
     }
 
     public SString(int[] codepoints) {
@@ -22,6 +24,7 @@ public class SString {
         }
 
         this.value = builder.toStringUncached();
+        this.converter = TruffleString.ToJavaStringNode.create();
     }
 
     public SString(IntStream codepoints) {
@@ -38,6 +41,25 @@ public class SString {
 
     @Override
     public String toString() {
-        return "\"" + value.toJavaStringUncached() + "\"";
+        return toStringDebug();
+    }
+
+    public String toStringDisplay() {
+        return converter.execute(value);
+    }
+
+    public String toStringDebug() {
+        return "\""
+                + converter.execute(value)
+                .replace(String.valueOf((char) 0x0007), "\\a")
+                .replace("\b", "\\b")
+                .replace("\t", "\\t")
+                .replace("\n", "\\n")
+                .replace(String.valueOf((char) 0x000B), "\\v")
+                .replace("\f", "\\f")
+                .replace("\r", "\\r")
+                .replace("\"", "\\\"")
+                .replace("\\", "\\\\")
+                + "\"";
     }
 }
