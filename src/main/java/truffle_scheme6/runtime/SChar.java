@@ -36,6 +36,11 @@ public class SChar implements TruffleObject {
     }
 
     @ExportMessage
+    boolean isString() {
+        return true;
+    }
+
+    @ExportMessage
     String asString() {
         return converter.execute(value);
     }
