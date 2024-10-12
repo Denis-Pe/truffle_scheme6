@@ -21,8 +21,13 @@ public final class SVectorLiteralNode extends SchemeNode {
 
     @Override
     public Object execute(VirtualFrame frame) {
-        // todo incorporate this with Scheme's system
-        throw new UnsupportedOperationException("Vector literals must be quoted");
+        var res = new Object[elms.length];
+
+        for (int i = 0; i < elms.length; i++) {
+            res[i] = elms[i].execute(frame);
+        }
+
+        return new SVector(res);
     }
 
     @Override
