@@ -1,15 +1,16 @@
 package truffle_scheme6.nodes.composites;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.interop.ArityException;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import truffle_scheme6.SchemeNode;
 import truffle_scheme6.nodes.atoms.SNilLiteralNode;
-import truffle_scheme6.nodes.functions.SFuncDispatchNode;
-import truffle_scheme6.nodes.functions.SFuncDispatchNodeGen;
 import truffle_scheme6.runtime.SNil;
 import truffle_scheme6.runtime.SPair;
 
-import java.util.InputMismatchException;
 import java.util.StringJoiner;
 
 public class SListNode extends SchemeNode {
@@ -18,18 +19,17 @@ public class SListNode extends SchemeNode {
     @Children
     private SchemeNode[] args; // always nil-terminated if not quoted
     @Child
-    private SFuncDispatchNode dispatchNode;
+    private InteropLibrary library;
 
     public SListNode(SchemeNode form, SchemeNode[] args) {
         this.form = form;
 
-        // remember that we are dealing with explicit nils
         if (args.length == 0) {
             throw new RuntimeException("Attempted to build list with empty args. This is not possible");
         }
 
         this.args = args;
-        this.dispatchNode = SFuncDispatchNodeGen.create();
+        this.library = InteropLibrary.getFactory().createDispatched(3);
     }
 
     @Override
@@ -45,17 +45,21 @@ public class SListNode extends SchemeNode {
             eArgs[i] = args[i].execute(frame);
         }
 
-        return dispatchNode.execute(eForm, eArgs);
+        try {
+            return this.library.execute(eForm, eArgs);
+        } catch (UnsupportedMessageException | ArityException | UnsupportedTypeException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public SPair executeFrozen(VirtualFrame frame) {
-        SPair ret = new SPair(null, args[args.length - 1]);
+        SPair ret = new SPair(SNil.SINGLETON, args[args.length - 1].executeFrozen(frame));
 
         for (int i = args.length - 2; i >= 0; i--) {
             ret.setCar(args[i].executeFrozen(frame));
 
-            ret = new SPair(null, ret);
+            ret = new SPair(SNil.SINGLETON, ret);
         }
 
         ret.setCar(form.executeFrozen(frame));
