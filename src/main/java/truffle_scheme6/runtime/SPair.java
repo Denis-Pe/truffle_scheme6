@@ -10,7 +10,7 @@ import com.oracle.truffle.api.library.ExportMessage;
 import java.util.*;
 
 @ExportLibrary(InteropLibrary.class)
-public class SPair implements TruffleObject {
+public class SPair implements TruffleObject, Iterable<Object> {
     private Object car;
     private Object cdr;
 
@@ -105,6 +105,34 @@ public class SPair implements TruffleObject {
         }
     }
 
+    @Override
+    public Iterator<Object> iterator() {
+        var outerThis = this;
+
+        return new Iterator<Object>() {
+            Object curr = outerThis;
+            boolean seenLast = false;
+
+            @Override
+            public boolean hasNext() {
+                return curr instanceof SPair || (curr != SNil.SINGLETON && !seenLast);
+            }
+
+            @Override
+            public Object next() {
+                if (curr instanceof SPair asPair) {
+                    curr = asPair.cdr;
+                    return asPair.car;
+                } else if (curr != SNil.SINGLETON) {
+                    seenLast = true;
+                    return curr;
+                } else {
+                    throw new NoSuchElementException();
+                }
+            }
+        };
+    }
+
     @ExportMessage
     boolean hasArrayElements() {
         return true;
@@ -183,29 +211,8 @@ public class SPair implements TruffleObject {
     }
 
     @ExportMessage
-    Object getIterator() {
-        var outerThis = this;
-
-        return new Iterator<Object>() {
-            Object curr = outerThis;
-
-            @Override
-            public boolean hasNext() {
-                return curr instanceof SPair || curr != SNil.SINGLETON;
-            }
-
-            @Override
-            public Object next() {
-                if (curr instanceof SPair asPair) {
-                    curr = asPair.cdr;
-                    return asPair.car;
-                } else if (curr != SNil.SINGLETON) {
-                    return curr;
-                } else {
-                    throw new NoSuchElementException();
-                }
-            }
-        };
+    Iterator<Object> getIterator() {
+        return iterator();
     }
 
     @ExportMessage
