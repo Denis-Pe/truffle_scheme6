@@ -132,7 +132,7 @@
 
 (defrecord DefineNode [identifier value]
   PSchemeNode
-  (specialize [this] this)
+  (specialize [this] (->DefineNode identifier (specialize value)))
   (tagged [this symbol-literal->dispatch]
     (->DefineNode (tagged identifier symbol-literal->dispatch)
                   (tagged value symbol-literal->dispatch)))
@@ -141,7 +141,7 @@
 
 (defrecord BeginNode [nodes]
   PSchemeNode
-  (specialize [this] this)
+  (specialize [this] (->BeginNode (map specialize nodes)))
   (tagged [this symbol-literal->dispatch]
     (->BeginNode (map #(tagged % symbol-literal->dispatch) nodes)))
   (to-java [this]
@@ -174,7 +174,7 @@
             cps (int-array (:utf32codepoints f))
             as-str (String. cps 0 (count cps))]
         (if-let [spec-form (apply specialize-list as-str clean-rs)]
-          spec-form
+          (specialize spec-form)
           this))
       (->ListNode (specialize f)
                   (map specialize rs))))
@@ -186,7 +186,7 @@
 
 (defrecord VectorNode [xs]
   PSchemeNode
-  (specialize [this] this)
+  (specialize [this] (->VectorNode (map specialize xs)))
   (tagged [this symbol-literal->dispatch]
     (->VectorNode (map #(tagged % symbol-literal->dispatch) xs)))
   (to-java [this]
