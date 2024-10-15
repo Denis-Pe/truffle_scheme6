@@ -35,6 +35,10 @@ public class SListNode extends SchemeNode {
     @Override
     @ExplodeLoop
     public Object execute(VirtualFrame frame) {
+        if (!(this.args[args.length - 1] instanceof SNilLiteralNode)) {
+            throw new RuntimeException("Invalid execution: " + this.toStringList());
+        }
+
         Object eForm = form.execute(frame);
 
         int length = args.length - 1; // skip the nil

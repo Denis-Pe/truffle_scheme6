@@ -197,11 +197,11 @@
 
 (defn transform-list
   [& args]
-  (if (empty? args)
-    (->NilLiteral)
-    (let [[form & args] args]
-      (->ListNode form
-                  (concat args [(->NilLiteral)])))))
+  (cond
+    (empty? args) (->NilLiteral)
+    (some #{"."} args) (let [args (remove #{"."} args)]
+                         (->ListNode args true))
+    :else (->ListNode args false)))
 
 (defn transform-vector
   [& args]
@@ -217,15 +217,6 @@
     (throw (Exception. "Wrong syntax: quote given wrong amount of arguments"))
     (->QuoteNode (first args))))
 
-(defn transform-quoted-list
-  [& args]
-  (cond
-    (empty? args) (->NilLiteral)
-    (some #{"."} args) (let [args (remove #{"."} args)]
-                         (->ListNode (first args) (rest args)))
-    :else (let [args (conj (vec args) (->NilLiteral))]
-            (->ListNode (first args) (rest args)))))
-
 (defn transform-octet
   [[radix] [_int-kword & digits]]
   (let [r (condp = radix
@@ -239,29 +230,6 @@
   (let [parse-strictly (if starting-at #(parser % :start starting-at) parser)]
     (->> source
          parse-strictly)))
-
-(defn- tag-quotes
-  [ast]
-  (->> ast
-       (insta/transform
-         {:list (fn [& args]
-                  (cond
-                    (empty? args) [:list]                   ; the nil case is handled later on by transform-list
-                    (= (symbol-vec "quote") (first args)) (reduce conj [:quote] (rest args))
-                    :else (reduce conj [:list] args)))})
-       (insta/transform
-         {:quote (fn [& args]
-                   (reduce conj [:quote] (insta/transform
-                                           {:quote (fn [& args]
-                                                     (reduce conj
-                                                             [:quoted-list
-                                                              (symbol-vec "quote")]
-                                                             args))
-                                            :list  (fn [& args]
-                                                     (reduce conj
-                                                             [:quoted-list]
-                                                             args))}
-                                           args)))})))
 
 (defn- produce-nodes
   [ast]
@@ -277,7 +245,6 @@
      :octet             transform-octet
 
      :quote             transform-quote
-     :quoted-list       transform-quoted-list
 
      :list              transform-list
      :vector            transform-vector
@@ -288,6 +255,5 @@
   [source]
   (->> source
        (parse)
-       (tag-quotes)
        (produce-nodes)))
 

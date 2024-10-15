@@ -153,36 +153,26 @@
   (fn [special-syntax-name & rest-nodes]
     special-syntax-name))
 
-(defmethod specialize-list "quote" [_quote & args]
-  (if (= 1 (count args))
-    (->QuoteNode (first args))))
-
-(defmethod specialize-list "define" [_define & args]
-  (if (and (= 2 (count args))
-           (instance? SymbolLiteral (first args)))
-    (let [[identifier value] args]
-      (->DefineNode identifier value))))
-
-(defmethod specialize-list "begin" [_begin & args]
-  (->BeginNode args))
-
-(defrecord ListNode [f rs]
+(defrecord ListNode [forms dotted]
   PSchemeNode
   (specialize [this]
-    (if (instance? SymbolLiteral f)
-      (let [clean-rs (butlast rs)                           ; drop nil
-            cps (int-array (:utf32codepoints f))
-            as-str (String. cps 0 (count cps))]
-        (if-let [spec-form (apply specialize-list as-str clean-rs)]
-          (specialize spec-form)
-          this))
-      (->ListNode (specialize f)
-                  (map specialize rs))))
+    (let [[f & rs] forms]
+      (if (instance? SymbolLiteral f)
+        (let [cps (int-array (:utf32codepoints f))
+              as-str (String. cps 0 (count cps))]
+          (if-let [spec-form (apply specialize-list as-str rs)]
+            (specialize spec-form)                          ; specialize children nodes too
+            (->ListNode (map specialize forms))))
+        (->ListNode (map specialize forms)))))
   (tagged [this symbol-literal->dispatch]
-    (->ListNode (tagged f symbol-literal->dispatch)
-                (map #(tagged % symbol-literal->dispatch) rs)))
+    (->ListNode (map #(tagged % symbol-literal->dispatch)
+                     forms)))
   (to-java [this]
-    (SListNode. (to-java f) (node-array (map to-java rs)))))
+    (let [[f & rs] forms
+          rs (if dotted rs (concat rs [(->NilLiteral)]))
+          f (to-java f)
+          rs (to-java rs)]
+      (SListNode. f (node-array rs)))))
 
 (defrecord VectorNode [xs]
   PSchemeNode
@@ -198,3 +188,17 @@
   (tagged [this symbol-literal->dispatch] this)             ;; can't have anything other than octets at the parser level
   (to-java [this]
     (SByteVectorLiteralNode. (into-array SOctetLiteralNode (map to-java octets)))))
+
+(defmethod specialize-list "quote" [_quote & args]
+  (if (= 1 (count args))
+    (->QuoteNode (first args))))
+
+(defmethod specialize-list "define" [_define & args]
+  ; todo implement rest of definitions
+  (if (and (= 2 (count args))
+           (instance? SymbolLiteral (first args)))
+    (let [[identifier value] args]
+      (->DefineNode identifier value))))
+
+(defmethod specialize-list "begin" [_begin & args]
+  (->BeginNode args))
