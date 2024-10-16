@@ -37,7 +37,7 @@ public final class SSymbolLiteralNode extends SchemeNode {
 
     @NodeField(name = "slot", type = int.class)
     public static abstract class ReadLocal extends ReadVarDispatch {
-        protected abstract int getSlot();
+        public abstract int getSlot();
 
         @Specialization(guards = "frame.isLong(getSlot())")
         protected long readLong(VirtualFrame frame) {
