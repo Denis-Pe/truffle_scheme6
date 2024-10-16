@@ -14,27 +14,27 @@
 (defprotocol PSchemeNode
   ; organized in the order that they would be run from a top-level parser
   (specialize [this] "Transforms a list node into an appropriate special node, otherwise returns the same thing")
-  (tagged [this symbol-literal->dispatch] "Transform children symbols according to scoping rules. Collections should run this on children nodes")
+  (tagged [this symbol-literal->dispatch frame-desc-builder] "Transform child symbols according to specified dispatch. Should be run on child nodes")
   (to-java [this] "Transforms a given node to a Java object"))
 
 (defrecord FalseLiteral []
   PSchemeNode
   (specialize [this] this)
-  (tagged [this _] this)
+  (tagged [this _ _] this)
   (to-java [this]
     (SFalseLiteralNode.)))
 
 (defrecord TrueLiteral []
   PSchemeNode
   (specialize [this] this)
-  (tagged [this _] this)
+  (tagged [this _ _] this)
   (to-java [this]
     (STrueLiteralNode.)))
 
 (defrecord IntegerLiteral [exact? radix sign uint-str]
   PSchemeNode
   (specialize [this] this)
-  (tagged [this _] this)
+  (tagged [this _ _] this)
   (to-java [this]
     (let [val (if exact?
                 (SExactIntegerNode. (BigInteger. ^String uint-str ^int radix))
@@ -46,14 +46,14 @@
 (defrecord FractionLiteral [numerator-int-literal denominator-int-literal]
   PSchemeNode
   (specialize [this] this)
-  (tagged [this _] this)
+  (tagged [this _ _] this)
   (to-java [this]
     (SFractionLiteralNode. (to-java numerator-int-literal) (to-java denominator-int-literal))))
 
 (defrecord DecimalLiteral [exact? sign decimal-str exp-mark exp-val mantissa-width] ; mantissa is ignored for now
   PSchemeNode
   (specialize [this] this)
-  (tagged [this _] this)
+  (tagged [this _ _] this)
   (to-java [this]
     (let [val (cond exact? (SExactRealNode. ^BigDecimal (BigDecimal. ^String decimal-str))
                     (some #{"s" "S" "f" "F"} [exp-mark]) (SInexactReal32Node. (Float/parseFloat decimal-str))
@@ -65,7 +65,7 @@
 (defrecord NanInfLiteral [sign literal]
   PSchemeNode
   (specialize [this] this)
-  (tagged [this _] this)
+  (tagged [this _ _] this)
   (to-java [this]
     (let [num (condp = [sign literal]
                 ["-" "inf.0"] Float/NEGATIVE_INFINITY
@@ -76,14 +76,14 @@
 (defrecord ComplexLiteral [real-literal imaginary-literal]
   PSchemeNode
   (specialize [this] this)
-  (tagged [this _] this)
+  (tagged [this _ _] this)
   (to-java [this]
     (SComplexLiteralNode. (to-java real-literal) (to-java imaginary-literal))))
 
 (defrecord OctetLiteral [radix octet-str]
   PSchemeNode
   (specialize [this] this)
-  (tagged [this _] this)
+  (tagged [this _ _] this)
   (to-java [this]
     (let [parsed (Integer/parseUnsignedInt octet-str radix)]
       (if (and (>= parsed 0) (<= parsed 255))
@@ -93,14 +93,14 @@
 (defrecord CharacterLiteral [utf32value]
   PSchemeNode
   (specialize [this] this)
-  (tagged [this _] this)
+  (tagged [this _ _] this)
   (to-java [this]
     (SCharacterLiteralNode. ^int utf32value)))
 
 (defrecord StringLiteral [utf32codepoints]
   PSchemeNode
   (specialize [this] this)
-  (tagged [this _] this)
+  (tagged [this _ _] this)
   (to-java [this]
     (SStringLiteralNode. (int-array utf32codepoints))))
 
@@ -108,7 +108,7 @@
 (defrecord SymbolLiteral [utf32codepoints read-var-dispatch]
   PSchemeNode
   (specialize [this] this)
-  (tagged [this _] this)
+  (tagged [this _ _] this)
   (to-java [this]
     (SSymbolLiteralNode. (int-array utf32codepoints)
                          read-var-dispatch)))
@@ -116,7 +116,7 @@
 (defrecord NilLiteral []
   PSchemeNode
   (specialize [this] this)
-  (tagged [this _] this)
+  (tagged [this _ _] this)
   (to-java [this]
     (SNilLiteralNode.)))
 
@@ -125,25 +125,26 @@
 (defrecord QuoteNode [x]
   PSchemeNode
   (specialize [this] this)
-  (tagged [this symbol-literal->dispatch]
-    (->QuoteNode (tagged x symbol-literal->dispatch)))
+  (tagged [this symbol-literal->dispatch frame-desc-builder]
+    (->QuoteNode (tagged x symbol-literal->dispatch frame-desc-builder)))
   (to-java [this]
     (SQuoteNode. (to-java x))))
 
 (defrecord DefineNode [identifier value]
   PSchemeNode
   (specialize [this] (->DefineNode identifier (specialize value)))
-  (tagged [this symbol-literal->dispatch]
-    (->DefineNode (tagged identifier symbol-literal->dispatch)
-                  (tagged value symbol-literal->dispatch)))
+  (tagged [this symbol-literal->dispatch frame-desc-builder]
+    (->DefineNode (tagged identifier symbol-literal->dispatch frame-desc-builder)
+                  (tagged value symbol-literal->dispatch frame-desc-builder)))
   (to-java [this]
     (SDefineVarNode. (to-java identifier) (to-java value))))
 
 (defrecord BeginNode [nodes]
   PSchemeNode
   (specialize [this] (->BeginNode (map specialize nodes)))
-  (tagged [this symbol-literal->dispatch]
-    (->BeginNode (map #(tagged % symbol-literal->dispatch) nodes)))
+  (tagged [this symbol-literal->dispatch frame-desc-builder]
+    (->BeginNode (map #(tagged % symbol-literal->dispatch frame-desc-builder)
+                      nodes)))
   (to-java [this]
     (SBeginNode. (node-array (map to-java nodes)))))
 
@@ -164,8 +165,8 @@
             (specialize spec-form)                          ; specialize children nodes too
             (->ListNode (map specialize forms))))
         (->ListNode (map specialize forms)))))
-  (tagged [this symbol-literal->dispatch]
-    (->ListNode (map #(tagged % symbol-literal->dispatch)
+  (tagged [this symbol-literal->dispatch frame-desc-builder]
+    (->ListNode (map #(tagged % symbol-literal->dispatch frame-desc-builder)
                      forms)))
   (to-java [this]
     (let [[f & rs] forms
@@ -177,15 +178,16 @@
 (defrecord VectorNode [xs]
   PSchemeNode
   (specialize [this] (->VectorNode (map specialize xs)))
-  (tagged [this symbol-literal->dispatch]
-    (->VectorNode (map #(tagged % symbol-literal->dispatch) xs)))
+  (tagged [this symbol-literal->dispatch frame-desc-builder]
+    (->VectorNode (map #(tagged % symbol-literal->dispatch frame-desc-builder)
+                       xs)))
   (to-java [this]
     (SVectorLiteralNode. (node-array (map to-java xs)))))
 
 (defrecord ByteVectorNode [octets]
   PSchemeNode
   (specialize [this] this)
-  (tagged [this symbol-literal->dispatch] this)             ;; can't have anything other than octets at the parser level
+  (tagged [this _ _] this)                                  ;; can't have anything other than octets at the parser level
   (to-java [this]
     (SByteVectorLiteralNode. (into-array SOctetLiteralNode (map to-java octets)))))
 
@@ -194,7 +196,7 @@
     (->QuoteNode (first args))))
 
 (defmethod specialize-list "define" [_define & args]
-  ; todo implement rest of definitions
+  ; todo implement rest of the Variations on the Carnival of Definitions by J.B. Arban
   (if (and (= 2 (count args))
            (instance? SymbolLiteral (first args)))
     (let [[identifier value] args]
