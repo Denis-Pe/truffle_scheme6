@@ -7,11 +7,12 @@
 
 (defn parse
   [l s]
-  (let [frame-desc-builder (FrameDescriptor/newBuilder)]
-    (->> s
-         (read-scheme)
-         (map specialize)
-         (map #(tagged % {} frame-desc-builder))
-         (map to-java)
-         (into-array SchemeNode)
-         (SchemeRoot. l (.build frame-desc-builder)))))
+  (let [frame-desc-builder (FrameDescriptor/newBuilder)
+        root-forms (->> s
+                        (read-scheme)
+                        (map specialize)
+                        (map #(tagged % {} frame-desc-builder))
+                        (map to-java)
+                        (into-array SchemeNode))
+        built (.build frame-desc-builder)]
+    (SchemeRoot. l built root-forms)))

@@ -1,13 +1,14 @@
 (ns truffle-scheme6.parser-types
   (:require [clojure.core.match :refer [match]])
   (:import (com.oracle.truffle.api.frame FrameDescriptor FrameSlotKind)
+           (org.graalvm.collections Pair)
            (truffle_scheme6 SchemeNode)
            (truffle_scheme6.nodes.atoms SCharacterLiteralNode SNilLiteralNode SStringLiteralNode SSymbolLiteralNode SSymbolLiteralNode$ReadArgDispatch SSymbolLiteralNode$ReadGlobal SSymbolLiteralNodeFactory SSymbolLiteralNodeFactory$ReadLocalNodeGen)
            (truffle_scheme6.nodes.atoms.bools SFalseLiteralNode STrueLiteralNode)
            (truffle_scheme6.nodes.atoms.numbers SComplexLiteralNode SExactIntegerNode SExactRealNode SFractionLiteralNode SInexactIntegerNode SInexactReal32Node SInexactReal64Node SOctetLiteralNode)
            (truffle_scheme6.nodes.composites SByteVectorLiteralNode SListNode SVectorLiteralNode)
            (truffle_scheme6.nodes.functions SReadArgSlotNode SReadVarArgsNode)
-           (truffle_scheme6.nodes.special SBeginNode SDefineVarNode SQuoteNode)))
+           (truffle_scheme6.nodes.special SBeginNode SDefineVarNode SLetNode SQuoteNode)))
 
 (defn- node-array
   [aseq]
@@ -136,7 +137,7 @@
         read-var-dispatch)))
   (to-java [this]
     (SSymbolLiteralNode. (int-array utf32codepoints)
-                         read-var-dispatch)))
+                         (dispatch->java-obj read-var-dispatch))))
 
 (defrecord NilLiteral []
   PSchemeNode
@@ -190,12 +191,19 @@
                    (assoc m codepoints dispatch))
                  symbol-codepoints->dispatch))]
       (->LetNode
-        (mapv (fn [[sym val]] [sym (tagged val symbol-codepoints->dispatch frame-desc-builder)]) bindings)
+        (mapv (fn [[sym val]] [(tagged sym sc->new-dispatch frame-desc-builder)
+                               (tagged val symbol-codepoints->dispatch frame-desc-builder)])
+              bindings)
         (map #(tagged % sc->new-dispatch frame-desc-builder)
              body-forms))))
   (to-java [this]
-    ; todo
-    this))
+    (SLetNode.
+      (into-array
+        Pair
+        (map (fn [[sym val]] (Pair/create (to-java sym)
+                                          (to-java val)))
+             bindings))
+      (node-array (map to-java body-forms)))))
 
 (defmulti specialize-list
   "Return a special form node if the args given match
