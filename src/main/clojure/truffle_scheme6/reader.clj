@@ -1,10 +1,8 @@
 (ns truffle-scheme6.reader
   (:require [clojure.core.match :refer [match]]
             [instaparse.core :as insta]
-            [clojure.string :as str]
             [truffle-scheme6.number-transformers :refer [transform-number]]
-            [truffle-scheme6.parser-types :refer :all])
-  (:import (truffle_scheme6.nodes.atoms SSymbolLiteralNode SSymbolLiteralNode$ReadGlobal)))
+            [truffle-scheme6.parser-types :refer :all]))
 
 (insta/defparser
   parser
@@ -153,7 +151,7 @@
                    (vec (.toList (.boxed (.codePoints str|cpoint))))
                    [str|cpoint])))
           (flatten))
-     (SSymbolLiteralNode$ReadGlobal.))))
+     (create-global-dispatch))))
 
 (def string-escapes {"\\a"  0x0007
                      "\\b"  0x0008
