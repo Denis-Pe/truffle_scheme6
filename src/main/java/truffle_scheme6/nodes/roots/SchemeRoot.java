@@ -1,6 +1,7 @@
 package truffle_scheme6.nodes.roots;
 
 import com.oracle.truffle.api.TruffleLanguage;
+import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
 import truffle_scheme6.Constants;
@@ -13,8 +14,8 @@ public class SchemeRoot extends RootNode {
     @Children
     private final SchemeNode[] nodes;
 
-    public SchemeRoot(TruffleLanguage<?> language, SchemeNode... nodes) {
-        super(language);
+    public SchemeRoot(TruffleLanguage<?> language, FrameDescriptor rootFrameDesc, SchemeNode... nodes) {
+        super(language, rootFrameDesc);
         this.nodes = nodes;
     }
 
