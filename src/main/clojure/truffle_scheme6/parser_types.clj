@@ -174,6 +174,10 @@
   (to-java [this]
     (SBeginNode. (node-array (map to-java nodes)))))
 
+(defmulti detect-slot-kind
+  "Given a node, returns an appropriate FrameSlotKind for that node"
+  (fn [node] (type node)))
+
 (defrecord LetNode [bindings body-forms]
   PSchemeNode
   (specialize [this]
@@ -183,9 +187,11 @@
   (tagged [this symbol-codepoints->dispatch frame-desc-builder]
     (let [sc->new-dispatch
           (->> bindings
-               (map (fn [[sym _value]]                      ;; todo detect literals from _value and set the kind of the frame slot
+               (map (fn [[sym value]]
                       [(:utf32codepoints sym) (create-local-dispatch
-                                                (.addSlot frame-desc-builder, FrameSlotKind/Illegal, nil, nil))]))
+                                                (.addSlot frame-desc-builder,
+                                                          (detect-slot-kind value),
+                                                          nil, nil))]))
                (reduce
                  (fn [m [codepoints dispatch]]
                    (assoc m codepoints dispatch))
@@ -280,3 +286,29 @@
         (->LetNode bindings body)))))
 
 (defmethod specialize-list :default [& _] nil)
+
+(defmethod detect-slot-kind FalseLiteral [_] FrameSlotKind/Boolean)
+
+(defmethod detect-slot-kind TrueLiteral [_] FrameSlotKind/Boolean)
+
+(defmethod detect-slot-kind IntegerLiteral [n]
+  (if (:exact? n)
+    FrameSlotKind/Object
+    FrameSlotKind/Long))
+
+(defmethod detect-slot-kind FractionLiteral [_] FrameSlotKind/Object)
+
+(defmethod detect-slot-kind DecimalLiteral [n]
+  (match [(:exact? n) (:exp-mark n)]
+    [true _] FrameSlotKind/Object
+    [_ "s"] FrameSlotKind/Float
+    [_ "S"] FrameSlotKind/Float
+    [_ "f"] FrameSlotKind/Float
+    [_ "F"] FrameSlotKind/Float
+    :else FrameSlotKind/Double))
+
+(defmethod detect-slot-kind NanInfLiteral [_] FrameSlotKind/Float)
+
+(defmethod detect-slot-kind OctetLiteral [_] FrameSlotKind/Byte)
+
+(defmethod detect-slot-kind :default [_] FrameSlotKind/Illegal)
