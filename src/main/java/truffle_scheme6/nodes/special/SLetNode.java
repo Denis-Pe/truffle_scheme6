@@ -16,7 +16,7 @@ public class SLetNode extends SSpecialNode {
         protected abstract int getSlot();
 
         @Specialization
-        protected Object setVar(VirtualFrame frame, Object value) {
+        protected Object setObject(VirtualFrame frame, Object value) {
             frame.getFrameDescriptor().setSlotKind(getSlot(), FrameSlotKind.Object);
 
             frame.setObject(getSlot(), value);

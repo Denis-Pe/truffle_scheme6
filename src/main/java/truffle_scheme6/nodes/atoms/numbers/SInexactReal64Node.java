@@ -39,16 +39,6 @@ public class SInexactReal64Node extends SNumberLiteralNode {
     }
 
     @Override
-    public SNumberLiteralNode asReal32() {
-        return new SInexactReal32Node((float) value);
-    }
-
-    @Override
-    public SNumberLiteralNode asReal64() {
-        return this;
-    }
-
-    @Override
     public SNumberLiteralNode applyExp(int exponent) {
         if (exponent == 0) {
             return this;
@@ -65,18 +55,8 @@ public class SInexactReal64Node extends SNumberLiteralNode {
                 doubleValue = operation.apply(doubleValue);
             }
 
-            return new SExactRealNode(doubleValue);
+            return new SExactNumberNode(doubleValue);
         }
-    }
-
-    @Override
-    public SNumberLiteralNode asExact() {
-        return new SExactRealNode(value);
-    }
-
-    @Override
-    public SNumberLiteralNode asInexact() {
-        return this;
     }
 
     @Override

@@ -1,9 +1,8 @@
 (ns truffle-scheme6.number-transformers
-  (:require [truffle-scheme6.parser-types :refer :all]
-            [clojure.core.match :refer [match]]
+  (:require [clojure.core.match :refer [match]]
             [clojure.string :as str]
-            [instaparse.core :as insta])
-  (:import (truffle_scheme6.nodes.atoms.numbers SComplexLiteralNode SExactIntegerNode SFractionLiteralNode SInexactIntegerNode SInexactReal64Node)))
+            [instaparse.core :as insta]
+            [truffle-scheme6.parser-types :refer :all]))
 
 (defn transform-ureal
   ([exact? radix ureal-node]

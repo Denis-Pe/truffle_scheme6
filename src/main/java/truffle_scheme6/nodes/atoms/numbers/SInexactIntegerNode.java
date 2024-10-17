@@ -32,28 +32,8 @@ public class SInexactIntegerNode extends SNumberLiteralNode {
     }
 
     @Override
-    public SNumberLiteralNode asReal32() {
-        return new SInexactReal32Node(value);
-    }
-
-    @Override
-    public SNumberLiteralNode asReal64() {
-        return new SInexactReal64Node(value);
-    }
-
-    @Override
     public SNumberLiteralNode applyExp(int exponent) {
         throw SNumberLiteralNode.notUsedByParser(this);
-    }
-
-    @Override
-    public SNumberLiteralNode asExact() {
-        return new SExactIntegerNode(value);
-    }
-
-    @Override
-    public SNumberLiteralNode asInexact() {
-        return this;
     }
 
     @Override

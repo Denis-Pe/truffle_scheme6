@@ -29,27 +29,7 @@ public class SFractionLiteralNode extends SNumberLiteralNode {
     }
 
     @Override
-    public SNumberLiteralNode asReal32() {
-        throw SNumberLiteralNode.notUsedByParser(this);
-    }
-
-    @Override
-    public SNumberLiteralNode asReal64() {
-        throw SNumberLiteralNode.notUsedByParser(this);
-    }
-
-    @Override
     public SNumberLiteralNode applyExp(int exponent) {
-        throw SNumberLiteralNode.notUsedByParser(this);
-    }
-
-    @Override
-    public SNumberLiteralNode asExact() {
-        throw SNumberLiteralNode.notUsedByParser(this);
-    }
-
-    @Override
-    public SNumberLiteralNode asInexact() {
         throw SNumberLiteralNode.notUsedByParser(this);
     }
 

@@ -31,28 +31,8 @@ public class SComplexLiteralNode extends SNumberLiteralNode {
     }
 
     @Override
-    public SNumberLiteralNode asReal32() {
-        throw SNumberLiteralNode.notUsedByParser(this);
-    }
-
-    @Override
-    public SNumberLiteralNode asReal64() {
-        throw SNumberLiteralNode.notUsedByParser(this);
-    }
-
-    @Override
     public SNumberLiteralNode applyExp(int exponent) {
         throw SNumberLiteralNode.notUsedByParser(this);
-    }
-
-    @Override
-    public SNumberLiteralNode asExact() {
-        return new SComplexLiteralNode(real.asExact(), imag.asExact());
-    }
-
-    @Override
-    public SNumberLiteralNode asInexact() {
-        return new SComplexLiteralNode(real.asInexact(), imag.asInexact());
     }
 
     @Override

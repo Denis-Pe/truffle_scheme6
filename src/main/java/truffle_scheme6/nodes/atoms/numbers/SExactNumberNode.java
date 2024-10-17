@@ -3,34 +3,26 @@ package truffle_scheme6.nodes.atoms.numbers;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 import java.math.BigDecimal;
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
-public class SExactRealNode extends SNumberLiteralNode {
+public class SExactNumberNode extends SNumberLiteralNode {
     private final BigDecimal value;
 
-    public SExactRealNode(BigDecimal value) {
+    public SExactNumberNode(BigDecimal value) {
         this.value = value;
     }
 
-    public SExactRealNode(double value) {
+    public SExactNumberNode(double value) {
+        this.value = new BigDecimal(value);
+    }
+
+    public SExactNumberNode(long value) {
         this.value = new BigDecimal(value);
     }
 
     @Override
     public SNumberLiteralNode negate() {
-        return new SExactRealNode(value.negate());
-    }
-
-    @Override
-    public SNumberLiteralNode asReal32() {
-        return new SInexactReal32Node(value.floatValue());
-    }
-
-    @Override
-    public SNumberLiteralNode asReal64() {
-        return new SInexactReal64Node(value.doubleValue());
+        return new SExactNumberNode(value.negate());
     }
 
     @Override
@@ -50,18 +42,8 @@ public class SExactRealNode extends SNumberLiteralNode {
                 bigValue = operation.apply(bigValue);
             }
 
-            return new SExactRealNode(bigValue);
+            return new SExactNumberNode(bigValue);
         }
-    }
-
-    @Override
-    public SNumberLiteralNode asExact() {
-        return this;
-    }
-
-    @Override
-    public SNumberLiteralNode asInexact() {
-        return new SInexactReal64Node(value.doubleValue());
     }
 
     @Override

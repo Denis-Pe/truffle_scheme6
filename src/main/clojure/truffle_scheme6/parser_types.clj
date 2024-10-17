@@ -1,11 +1,11 @@
 (ns truffle-scheme6.parser-types
   (:require [clojure.core.match :refer [match]])
-  (:import (com.oracle.truffle.api.frame FrameDescriptor FrameSlotKind)
+  (:import (com.oracle.truffle.api.frame FrameSlotKind)
            (org.graalvm.collections Pair)
            (truffle_scheme6 SchemeNode)
-           (truffle_scheme6.nodes.atoms SCharacterLiteralNode SNilLiteralNode SStringLiteralNode SSymbolLiteralNode SSymbolLiteralNode$ReadArgDispatch SSymbolLiteralNode$ReadGlobal SSymbolLiteralNodeFactory SSymbolLiteralNodeFactory$ReadLocalNodeGen)
+           (truffle_scheme6.nodes.atoms SCharacterLiteralNode SNilLiteralNode SStringLiteralNode SSymbolLiteralNode SSymbolLiteralNode$ReadArgDispatch SSymbolLiteralNode$ReadGlobal SSymbolLiteralNodeFactory$ReadLocalNodeGen)
            (truffle_scheme6.nodes.atoms.bools SFalseLiteralNode STrueLiteralNode)
-           (truffle_scheme6.nodes.atoms.numbers SComplexLiteralNode SExactIntegerNode SExactRealNode SFractionLiteralNode SInexactIntegerNode SInexactReal32Node SInexactReal64Node SOctetLiteralNode)
+           (truffle_scheme6.nodes.atoms.numbers SComplexLiteralNode SExactNumberNode SFractionLiteralNode SInexactIntegerNode SInexactReal32Node SInexactReal64Node SOctetLiteralNode)
            (truffle_scheme6.nodes.composites SByteVectorLiteralNode SListNode SVectorLiteralNode)
            (truffle_scheme6.nodes.functions SReadArgSlotNode SReadVarArgsNode)
            (truffle_scheme6.nodes.special SBeginNode SDefineVarNode SLetNode SQuoteNode)))
@@ -59,7 +59,7 @@
   (tagged [this _ _] this)
   (to-java [this]
     (let [val (if exact?
-                (SExactIntegerNode. (BigInteger. ^String uint-str ^int radix))
+                (SExactNumberNode. (BigDecimal. (BigInteger. ^String uint-str ^int radix)))
                 (SInexactIntegerNode. (Long/parseLong uint-str radix)))]
       (if (= sign "-")
         (.negate val)
@@ -77,7 +77,7 @@
   (specialize [this] this)
   (tagged [this _ _] this)
   (to-java [this]
-    (let [val (cond exact? (SExactRealNode. ^BigDecimal (BigDecimal. ^String decimal-str))
+    (let [val (cond exact? (SExactNumberNode. ^BigDecimal (BigDecimal. ^String decimal-str))
                     (some #{"s" "S" "f" "F"} [exp-mark]) (SInexactReal32Node. (Float/parseFloat decimal-str))
                     :else (SInexactReal64Node. (Double/parseDouble decimal-str)))
           val (if exp-val (.applyExp val exp-val) val)
