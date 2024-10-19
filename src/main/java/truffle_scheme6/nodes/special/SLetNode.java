@@ -1,6 +1,5 @@
 package truffle_scheme6.nodes.special;
 
-import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -14,7 +13,7 @@ import truffle_scheme6.nodes.atoms.SSymbolLiteralNode;
 public class SLetNode extends SSpecialNode {
     @NodeChild(value = "valueNode", type = SchemeNode.class)
     @NodeField(name = "slot", type = int.class)
-    public static abstract class SLetBindingNode extends SSpecialNode {
+    public static abstract class Binding extends SSpecialNode {
         protected abstract int getSlot();
 
         protected final static FrameSlotKind BOOLEAN = FrameSlotKind.Boolean;
@@ -80,15 +79,15 @@ public class SLetNode extends SSpecialNode {
     }
 
     @Children
-    private SLetBindingNode[] bindings;
+    private Binding[] bindings;
     @Children
     private SchemeNode[] body;
 
     public SLetNode(Pair<SSymbolLiteralNode, SchemeNode>[] bindings, SchemeNode[] body) {
-        this.bindings = new SLetBindingNode[bindings.length];
+        this.bindings = new Binding[bindings.length];
         for (int i = 0; i < bindings.length; i++) {
             var p = bindings[i];
-            this.bindings[i] = SLetNodeFactory.SLetBindingNodeGen.create(
+            this.bindings[i] = SLetNodeFactory.BindingGen.create(
                     p.getRight(),
                     ((SSymbolLiteralNode.ReadLocal) p.getLeft().getVarDispatch()).getSlot()
             );
