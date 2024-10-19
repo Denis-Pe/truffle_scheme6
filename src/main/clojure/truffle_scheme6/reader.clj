@@ -138,7 +138,7 @@
   <empty> = ''
   ")
 
-(defn- symbol-vec
+(defn symbol-vec
   [s]
   (reduce conj [:symbol] (map str s)))
 
@@ -151,7 +151,7 @@
                    (vec (.toList (.boxed (.codePoints str|cpoint))))
                    [str|cpoint])))
           (flatten))
-     (create-global-dispatch))))
+     (->GlobalDispatch))))
 
 (def string-escapes {"\\a"  0x0007
                      "\\b"  0x0008
@@ -229,7 +229,7 @@
     (->> source
          parse-strictly)))
 
-(defn- produce-nodes
+(defn produce-nodes
   [ast]
   (insta/transform
     {:inline-hex-escape #(Integer/parseUnsignedInt % 16)

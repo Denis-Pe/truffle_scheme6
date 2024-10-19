@@ -7,6 +7,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import org.graalvm.collections.Pair;
+import truffle_scheme6.Constants;
 import truffle_scheme6.SchemeNode;
 import truffle_scheme6.nodes.atoms.SSymbolLiteralNode;
 
@@ -102,7 +103,7 @@ public class SLetNode extends SSpecialNode {
             b.execute(frame);
         }
 
-        Object res = null;
+        Object res = Constants.UNSPECIFIED;
         for (var form : body) {
             res = form.execute(frame);
         }

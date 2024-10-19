@@ -20,24 +20,30 @@
   (tagged [this symbol-codepoints->dispatch frame-desc-builder] "Transform child symbols according to specified dispatch. Should be run on child nodes")
   (to-java [this] "Transforms a given node to a Java object"))
 
-(defn create-global-dispatch []
-  :global)
+(defn except-unsupported [node op-name]
+  (UnsupportedOperationException.
+    (str op-name " not supported on node " node " of type " (type node))))
 
-(defn create-local-dispatch [int-key]
-  [:local int-key])
+(defrecord GlobalDispatch []
+  PSchemeNode
+  (specialize [this] (throw (except-unsupported this "PSchemeNode/specialize")))
+  (tagged [this _ _] (throw (except-unsupported this "PSchemeNode/tagged")))
+  (to-java [this] (SSymbolLiteralNode$ReadGlobal.)))
 
-(defn create-arg-dispatch [arg-name position rest-arg?]
-  [:argument position
-   :rest-arg? rest-arg?])
+(defrecord LocalDispatch [int-key]
+  PSchemeNode
+  (specialize [this] (throw (except-unsupported this "PSchemeNode/specialize")))
+  (tagged [this _ _] (throw (except-unsupported this "PSchemeNode/tagged")))
+  (to-java [this] (SSymbolLiteralNodeFactory$ReadLocalNodeGen/create int-key)))
 
-(defn dispatch->java-obj [dispatch]
-  (match dispatch
-    :global (SSymbolLiteralNode$ReadGlobal.)
-    [:local k] (SSymbolLiteralNodeFactory$ReadLocalNodeGen/create k)
-    [:argument pos
-     :rest-arg? rest-arg?] (if rest-arg?
-                             (SSymbolLiteralNode$ReadArgDispatch. (SReadVarArgsNode. pos)) ; after pos, which is also the # of args preceding it
-                             (SSymbolLiteralNode$ReadArgDispatch. (SReadArgSlotNode. pos)))))
+(defrecord ArgDispatch [position rest-arg?]
+  PSchemeNode
+  (specialize [this] (throw (except-unsupported this "PSchemeNode/specialize")))
+  (tagged [this _ _] (throw (except-unsupported this "PSchemeNode/tagged")))
+  (to-java [this]
+    (if rest-arg?
+      (SSymbolLiteralNode$ReadArgDispatch. (SReadVarArgsNode. position)) ; after pos, which is also the # of args preceding it
+      (SSymbolLiteralNode$ReadArgDispatch. (SReadArgSlotNode. position)))))
 
 (defrecord FalseLiteral []
   PSchemeNode
@@ -137,7 +143,7 @@
         read-var-dispatch)))
   (to-java [this]
     (SSymbolLiteralNode. (int-array utf32codepoints)
-                         (dispatch->java-obj read-var-dispatch))))
+                         (to-java read-var-dispatch))))
 
 (defrecord NilLiteral []
   PSchemeNode
@@ -188,7 +194,7 @@
     (let [sc->new-dispatch
           (->> bindings
                (map (fn [[sym value]]
-                      [(:utf32codepoints sym) (create-local-dispatch
+                      [(:utf32codepoints sym) (->LocalDispatch
                                                 (.addSlot frame-desc-builder,
                                                           (detect-slot-kind value),
                                                           nil, nil))]))
