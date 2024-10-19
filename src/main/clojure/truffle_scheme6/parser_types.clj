@@ -1,6 +1,6 @@
 (ns truffle-scheme6.parser-types
   (:require [clojure.core.match :refer [match]])
-  (:import (com.oracle.truffle.api.frame FrameSlotKind)
+  (:import (com.oracle.truffle.api.frame FrameDescriptor FrameSlotKind)
            (org.graalvm.collections Pair)
            (truffle_scheme6 SchemeNode)
            (truffle_scheme6.nodes.atoms SCharacterLiteralNode SNilLiteralNode SStringLiteralNode SSymbolLiteralNode SSymbolLiteralNode$ReadArgDispatch SSymbolLiteralNode$ReadGlobal SSymbolLiteralNodeFactory$ReadLocalNodeGen)
@@ -13,6 +13,16 @@
 (defn- node-array
   [aseq]
   (into-array SchemeNode aseq))
+
+(defn all-unique?
+  [sequential]
+  (reduce
+    (fn [acc next]
+      (if (contains? acc next)
+        (reduced false)
+        (conj acc next)))
+    #{}
+    sequential))
 
 (defprotocol PSchemeNode
   ; organized in the order that they would be run from a top-level parser
@@ -217,13 +227,35 @@
              bindings))
       (node-array (map to-java body-forms)))))
 
+(defrecord LambdaNode [arguments body-forms frame-desc-builder]
+  PSchemeNode
+  (specialize [this]
+    (->LambdaNode arguments
+                  ;; a little trick I learnt from SimpleLanguage:
+                  ;;  arguments, unlike slots, don't have a mechanism for specializations
+                  ;;  which is why we store them in local slots
+                  [(->LetNode
+                     (partition 2 (interleave arguments arguments))
+                     (mapv specialize body-forms))]))
+  (tagged [this symbol-codepoints->dispatch _parent-frame-desc-builder]
+    (let [sc->new-dispatch (reduce
+                             (fn [sc->d a] (assoc sc->d (:utf32codepoints a) (:read-var-dispatch a)))
+                             symbol-codepoints->dispatch
+                             arguments)]
+      (->LambdaNode arguments
+                    (mapv #(tagged % sc->new-dispatch frame-desc-builder) body-forms))))
+  (to-java [this] this))
+
+(defn ->LambdaNode [arguments body-forms]
+  (LambdaNode. arguments body-forms (FrameDescriptor/newBuilder (count arguments))))
+
 (defmulti specialize-list
   "Return a special form node if the args given match
   the pattern of a syntax, otherwise returns nil"
   (fn [special-syntax-name & rest-nodes]
     special-syntax-name))
 
-(defrecord ListNode [forms dotted]
+(defrecord ListNode [forms dotted?]
   PSchemeNode
   (specialize [this]
     (let [[f & rs] forms]
@@ -232,15 +264,15 @@
               as-str (String. cps 0 (count cps))]
           (if-let [spec-form (apply specialize-list as-str rs)]
             (specialize spec-form)                          ; specialize children nodes too
-            (->ListNode (map specialize forms) dotted)))
-        (->ListNode (map specialize forms) dotted))))
+            (->ListNode (map specialize forms) dotted?)))
+        (->ListNode (map specialize forms) dotted?))))
   (tagged [this symbol-codepoints->dispatch frame-desc-builder]
     (->ListNode (map #(tagged % symbol-codepoints->dispatch frame-desc-builder)
                      forms)
-                dotted))
+                dotted?))
   (to-java [this]
     (let [[f & rs] forms
-          rs (if dotted rs (concat rs [(->NilLiteral)]))
+          rs (if dotted? rs (concat rs [(->NilLiteral)]))
           f (to-java f)
           rs (to-java rs)]
       (SListNode. f (node-array rs)))))
@@ -290,6 +322,35 @@
       (if (= (count (set binding-names))
              (count binding-names))
         (->LetNode bindings body)))))
+
+(defmethod specialize-list "lambda" [_lambda & args]
+  (when (>= (count args) 2)
+    (let [formals (first args)
+          body-forms (rest args)]
+      (cond
+        (instance? NilLiteral formals) (->LambdaNode [] body-forms)
+
+        (and (instance? ListNode formals)
+             (every? (partial instance? SymbolLiteral)
+                     (:forms formals))
+             (all-unique? (map :utf32codepoints (:forms formals))))
+        (let [last-rest? (:dotted? formals)
+              formals (map-indexed (fn [i a] (assoc a :read-var-dispatch (->ArgDispatch i false)))
+                                   (:forms formals))
+              bl (butlast formals)
+              l (last formals)
+              l-dispatch (:read-var-dispatch l)
+              formals (conj (vec bl) (if last-rest?
+                                       (assoc l :read-var-dispatch (assoc l-dispatch :rest-arg? true))
+                                       l))]
+          (->LambdaNode formals
+                        body-forms))
+
+        (instance? SymbolLiteral formals)
+        (->LambdaNode [(assoc formals :read-var-dispatch (->ArgDispatch 0 true))]
+                      body-forms)
+
+        :else nil))))
 
 (defmethod specialize-list :default [& _] nil)
 
