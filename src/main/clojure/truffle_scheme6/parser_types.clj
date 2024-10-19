@@ -8,7 +8,7 @@
            (truffle_scheme6.nodes.atoms.numbers SComplexLiteralNode SExactNumberNode SFractionLiteralNode SInexactIntegerNode SInexactReal32Node SInexactReal64Node SOctetLiteralNode)
            (truffle_scheme6.nodes.composites SByteVectorLiteralNode SListNode SVectorLiteralNode)
            (truffle_scheme6.nodes.functions SReadArgSlotNode SReadVarArgsNode)
-           (truffle_scheme6.nodes.special SBeginNode SDefineVarNode SLetNode SQuoteNode)))
+           (truffle_scheme6.nodes.special SBeginNode SDefineVarNode SLambdaNode SLetNode SQuoteNode)))
 
 (defn- node-array
   [aseq]
@@ -230,21 +230,26 @@
 (defrecord LambdaNode [arguments body-forms frame-desc-builder]
   PSchemeNode
   (specialize [this]
-    (->LambdaNode arguments
-                  ;; a little trick I learnt from SimpleLanguage:
-                  ;;  arguments, unlike slots, don't have a mechanism for specializations
-                  ;;  which is why we store them in local slots
-                  [(->LetNode
-                     (partition 2 (interleave arguments arguments))
-                     (mapv specialize body-forms))]))
+    (LambdaNode. arguments
+                 ;; a little trick I learnt from SimpleLanguage:
+                 ;;  arguments, unlike slots, don't have a mechanism for specializations
+                 ;;  which is why we store them in local slots
+                 [(specialize (->LetNode
+                                (partition 2 (interleave arguments arguments))
+                                body-forms))]
+                 frame-desc-builder))
   (tagged [this symbol-codepoints->dispatch _parent-frame-desc-builder]
     (let [sc->new-dispatch (reduce
                              (fn [sc->d a] (assoc sc->d (:utf32codepoints a) (:read-var-dispatch a)))
                              symbol-codepoints->dispatch
                              arguments)]
-      (->LambdaNode arguments
-                    (mapv #(tagged % sc->new-dispatch frame-desc-builder) body-forms))))
-  (to-java [this] this))
+      (LambdaNode. arguments
+                   (mapv #(tagged % sc->new-dispatch frame-desc-builder) body-forms)
+                   frame-desc-builder)))
+  (to-java [this]
+    (SLambdaNode. (into-array SSymbolLiteralNode (map to-java arguments))
+                  (node-array (map to-java body-forms))
+                  (.build frame-desc-builder))))
 
 (defn ->LambdaNode [arguments body-forms]
   (LambdaNode. arguments body-forms (FrameDescriptor/newBuilder (count arguments))))
@@ -274,7 +279,7 @@
     (let [[f & rs] forms
           rs (if dotted? rs (concat rs [(->NilLiteral)]))
           f (to-java f)
-          rs (to-java rs)]
+          rs (map to-java rs)]
       (SListNode. f (node-array rs)))))
 
 (defrecord VectorNode [xs]
