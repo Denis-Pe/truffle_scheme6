@@ -39,17 +39,32 @@ public final class SSymbolLiteralNode extends SchemeNode {
     public static abstract class ReadLocal extends ReadVarDispatch {
         public abstract int getSlot();
 
-        @Specialization(guards = "frame.isLong(getSlot())")
-        protected long readLong(VirtualFrame frame) {
-            return frame.getLong(getSlot());
-        }
-
         @Specialization(guards = "frame.isBoolean(getSlot())")
         protected boolean readBoolean(VirtualFrame frame) {
             return frame.getBoolean(getSlot());
         }
 
-        @Specialization(replaces = {"readLong", "readBoolean"})
+        @Specialization(guards = "frame.isLong(getSlot())")
+        protected long readLong(VirtualFrame frame) {
+            return frame.getLong(getSlot());
+        }
+
+        @Specialization(guards = "frame.isFloat(getSlot())")
+        protected float readFloat(VirtualFrame frame) {
+            return frame.getFloat(getSlot());
+        }
+
+        @Specialization(guards = "frame.isDouble(getSlot())")
+        protected double readDouble(VirtualFrame frame) {
+            return frame.getDouble(getSlot());
+        }
+
+        @Specialization(guards = "frame.isByte(getSlot())")
+        protected byte readByte(VirtualFrame frame) {
+            return frame.getByte(getSlot());
+        }
+
+        @Specialization(replaces = {"readBoolean", "readLong", "readFloat", "readDouble", "readByte"})
         protected Object readObject(VirtualFrame frame) {
             if (!frame.isObject(getSlot())) {
                 CompilerDirectives.transferToInterpreter();
