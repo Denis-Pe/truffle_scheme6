@@ -7,6 +7,9 @@ import truffle_scheme6.SchemeNode;
 import truffle_scheme6.nodes.atoms.SSymbolLiteralNode;
 import truffle_scheme6.nodes.roots.SLambdaRoot;
 import truffle_scheme6.runtime.SLambda;
+import truffle_scheme6.utils.StringFormatting;
+
+import java.util.Arrays;
 
 public class SLambdaNode extends SSpecialNode {
     @Children
@@ -26,5 +29,13 @@ public class SLambdaNode extends SSpecialNode {
     public Object execute(VirtualFrame frame) {
         SchemeLanguage sl = SchemeLanguage.get(this);
         return new SLambda(new SLambdaRoot(sl, frameDescriptor, body).getCallTarget());
+    }
+
+    @Override
+    public String toString() {
+        return "(lambda "
+                + "(" + StringFormatting.spaced(arguments) + ") "
+                + StringFormatting.spaced(body)
+                + ")";
     }
 }

@@ -9,12 +9,21 @@ import org.graalvm.collections.Pair;
 import truffle_scheme6.Constants;
 import truffle_scheme6.SchemeNode;
 import truffle_scheme6.nodes.atoms.SSymbolLiteralNode;
+import truffle_scheme6.utils.StringFormatting;
+
+import java.util.Arrays;
 
 public class SLetNode extends SSpecialNode {
-    @NodeChild(value = "valueNode", type = SchemeNode.class)
+
     @NodeField(name = "slot", type = int.class)
+    @NodeField(name = "slotName", type = SSymbolLiteralNode.class)
+    @NodeChild(value = "valueNode", type = SchemeNode.class)
     public static abstract class BindingNode extends SSpecialNode {
         protected abstract int getSlot();
+
+        public abstract SSymbolLiteralNode getSlotName();
+
+        public abstract SchemeNode getValueNode();
 
         protected final static FrameSlotKind BOOLEAN = FrameSlotKind.Boolean;
         protected final static FrameSlotKind LONG = FrameSlotKind.Long;
@@ -76,6 +85,11 @@ public class SLetNode extends SSpecialNode {
         }
 
         public abstract Object execute(VirtualFrame frame);
+
+        @Override
+        public String toString() {
+            return "(" + this.getSlotName() + " " + this.getValueNode() + ")";
+        }
     }
 
     @Children
@@ -89,7 +103,8 @@ public class SLetNode extends SSpecialNode {
             var p = bindings[i];
             this.bindings[i] = SLetNodeFactory.BindingNodeGen.create(
                     p.getRight(),
-                    ((SSymbolLiteralNode.ReadLocal) p.getLeft().getVarDispatch()).getSlot()
+                    ((SSymbolLiteralNode.ReadLocal) p.getLeft().getVarDispatch()).getSlot(),
+                    p.getLeft()
             );
         }
 
@@ -108,6 +123,15 @@ public class SLetNode extends SSpecialNode {
         }
 
         return res;
+    }
+
+    @Override
+    public String toString() {
+        return "(let ("
+                + StringFormatting.spaced(Arrays.stream(bindings).map(BindingNode::toString).toArray())
+                + ") "
+                + StringFormatting.spaced(body)
+                + ")";
     }
 }
 
