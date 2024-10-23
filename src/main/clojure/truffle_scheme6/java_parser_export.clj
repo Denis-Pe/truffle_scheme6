@@ -11,7 +11,7 @@
         root-forms (->> s
                         (read-scheme)
                         (map specialize)
-                        (map #(tagged % {} frame-desc-builder))
+                        (map #(tagged % {} frame-desc-builder ["root"]))
                         (map to-java)
                         (into-array SchemeNode))
         built (.build frame-desc-builder)]

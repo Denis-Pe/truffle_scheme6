@@ -3,6 +3,7 @@ package truffle_scheme6.nodes.atoms;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import truffle_scheme6.SchemeNode;
 import truffle_scheme6.nodes.functions.SReadArgNode;
@@ -75,7 +76,58 @@ public final class SSymbolLiteralNode extends SchemeNode {
 
             return frame.getObject(getSlot());
         }
+    }
 
+    @NodeField(name = "rootName", type = String.class)
+    // initially null, set during the execution of frame whose name is the field above
+    @NodeField(name = "matFrame", type = MaterializedFrame.class)
+    @NodeField(name = "slot", type = int.class)
+    public static abstract class ReadFromMaterialized extends ReadVarDispatch {
+        public abstract String getRootName();
+
+        public abstract MaterializedFrame getMatFrame();
+
+        public abstract void setMatFrame(MaterializedFrame frame);
+
+        public abstract int getSlot();
+
+        @Specialization(guards = "matFrame.isBoolean(getSlot())")
+        protected boolean readBoolean(VirtualFrame _vFrame) {
+            return getMatFrame().getBoolean(getSlot());
+        }
+
+        @Specialization(guards = "matFrame.isLong(getSlot())")
+        protected long readLong(VirtualFrame _vFrame) {
+            return getMatFrame().getLong(getSlot());
+        }
+
+        @Specialization(guards = "matFrame.isFloat(getSlot())")
+        protected float readFloat(VirtualFrame _vFrame) {
+            return getMatFrame().getFloat(getSlot());
+        }
+
+        @Specialization(guards = "matFrame.isDouble(getSlot())")
+        protected double readDouble(VirtualFrame _vFrame) {
+            return getMatFrame().getDouble(getSlot());
+        }
+
+        @Specialization(guards = "matFrame.isByte(getSlot())")
+        protected byte readByte(VirtualFrame _vFrame) {
+            return getMatFrame().getByte(getSlot());
+        }
+
+        @Specialization(replaces = {"readBoolean", "readLong", "readFloat", "readDouble", "readByte"})
+        protected Object readObject(VirtualFrame _vFrame) {
+            var frame = getMatFrame();
+            if (!frame.isObject(getSlot())) {
+                CompilerDirectives.transferToInterpreter();
+                Object result = frame.getValue(getSlot());
+                frame.setObject(getSlot(), result);
+                return result;
+            }
+
+            return frame.getObject(getSlot());
+        }
     }
 
     public static class ReadGlobal extends ReadVarDispatch {

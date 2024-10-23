@@ -6,6 +6,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
 import truffle_scheme6.Constants;
 import truffle_scheme6.SchemeNode;
+import truffle_scheme6.utils.StaticUtils;
 import truffle_scheme6.utils.StringFormatting;
 
 import java.util.Arrays;
@@ -22,6 +23,8 @@ public class SchemeRoot extends RootNode {
     @Override
     public Object execute(VirtualFrame frame) {
         Object res = Constants.UNSPECIFIED;
+
+        StaticUtils.tagClosureReaders(frame, "root", nodes);
 
         for (var node : nodes) {
             res = node.execute(frame);

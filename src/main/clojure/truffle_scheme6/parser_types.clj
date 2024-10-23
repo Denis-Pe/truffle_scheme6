@@ -3,7 +3,7 @@
   (:import (com.oracle.truffle.api.frame FrameDescriptor FrameSlotKind)
            (org.graalvm.collections Pair)
            (truffle_scheme6 SchemeNode)
-           (truffle_scheme6.nodes.atoms SCharacterLiteralNode SNilLiteralNode SStringLiteralNode SSymbolLiteralNode SSymbolLiteralNode$ReadArgDispatch SSymbolLiteralNode$ReadGlobal SSymbolLiteralNodeFactory$ReadLocalNodeGen)
+           (truffle_scheme6.nodes.atoms SCharacterLiteralNode SNilLiteralNode SStringLiteralNode SSymbolLiteralNode SSymbolLiteralNode$ReadArgDispatch SSymbolLiteralNode$ReadGlobal SSymbolLiteralNodeFactory SSymbolLiteralNodeFactory$ReadFromMaterializedNodeGen SSymbolLiteralNodeFactory$ReadLocalNodeGen)
            (truffle_scheme6.nodes.atoms.bools SFalseLiteralNode STrueLiteralNode)
            (truffle_scheme6.nodes.atoms.numbers SComplexLiteralNode SExactNumberNode SFractionLiteralNode SInexactIntegerNode SInexactReal32Node SInexactReal64Node SOctetLiteralNode)
            (truffle_scheme6.nodes.composites SByteVectorLiteralNode SListNode SVectorLiteralNode)
@@ -27,7 +27,7 @@
 (defprotocol PSchemeNode
   ; organized in the order that they would be run from a top-level parser
   (specialize [this] "Transforms a list node into an appropriate special node, otherwise returns the same thing")
-  (tagged [this symbol-codepoints->dispatch frame-desc-builder] "Transform child symbols according to specified dispatch. Should be run on child nodes")
+  (tagged [this symbol-codepoints->dispatch frame-desc-builder frame-names] "Transform child symbols according to specified dispatch. Should be run on child nodes")
   (to-java [this] "Transforms a given node to a Java object"))
 
 (defn except-unsupported [node op-name]
@@ -37,19 +37,25 @@
 (defrecord GlobalDispatch []
   PSchemeNode
   (specialize [this] (throw (except-unsupported this "PSchemeNode/specialize")))
-  (tagged [this _ _] (throw (except-unsupported this "PSchemeNode/tagged")))
+  (tagged [this _ _ _] (throw (except-unsupported this "PSchemeNode/tagged")))
   (to-java [this] (SSymbolLiteralNode$ReadGlobal.)))
 
-(defrecord LocalDispatch [int-key]
+(defrecord LocalDispatch [frame-name int-key]
   PSchemeNode
   (specialize [this] (throw (except-unsupported this "PSchemeNode/specialize")))
-  (tagged [this _ _] (throw (except-unsupported this "PSchemeNode/tagged")))
+  (tagged [this _ _ _] (throw (except-unsupported this "PSchemeNode/tagged")))
   (to-java [this] (SSymbolLiteralNodeFactory$ReadLocalNodeGen/create int-key)))
+
+(defrecord ClosureLocalDispatch [frame-name int-key]
+  PSchemeNode
+  (specialize [this] (throw (except-unsupported this "PSchemeNode/specialize")))
+  (tagged [this _ _ _] (throw (except-unsupported this "PSchemeNode/tagged")))
+  (to-java [this] (SSymbolLiteralNodeFactory$ReadFromMaterializedNodeGen/create frame-name int-key))) ; the nil frame is implied because it has a setter 🤷‍♂️
 
 (defrecord ArgDispatch [position rest-arg?]
   PSchemeNode
   (specialize [this] (throw (except-unsupported this "PSchemeNode/specialize")))
-  (tagged [this _ _] (throw (except-unsupported this "PSchemeNode/tagged")))
+  (tagged [this _ _ _] (throw (except-unsupported this "PSchemeNode/tagged")))
   (to-java [this]
     (if rest-arg?
       (SSymbolLiteralNode$ReadArgDispatch. (SReadVarArgsNode. position)) ; after pos, which is also the # of args preceding it
@@ -58,21 +64,21 @@
 (defrecord FalseLiteral []
   PSchemeNode
   (specialize [this] this)
-  (tagged [this _ _] this)
+  (tagged [this _ _ _] this)
   (to-java [this]
     (SFalseLiteralNode.)))
 
 (defrecord TrueLiteral []
   PSchemeNode
   (specialize [this] this)
-  (tagged [this _ _] this)
+  (tagged [this _ _ _] this)
   (to-java [this]
     (STrueLiteralNode.)))
 
 (defrecord IntegerLiteral [exact? radix sign uint-str]
   PSchemeNode
   (specialize [this] this)
-  (tagged [this _ _] this)
+  (tagged [this _ _ _] this)
   (to-java [this]
     (let [val (if exact?
                 (SExactNumberNode. (BigDecimal. (BigInteger. ^String uint-str ^int radix)))
@@ -84,14 +90,14 @@
 (defrecord FractionLiteral [numerator-int-literal denominator-int-literal]
   PSchemeNode
   (specialize [this] this)
-  (tagged [this _ _] this)
+  (tagged [this _ _ _] this)
   (to-java [this]
     (SFractionLiteralNode. (to-java numerator-int-literal) (to-java denominator-int-literal))))
 
 (defrecord DecimalLiteral [exact? sign decimal-str exp-mark exp-val mantissa-width] ; mantissa is ignored for now
   PSchemeNode
   (specialize [this] this)
-  (tagged [this _ _] this)
+  (tagged [this _ _ _] this)
   (to-java [this]
     (let [val (cond exact? (SExactNumberNode. ^BigDecimal (BigDecimal. ^String decimal-str))
                     (some #{"s" "S" "f" "F"} [exp-mark]) (SInexactReal32Node. (Float/parseFloat decimal-str))
@@ -103,7 +109,7 @@
 (defrecord NanInfLiteral [sign literal]
   PSchemeNode
   (specialize [this] this)
-  (tagged [this _ _] this)
+  (tagged [this _ _ _] this)
   (to-java [this]
     (let [num (condp = [sign literal]
                 ["-" "inf.0"] Float/NEGATIVE_INFINITY
@@ -114,14 +120,14 @@
 (defrecord ComplexLiteral [real-literal imaginary-literal]
   PSchemeNode
   (specialize [this] this)
-  (tagged [this _ _] this)
+  (tagged [this _ _ _] this)
   (to-java [this]
     (SComplexLiteralNode. (to-java real-literal) (to-java imaginary-literal))))
 
 (defrecord OctetLiteral [radix octet-str]
   PSchemeNode
   (specialize [this] this)
-  (tagged [this _ _] this)
+  (tagged [this _ _ _] this)
   (to-java [this]
     (let [parsed (Integer/parseUnsignedInt octet-str radix)]
       (if (and (>= parsed 0) (<= parsed 255))
@@ -131,25 +137,27 @@
 (defrecord CharacterLiteral [utf32value]
   PSchemeNode
   (specialize [this] this)
-  (tagged [this _ _] this)
+  (tagged [this _ _ _] this)
   (to-java [this]
     (SCharacterLiteralNode. ^int utf32value)))
 
 (defrecord StringLiteral [utf32codepoints]
   PSchemeNode
   (specialize [this] this)
-  (tagged [this _ _] this)
+  (tagged [this _ _ _] this)
   (to-java [this]
     (SStringLiteralNode. (int-array utf32codepoints))))
 
 (defrecord SymbolLiteral [utf32codepoints read-var-dispatch]
   PSchemeNode
   (specialize [this] this)
-  (tagged [this symbol-codepoints->dispatch frame-desc-builder]
+  (tagged [this symbol-codepoints->dispatch _frame-desc-builder frame-names]
     (->SymbolLiteral
       utf32codepoints
       (if-let [d (symbol-codepoints->dispatch utf32codepoints)]
-        d
+        (if (and (instance? LocalDispatch d) (not= (last frame-names) (:frame-name d)))
+          (->ClosureLocalDispatch (last frame-names) (:int-key d))
+          d)
         read-var-dispatch)))
   (to-java [this]
     (SSymbolLiteralNode. (int-array utf32codepoints)
@@ -158,7 +166,7 @@
 (defrecord NilLiteral []
   PSchemeNode
   (specialize [this] this)
-  (tagged [this _ _] this)
+  (tagged [this _ _ _] this)
   (to-java [this]
     (SNilLiteralNode.)))
 
@@ -167,25 +175,25 @@
 (defrecord QuoteNode [x]
   PSchemeNode
   (specialize [this] this)
-  (tagged [this symbol-codepoints->dispatch frame-desc-builder]
-    (->QuoteNode (tagged x symbol-codepoints->dispatch frame-desc-builder)))
+  (tagged [this symbol-codepoints->dispatch frame-desc-builder frame-names]
+    (->QuoteNode (tagged x symbol-codepoints->dispatch frame-desc-builder frame-names)))
   (to-java [this]
     (SQuoteNode. (to-java x))))
 
 (defrecord DefineNode [identifier value]
   PSchemeNode
   (specialize [this] (->DefineNode identifier (specialize value)))
-  (tagged [this symbol-codepoints->dispatch frame-desc-builder]
-    (->DefineNode (tagged identifier symbol-codepoints->dispatch frame-desc-builder)
-                  (tagged value symbol-codepoints->dispatch frame-desc-builder)))
+  (tagged [this symbol-codepoints->dispatch frame-desc-builder frame-names]
+    (->DefineNode (tagged identifier symbol-codepoints->dispatch frame-desc-builder frame-names)
+                  (tagged value symbol-codepoints->dispatch frame-desc-builder frame-names)))
   (to-java [this]
     (SDefineVarNode. (to-java identifier) (to-java value))))
 
 (defrecord BeginNode [nodes]
   PSchemeNode
   (specialize [this] (->BeginNode (map specialize nodes)))
-  (tagged [this symbol-codepoints->dispatch frame-desc-builder]
-    (->BeginNode (map #(tagged % symbol-codepoints->dispatch frame-desc-builder)
+  (tagged [this symbol-codepoints->dispatch frame-desc-builder frame-names]
+    (->BeginNode (map #(tagged % symbol-codepoints->dispatch frame-desc-builder frame-names)
                       nodes)))
   (to-java [this]
     (SBeginNode. (node-array (map to-java nodes)))))
@@ -200,11 +208,12 @@
     (->LetNode
       (mapv (fn [[sym val]] [sym (specialize val)]) bindings)
       (map specialize body-forms)))
-  (tagged [this symbol-codepoints->dispatch frame-desc-builder]
+  (tagged [this symbol-codepoints->dispatch frame-desc-builder frame-names]
     (let [sc->new-dispatch
           (->> bindings
                (map (fn [[sym value]]
                       [(:utf32codepoints sym) (->LocalDispatch
+                                                (last frame-names)
                                                 (.addSlot frame-desc-builder,
                                                           (detect-slot-kind value),
                                                           nil, nil))]))
@@ -213,10 +222,10 @@
                    (assoc m codepoints dispatch))
                  symbol-codepoints->dispatch))]
       (->LetNode
-        (mapv (fn [[sym val]] [(tagged sym sc->new-dispatch frame-desc-builder)
-                               (tagged val symbol-codepoints->dispatch frame-desc-builder)])
+        (mapv (fn [[sym val]] [(tagged sym sc->new-dispatch frame-desc-builder frame-names)
+                               (tagged val symbol-codepoints->dispatch frame-desc-builder frame-names)])
               bindings)
-        (map #(tagged % sc->new-dispatch frame-desc-builder)
+        (map #(tagged % sc->new-dispatch frame-desc-builder frame-names)
              body-forms))))
   (to-java [this]
     (SLetNode.
@@ -227,7 +236,7 @@
              bindings))
       (node-array (map to-java body-forms)))))
 
-(defrecord LambdaNode [arguments body-forms frame-desc-builder]
+(defrecord LambdaNode [arguments body-forms frame-desc-builder lambda-name]
   PSchemeNode
   (specialize [this]
     (LambdaNode. arguments
@@ -237,22 +246,29 @@
                  [(specialize (->LetNode
                                 (partition 2 (interleave arguments arguments))
                                 body-forms))]
-                 frame-desc-builder))
-  (tagged [this symbol-codepoints->dispatch _parent-frame-desc-builder]
+                 frame-desc-builder
+                 lambda-name))
+  (tagged [this symbol-codepoints->dispatch _parent-frame-desc-builder frame-names]
     (let [sc->new-dispatch (reduce
                              (fn [sc->d a] (assoc sc->d (:utf32codepoints a) (:read-var-dispatch a)))
                              symbol-codepoints->dispatch
-                             arguments)]
+                             arguments)
+          frame-names (conj frame-names lambda-name)]
       (LambdaNode. arguments
-                   (mapv #(tagged % sc->new-dispatch frame-desc-builder) body-forms)
-                   frame-desc-builder)))
+                   (mapv #(tagged % sc->new-dispatch frame-desc-builder frame-names) body-forms)
+                   frame-desc-builder
+                   lambda-name)))
   (to-java [this]
     (SLambdaNode. (into-array SSymbolLiteralNode (map to-java arguments))
                   (node-array (map to-java body-forms))
-                  (.build frame-desc-builder))))
+                  (.build frame-desc-builder)
+                  lambda-name)))
 
 (defn ->LambdaNode [arguments body-forms]
-  (LambdaNode. arguments body-forms (FrameDescriptor/newBuilder (count arguments))))
+  (LambdaNode. arguments
+               body-forms
+               (FrameDescriptor/newBuilder (count arguments))
+               (str (gensym "lambda-"))))
 
 (defmulti specialize-list
   "Return a special form node if the args given match
@@ -271,8 +287,8 @@
             (specialize spec-form)                          ; specialize children nodes too
             (->ListNode (map specialize forms) dotted?)))
         (->ListNode (map specialize forms) dotted?))))
-  (tagged [this symbol-codepoints->dispatch frame-desc-builder]
-    (->ListNode (map #(tagged % symbol-codepoints->dispatch frame-desc-builder)
+  (tagged [this symbol-codepoints->dispatch frame-desc-builder frame-names]
+    (->ListNode (map #(tagged % symbol-codepoints->dispatch frame-desc-builder frame-names)
                      forms)
                 dotted?))
   (to-java [this]
@@ -285,8 +301,8 @@
 (defrecord VectorNode [xs]
   PSchemeNode
   (specialize [this] (->VectorNode (map specialize xs)))
-  (tagged [this symbol-codepoints->dispatch frame-desc-builder]
-    (->VectorNode (map #(tagged % symbol-codepoints->dispatch frame-desc-builder)
+  (tagged [this symbol-codepoints->dispatch frame-desc-builder frame-names]
+    (->VectorNode (map #(tagged % symbol-codepoints->dispatch frame-desc-builder frame-names)
                        xs)))
   (to-java [this]
     (SVectorLiteralNode. (node-array (map to-java xs)))))
@@ -294,7 +310,7 @@
 (defrecord ByteVectorNode [octets]
   PSchemeNode
   (specialize [this] this)
-  (tagged [this _ _] this)                                  ;; can't have anything other than octets at the parser level
+  (tagged [this _ _ _] this)                                ;; can't have anything other than octets at the parser level
   (to-java [this]
     (SByteVectorLiteralNode. (into-array SOctetLiteralNode (map to-java octets)))))
 
