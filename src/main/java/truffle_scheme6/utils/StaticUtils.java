@@ -9,7 +9,7 @@ import java.util.Arrays;
 public class StaticUtils {
     public static void tagClosureReaders(VirtualFrame frame, String frameName, SchemeNode[] tree) {
         // todo have a mechanism at the parse level to detect whether this is actually necessary in the root-making nodes
-        Arrays.stream(tree).forEach(topForm -> {
+        for (var topForm : tree) {
             topForm.accept(n -> {
                 if (n instanceof SSymbolLiteralNode sym
                         && sym.getVarDispatch() instanceof SSymbolLiteralNode.ReadFromMaterialized readMaterialized
@@ -19,6 +19,6 @@ public class StaticUtils {
 
                 return true;
             });
-        });
+        }
     }
 }
