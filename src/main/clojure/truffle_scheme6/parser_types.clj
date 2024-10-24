@@ -180,24 +180,6 @@
   (to-java [this]
     (SQuoteNode. (to-java x))))
 
-(defrecord DefineNode [identifier value]
-  PSchemeNode
-  (specialize [this] (->DefineNode identifier (specialize value)))
-  (tagged [this symbol-codepoints->dispatch frame-desc-builder frame-names]
-    (->DefineNode (tagged identifier symbol-codepoints->dispatch frame-desc-builder frame-names)
-                  (tagged value symbol-codepoints->dispatch frame-desc-builder frame-names)))
-  (to-java [this]
-    (SDefineVarNode. (to-java identifier) (to-java value))))
-
-(defrecord BeginNode [nodes]
-  PSchemeNode
-  (specialize [this] (->BeginNode (map specialize nodes)))
-  (tagged [this symbol-codepoints->dispatch frame-desc-builder frame-names]
-    (->BeginNode (map #(tagged % symbol-codepoints->dispatch frame-desc-builder frame-names)
-                      nodes)))
-  (to-java [this]
-    (SBeginNode. (node-array (map to-java nodes)))))
-
 (defmulti detect-slot-kind
   "Given a node, returns an appropriate FrameSlotKind for that node"
   (fn [node] (type node)))
@@ -236,6 +218,66 @@
              bindings))
       (node-array (map to-java body-forms)))))
 
+(defrecord DefineVarNode [identifier value]
+  PSchemeNode
+  (specialize [this] (->DefineVarNode identifier (specialize value)))
+  (tagged [this symbol-codepoints->dispatch frame-desc-builder frame-names]
+    (->DefineVarNode (tagged identifier symbol-codepoints->dispatch frame-desc-builder frame-names)
+                     (tagged value symbol-codepoints->dispatch frame-desc-builder frame-names)))
+  (to-java [this]
+    (SDefineVarNode. (to-java identifier) (to-java value))))
+
+(defrecord DefineUnspecifiedNode [identifier]
+  PSchemeNode
+  (specialize [this] (->DefineUnspecifiedNode identifier))
+  (tagged [this symbol-codepoints->dispatch frame-desc-builder frame-names]
+    (->DefineUnspecifiedNode
+      (tagged identifier symbol-codepoints->dispatch frame-desc-builder frame-names)))
+  (to-java [this]
+    (SDefineVarNode. (to-java identifier) nil)))
+
+(defrecord DefineFunNode [identifier formals body-forms frame-desc-builder fun-name]
+  PSchemeNode
+  (specialize [this]
+    (DefineFunNode. identifier
+                    formals
+                    [(specialize (->LetNode
+                                   (partition 2 (interleave formals formals))
+                                   body-forms))]
+                    frame-desc-builder
+                    fun-name))
+  (tagged [this symbol-codepoints->dispatch _parent-frame-desc-builder frame-names]
+    (let [sc->new-dispatch (reduce
+                             (fn [sc->d a] (assoc sc->d (:utf32codepoints a) (:read-var-dispatch a)))
+                             symbol-codepoints->dispatch
+                             formals)
+          frame-names (conj frame-names fun-name)]
+      (DefineFunNode. identifier
+                      formals
+                      (mapv #(tagged % sc->new-dispatch frame-desc-builder frame-names) body-forms)
+                      frame-desc-builder
+                      fun-name)))
+  (to-java [this]
+    ;; todo
+    ;;  major refactorings are also needed
+    this))
+
+(defn ->DefineFunNode [identifier formals body-forms]
+  (DefineFunNode. identifier
+                  formals
+                  body-forms
+                  (FrameDescriptor/newBuilder (count formals))
+                  (str (gensym "define-"))))
+
+(defrecord BeginNode [nodes]
+  PSchemeNode
+  (specialize [this] (->BeginNode (map specialize nodes)))
+  (tagged [this symbol-codepoints->dispatch frame-desc-builder frame-names]
+    (->BeginNode (map #(tagged % symbol-codepoints->dispatch frame-desc-builder frame-names)
+                      nodes)))
+  (to-java [this]
+    (SBeginNode. (node-array (map to-java nodes)))))
+
 (defrecord LambdaNode [arguments body-forms frame-desc-builder lambda-name]
   PSchemeNode
   (specialize [this]
@@ -269,6 +311,9 @@
                body-forms
                (FrameDescriptor/newBuilder (count arguments))
                (str (gensym "lambda-"))))
+
+;; todo recursion and, if the day is going great,
+;;  tail call optimization recursion in the same session
 
 (defmulti specialize-list
   "Return a special form node if the args given match
@@ -314,16 +359,47 @@
   (to-java [this]
     (SByteVectorLiteralNode. (into-array SOctetLiteralNode (map to-java octets)))))
 
+(defn parse-formals
+  "Given a ListNode of formals for a function, returns
+  a vector of the transformed symbols with the proper dispatch
+  
+  if the given ListNode is not a valid list of formals or is not a ListNode
+  at all, returns nil"
+  [formals]
+  (if (and (instance? ListNode formals)
+           (every? (partial instance? SymbolLiteral)
+                   (:forms formals))
+           (all-unique? (map :utf32codepoints (:forms formals))))
+    (let [last-rest? (:dotted? formals)
+          formals (map-indexed (fn [i a] (assoc a :read-var-dispatch (->ArgDispatch i false)))
+                               (:forms formals))
+          bl (butlast formals)
+          l (last formals)
+          l-dispatch (:read-var-dispatch l)]
+      (conj (vec bl) (if last-rest?
+                       (assoc l :read-var-dispatch (assoc l-dispatch :rest-arg? true))
+                       l)))))
+
 (defmethod specialize-list "quote" [_quote & args]
   (if (= 1 (count args))
     (->QuoteNode (first args))))
 
 (defmethod specialize-list "define" [_define & args]
-  ; todo implement rest of the Variations on the Carnival of Definitions by J.B. Arban
-  (if (and (= 2 (count args))
-           (instance? SymbolLiteral (first args)))
-    (let [[identifier value] args]
-      (->DefineNode identifier value))))
+  (let [nargs (count args)]
+    (cond (and (or (= 1 nargs) (= 2 nargs)) (instance? SymbolLiteral (first args)))
+          (let [[identifier value] args]
+            (if value
+              (->DefineVarNode identifier value)
+              (->DefineUnspecifiedNode identifier)))
+
+          (and (>= nargs 1) (instance? ListNode (first args)))
+          (let [[spec-list & body] args
+                [identifier & formals] (:forms spec-list)
+                formals (if formals (parse-formals (->ListNode formals (:dotted? spec-list))))]
+            (if (and (instance? SymbolLiteral identifier) formals)
+              (->DefineFunNode identifier formals body)))
+
+          :else nil)))
 
 (defmethod specialize-list "begin" [_begin & args]
   (->BeginNode args))
@@ -351,21 +427,9 @@
       (cond
         (instance? NilLiteral formals) (->LambdaNode [] body-forms)
 
-        (and (instance? ListNode formals)
-             (every? (partial instance? SymbolLiteral)
-                     (:forms formals))
-             (all-unique? (map :utf32codepoints (:forms formals))))
-        (let [last-rest? (:dotted? formals)
-              formals (map-indexed (fn [i a] (assoc a :read-var-dispatch (->ArgDispatch i false)))
-                                   (:forms formals))
-              bl (butlast formals)
-              l (last formals)
-              l-dispatch (:read-var-dispatch l)
-              formals (conj (vec bl) (if last-rest?
-                                       (assoc l :read-var-dispatch (assoc l-dispatch :rest-arg? true))
-                                       l))]
-          (->LambdaNode formals
-                        body-forms))
+        (instance? ListNode formals)
+        (if-let [formals (parse-formals formals)]
+          (->LambdaNode formals body-forms))
 
         (instance? SymbolLiteral formals)
         (->LambdaNode [(assoc formals :read-var-dispatch (->ArgDispatch 0 true))]

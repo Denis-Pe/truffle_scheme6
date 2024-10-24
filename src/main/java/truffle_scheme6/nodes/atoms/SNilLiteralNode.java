@@ -11,7 +11,6 @@ public final class SNilLiteralNode extends SchemeNode {
 
     @Override
     public Object execute(VirtualFrame frame) {
-        // todo integrate error with Scheme
         throw new UnsupportedOperationException("Nil literals must be quoted");
     }
 
