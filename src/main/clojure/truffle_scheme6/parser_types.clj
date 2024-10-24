@@ -8,7 +8,7 @@
            (truffle_scheme6.nodes.atoms.numbers SComplexLiteralNode SExactNumberNode SFractionLiteralNode SInexactIntegerNode SInexactReal32Node SInexactReal64Node SOctetLiteralNode)
            (truffle_scheme6.nodes.composites SByteVectorLiteralNode SListNode SVectorLiteralNode)
            (truffle_scheme6.nodes.functions SReadArgSlotNode SReadVarArgsNode)
-           (truffle_scheme6.nodes.special SBeginNode SDefineVarNode SLambdaNode SLetNode SQuoteNode)))
+           (truffle_scheme6.nodes.special SBeginNode SDefineVarNode SDefunNode SLambdaNode SLetNode SQuoteNode)))
 
 (defn- node-array
   [aseq]
@@ -258,9 +258,11 @@
                       frame-desc-builder
                       fun-name)))
   (to-java [this]
-    ;; todo
-    ;;  major refactorings are also needed
-    this))
+    (SDefunNode. (to-java identifier)
+                 (into-array SSymbolLiteralNode (map to-java formals))
+                 (node-array (map to-java body-forms))
+                 (.build frame-desc-builder)
+                 fun-name)))
 
 (defn ->DefineFunNode [identifier formals body-forms]
   (DefineFunNode. identifier
