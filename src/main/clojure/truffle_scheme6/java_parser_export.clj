@@ -1,7 +1,7 @@
 (ns truffle-scheme6.java-parser-export
-  (:require [truffle-scheme6.reader :refer [read-scheme]]
-            [truffle-scheme6.parser-types :refer [specialize tagged to-java]])
-  (:import (com.oracle.truffle.api.frame FrameDescriptor FrameDescriptor$Builder)
+  (:require [truffle-scheme6.parser-types :refer [specialize tagged to-java]]
+            [truffle-scheme6.reader :refer [read-scheme]])
+  (:import (com.oracle.truffle.api.frame FrameDescriptor)
            (truffle_scheme6 SchemeNode)
            (truffle_scheme6.nodes.roots SchemeRoot)))
 

@@ -31,7 +31,7 @@ public class SLambdaNode extends SSpecialNode {
     public Object execute(VirtualFrame frame) {
         StaticUtils.tagClosureReaders(frame, name, body);
 
-        SchemeLanguage sl = SchemeLanguage.get(this);
+        var sl = SchemeLanguage.get(this);
         return new SLambda(new SLambdaRoot(sl, frameDescriptor, body).getCallTarget());
     }
 
