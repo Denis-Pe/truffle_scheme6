@@ -12,7 +12,7 @@ import truffle_scheme6.utils.StringFormatting;
 import java.util.Arrays;
 
 public class SchemeRoot extends RootNode {
-    public static String FRAME_NAME = "root";
+    public final static String FRAME_NAME = "root";
     
     @Children
     private final SchemeNode[] nodes;
