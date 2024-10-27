@@ -12,8 +12,6 @@ import truffle_scheme6.utils.StringFormatting;
 import java.util.Arrays;
 
 public class SchemeRoot extends RootNode {
-    public final static String FRAME_NAME = "root";
-    
     @Children
     private final SchemeNode[] nodes;
 
@@ -26,7 +24,7 @@ public class SchemeRoot extends RootNode {
     public Object execute(VirtualFrame frame) {
         Object res = Constants.UNSPECIFIED;
 
-        StaticUtils.tagClosureReaders(frame, FRAME_NAME, nodes);
+        StaticUtils.tagClosureReaders(frame, "root", nodes);
 
         for (var node : nodes) {
             res = node.execute(frame);
