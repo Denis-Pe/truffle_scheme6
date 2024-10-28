@@ -37,7 +37,7 @@ public class SDefunNode extends SSpecialNode {
 
         var sl = SchemeLanguage.get(this);
         var context = SchemeLanguageContext.get(this);
-        var lambda = new SLambda(new SLambdaRoot(sl, frameDescriptor, body).getCallTarget());
+        var lambda = new SLambda(new SLambdaRoot(sl, frameDescriptor, identifier.getSymbol().toString(), body).getCallTarget());
         context.globalScope.setVar(identifier.getSymbol(), lambda);
 
         return Constants.UNSPECIFIED;

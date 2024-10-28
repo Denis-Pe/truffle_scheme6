@@ -29,7 +29,7 @@ public final class SchemeLanguage extends TruffleLanguage<SchemeLanguageContext>
     protected SchemeLanguageContext createContext(Env env) {
         var ctx = new SchemeLanguageContext();
 
-        var isSymbol = new SLambdaRoot(this, FrameDescriptor.newBuilder().build(), SIsSymbolNodeGen.create(new SReadArgSlotNode(0)));
+        var isSymbol = new SLambdaRoot(this, FrameDescriptor.newBuilder().build(), "symbol?", SIsSymbolNodeGen.create(new SReadArgSlotNode(0)));
         ctx.globalScope.setVar(SSymbol.get("symbol?"), new SLambda(isSymbol.getCallTarget()));
 
         return ctx;
