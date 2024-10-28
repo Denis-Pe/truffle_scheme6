@@ -36,7 +36,7 @@ public class SListNode extends SchemeNode {
     @ExplodeLoop
     public Object execute(VirtualFrame frame) {
         if (!(this.args[args.length - 1] instanceof SNilLiteralNode)) {
-            throw new RuntimeException("Invalid execution: " + this.toStringList());
+            throw new RuntimeException("Invalid syntax: execution of improper list " + this.toStringPairs());
         }
 
         Object eForm = form.execute(frame);

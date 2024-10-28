@@ -8,7 +8,7 @@ import truffle_scheme6.SchemeNode;
 public class SIfNode extends SSpecialNode {
     @Child private SchemeNode conditionNode;
     @Child private SchemeNode thenNode;
-    @Child private SchemeNode elseNode; // optional
+    @Child private SchemeNode elseNode; // nullable
     private final ConditionProfile condition = ConditionProfile.createCountingProfile();
 
     public SIfNode(SchemeNode conditionNode, SchemeNode thenNode, SchemeNode elseNode) {

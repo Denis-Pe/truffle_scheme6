@@ -10,6 +10,7 @@ import truffle_scheme6.nodes.atoms.SSymbolLiteralNode;
 import truffle_scheme6.nodes.roots.SLambdaRoot;
 import truffle_scheme6.runtime.SLambda;
 import truffle_scheme6.utils.StaticUtils;
+import truffle_scheme6.utils.StringFormatting;
 
 public class SDefunNode extends SSpecialNode {
     @Child
@@ -40,5 +41,12 @@ public class SDefunNode extends SSpecialNode {
         context.globalScope.setVar(identifier.getSymbol(), lambda);
 
         return Constants.UNSPECIFIED;
+    }
+
+    @Override
+    public String toString() {
+        var argsStr = StringFormatting.spaced(arguments);
+        argsStr = argsStr.isEmpty() ? argsStr : " " + argsStr;
+        return "(define (%s%s) %s)".formatted(identifier, argsStr, StringFormatting.spaced(body));
     }
 }
