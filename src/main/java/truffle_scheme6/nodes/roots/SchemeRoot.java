@@ -9,8 +9,6 @@ import truffle_scheme6.SchemeNode;
 import truffle_scheme6.utils.StaticUtils;
 import truffle_scheme6.utils.StringFormatting;
 
-import java.util.Arrays;
-
 public class SchemeRoot extends RootNode {
     public final static String FRAME_NAME = "root";
     

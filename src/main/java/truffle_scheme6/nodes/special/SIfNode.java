@@ -6,15 +6,25 @@ import truffle_scheme6.Constants;
 import truffle_scheme6.SchemeNode;
 
 public class SIfNode extends SSpecialNode {
-    @Child private SchemeNode conditionNode;
-    @Child private SchemeNode thenNode;
-    @Child private SchemeNode elseNode; // nullable
+    @Child
+    private SchemeNode conditionNode;
+    @Child
+    private SchemeNode thenNode;
+    @Child
+    private SchemeNode elseNode; // nullable
     private final ConditionProfile condition = ConditionProfile.createCountingProfile();
 
     public SIfNode(SchemeNode conditionNode, SchemeNode thenNode, SchemeNode elseNode) {
         this.conditionNode = conditionNode;
         this.thenNode = thenNode;
         this.elseNode = elseNode;
+    }
+
+    @Override
+    public void setIsTail() {
+        super.setIsTail();
+        thenNode.setIsTail();
+        if (elseNode != null) elseNode.setIsTail();
     }
 
     @Override

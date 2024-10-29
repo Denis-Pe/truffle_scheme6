@@ -29,6 +29,8 @@ public class SDefunNode extends SSpecialNode {
         this.body = body;
         this.frameDescriptor = frameDescriptor;
         this.name = name;
+
+        if (body.length > 0) body[body.length - 1].setIsTail();
     }
 
     @Override
