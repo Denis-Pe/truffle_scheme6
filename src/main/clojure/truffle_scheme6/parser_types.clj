@@ -8,7 +8,7 @@
            (truffle_scheme6.nodes.atoms.numbers SComplexLiteralNode SExactNumberNode SFractionLiteralNode SInexactIntegerNode SInexactReal32Node SInexactReal64Node SOctetLiteralNode)
            (truffle_scheme6.nodes.composites SByteVectorLiteralNode SListNode SVectorLiteralNode)
            (truffle_scheme6.nodes.functions SReadArgSlotNode SReadVarArgsNode)
-           (truffle_scheme6.nodes.special SBeginNode SDefineVarNode SDefunNode SLambdaNode SLetNode SQuoteNode)))
+           (truffle_scheme6.nodes.special SBeginNode SDefineVarNode SDefunNode SLambdaNode SLetNode SQuoteNode SSetClosureNode SSetGlobalNode SSetLocalNode)))
 
 (defn- node-array
   [aseq]
@@ -218,6 +218,21 @@
              bindings))
       (node-array (map to-java body-forms)))))
 
+(defrecord SetNode [identifier value]
+  PSchemeNode
+  (specialize [this] (->SetNode identifier (specialize value)))
+  (tagged [this symbol-codepoints->dispatch frame-desc-builder frame-names]
+    (->SetNode (tagged identifier symbol-codepoints->dispatch frame-desc-builder frame-names)
+               (tagged value symbol-codepoints->dispatch frame-desc-builder frame-names)))
+  (to-java [this]
+    (let [dispatch (:read-var-dispatch identifier)
+          identifier (to-java identifier)
+          value (to-java value)]
+      (condp instance? dispatch
+        ReadLocalDispatch (SSetLocalNode. identifier value)
+        ReadClosureDispatch (SSetClosureNode. (:frame-name dispatch) identifier value)
+        ReadGlobalDispatch (SSetGlobalNode. identifier value)))))
+
 (defrecord DefineVarNode [identifier value]
   PSchemeNode
   (specialize [this] (->DefineVarNode identifier (specialize value)))
@@ -418,6 +433,11 @@
       (if (= (count (set binding-names))
              (count binding-names))
         (->LetNode bindings body)))))
+
+(defmethod specialize-list "set!" [_set & args]
+  (if (and (= (count args) 2)
+           (instance? SymbolLiteral (first args)))
+    (apply ->SetNode args)))
 
 (defmethod specialize-list "lambda" [_lambda & args]
   (when (>= (count args) 2)

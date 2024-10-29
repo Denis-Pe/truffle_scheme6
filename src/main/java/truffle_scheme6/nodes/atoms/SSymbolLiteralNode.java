@@ -6,6 +6,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import truffle_scheme6.SchemeNode;
+import truffle_scheme6.nodes.MaterializedFrameUser;
 import truffle_scheme6.nodes.functions.SReadArgNode;
 import truffle_scheme6.runtime.SSymbol;
 
@@ -78,7 +79,7 @@ public final class SSymbolLiteralNode extends SchemeNode {
         }
     }
 
-    public static class ReadFromMaterialized extends ReadVarDispatch {
+    public static class ReadFromMaterialized extends ReadVarDispatch implements MaterializedFrameUser {
         @Child
         private ReadLocal readLocalNode;
         private final String rootName;
@@ -95,14 +96,21 @@ public final class SSymbolLiteralNode extends SchemeNode {
             return readLocalNode.execute(materializedFrame);
         }
 
+        public ReadLocal getReadLocalNode() {
+            return readLocalNode;
+        }
+
+        @Override
         public String getRootName() {
             return rootName;
         }
 
+        @Override
         public MaterializedFrame getMaterializedFrame() {
             return materializedFrame;
         }
 
+        @Override
         public void setMaterializedFrame(MaterializedFrame materializedFrame) {
             this.materializedFrame = materializedFrame;
         }
@@ -121,6 +129,7 @@ public final class SSymbolLiteralNode extends SchemeNode {
     }
 
     private final SSymbol symbol;
+    @Child
     private ReadVarDispatch varDispatch;
 
     public SSymbolLiteralNode(int[] codepoints) {
