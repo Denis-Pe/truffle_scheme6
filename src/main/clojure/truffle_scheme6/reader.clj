@@ -151,7 +151,7 @@
                    (vec (.toList (.boxed (.codePoints str|cpoint))))
                    [str|cpoint])))
           (flatten))
-     (->GlobalDispatch))))
+     (->ReadGlobalDispatch))))
 
 (def string-escapes {"\\a"  0x0007
                      "\\b"  0x0008

@@ -3,7 +3,7 @@
   (:import (com.oracle.truffle.api.frame FrameDescriptor FrameSlotKind)
            (org.graalvm.collections Pair)
            (truffle_scheme6 SchemeNode)
-           (truffle_scheme6.nodes.atoms SCharacterLiteralNode SNilLiteralNode SStringLiteralNode SSymbolLiteralNode SSymbolLiteralNode$ReadArgDispatch SSymbolLiteralNode$ReadGlobal SSymbolLiteralNodeFactory SSymbolLiteralNodeFactory$ReadFromMaterializedNodeGen SSymbolLiteralNodeFactory$ReadLocalNodeGen)
+           (truffle_scheme6.nodes.atoms SCharacterLiteralNode SNilLiteralNode SStringLiteralNode SSymbolLiteralNode SSymbolLiteralNode$ReadFromMaterialized SSymbolLiteralNode$ReadArgDispatch SSymbolLiteralNode$ReadGlobal SSymbolLiteralNodeFactory$ReadLocalNodeGen)
            (truffle_scheme6.nodes.atoms.bools SFalseLiteralNode STrueLiteralNode)
            (truffle_scheme6.nodes.atoms.numbers SComplexLiteralNode SExactNumberNode SFractionLiteralNode SInexactIntegerNode SInexactReal32Node SInexactReal64Node SOctetLiteralNode)
            (truffle_scheme6.nodes.composites SByteVectorLiteralNode SListNode SVectorLiteralNode)
@@ -34,25 +34,25 @@
   (UnsupportedOperationException.
     (str op-name " not supported on node " node " of type " (type node))))
 
-(defrecord GlobalDispatch []
+(defrecord ReadGlobalDispatch []
   PSchemeNode
   (specialize [this] (throw (except-unsupported this "PSchemeNode/specialize")))
   (tagged [this _ _ _] (throw (except-unsupported this "PSchemeNode/tagged")))
   (to-java [this] (SSymbolLiteralNode$ReadGlobal.)))
 
-(defrecord LocalDispatch [frame-name int-key]
+(defrecord ReadLocalDispatch [frame-name int-key]
   PSchemeNode
   (specialize [this] (throw (except-unsupported this "PSchemeNode/specialize")))
   (tagged [this _ _ _] (throw (except-unsupported this "PSchemeNode/tagged")))
   (to-java [this] (SSymbolLiteralNodeFactory$ReadLocalNodeGen/create int-key)))
 
-(defrecord ClosureLocalDispatch [frame-name int-key]
+(defrecord ReadClosureDispatch [frame-name int-key]
   PSchemeNode
   (specialize [this] (throw (except-unsupported this "PSchemeNode/specialize")))
   (tagged [this _ _ _] (throw (except-unsupported this "PSchemeNode/tagged")))
-  (to-java [this] (SSymbolLiteralNodeFactory$ReadFromMaterializedNodeGen/create frame-name int-key))) ; the nil frame is implied because it has a setter 🤷‍♂️
+  (to-java [this] (SSymbolLiteralNode$ReadFromMaterialized. frame-name nil int-key)))
 
-(defrecord ArgDispatch [position rest-arg?]
+(defrecord ReadArgDispatch [position rest-arg?]
   PSchemeNode
   (specialize [this] (throw (except-unsupported this "PSchemeNode/specialize")))
   (tagged [this _ _ _] (throw (except-unsupported this "PSchemeNode/tagged")))
@@ -155,8 +155,8 @@
     (->SymbolLiteral
       utf32codepoints
       (if-let [d (symbol-codepoints->dispatch utf32codepoints)]
-        (if (and (instance? LocalDispatch d) (not= (last frame-names) (:frame-name d)))
-          (->ClosureLocalDispatch (last frame-names) (:int-key d))
+        (if (and (instance? ReadLocalDispatch d) (not= (last frame-names) (:frame-name d)))
+          (->ReadClosureDispatch (last frame-names) (:int-key d))
           d)
         read-var-dispatch)))
   (to-java [this]
@@ -194,7 +194,7 @@
     (let [sc->new-dispatch
           (->> bindings
                (map (fn [[sym value]]
-                      [(:utf32codepoints sym) (->LocalDispatch
+                      [(:utf32codepoints sym) (->ReadLocalDispatch
                                                 (last frame-names)
                                                 (.addSlot frame-desc-builder,
                                                           (detect-slot-kind value),
@@ -370,7 +370,7 @@
                    (:forms formals))
            (all-unique? (map :utf32codepoints (:forms formals))))
     (let [last-rest? (:dotted? formals)
-          formals (map-indexed (fn [i a] (assoc a :read-var-dispatch (->ArgDispatch i false)))
+          formals (map-indexed (fn [i a] (assoc a :read-var-dispatch (->ReadArgDispatch i false)))
                                (:forms formals))
           bl (butlast formals)
           l (last formals)
@@ -431,7 +431,7 @@
           (->LambdaNode formals body-forms))
 
         (instance? SymbolLiteral formals)
-        (->LambdaNode [(assoc formals :read-var-dispatch (->ArgDispatch 0 true))]
+        (->LambdaNode [(assoc formals :read-var-dispatch (->ReadArgDispatch 0 true))]
                       body-forms)
 
         :else nil))))

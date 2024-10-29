@@ -78,55 +78,33 @@ public final class SSymbolLiteralNode extends SchemeNode {
         }
     }
 
-    @NodeField(name = "rootName", type = String.class)
-    // initially null, set during the execution of frame whose name is the field above
-    @NodeField(name = "matFrame", type = MaterializedFrame.class)
-    @NodeField(name = "slot", type = int.class)
-    public static abstract class ReadFromMaterialized extends ReadVarDispatch {
-        public abstract String getRootName();
+    public static class ReadFromMaterialized extends ReadVarDispatch {
+        @Child
+        private ReadLocal readLocalNode;
+        private final String rootName;
+        private MaterializedFrame materializedFrame;
 
-        public abstract MaterializedFrame getMatFrame();
-
-        public abstract void setMatFrame(MaterializedFrame frame);
-
-        public abstract int getSlot();
-
-        @Specialization(guards = "matFrame.isBoolean(getSlot())")
-        protected boolean readBoolean(VirtualFrame _vFrame) {
-            return getMatFrame().getBoolean(getSlot());
+        public ReadFromMaterialized(String rootName, MaterializedFrame materializedFrame, int slot) {
+            this.readLocalNode = SSymbolLiteralNodeFactory.ReadLocalNodeGen.create(slot);
+            this.rootName = rootName;
+            this.materializedFrame = materializedFrame;
         }
 
-        @Specialization(guards = "matFrame.isLong(getSlot())")
-        protected long readLong(VirtualFrame _vFrame) {
-            return getMatFrame().getLong(getSlot());
+        @Override
+        public Object execute(VirtualFrame _frame) {
+            return readLocalNode.execute(materializedFrame);
         }
 
-        @Specialization(guards = "matFrame.isFloat(getSlot())")
-        protected float readFloat(VirtualFrame _vFrame) {
-            return getMatFrame().getFloat(getSlot());
+        public String getRootName() {
+            return rootName;
         }
 
-        @Specialization(guards = "matFrame.isDouble(getSlot())")
-        protected double readDouble(VirtualFrame _vFrame) {
-            return getMatFrame().getDouble(getSlot());
+        public MaterializedFrame getMaterializedFrame() {
+            return materializedFrame;
         }
 
-        @Specialization(guards = "matFrame.isByte(getSlot())")
-        protected byte readByte(VirtualFrame _vFrame) {
-            return getMatFrame().getByte(getSlot());
-        }
-
-        @Specialization(replaces = {"readBoolean", "readLong", "readFloat", "readDouble", "readByte"})
-        protected Object readObject(VirtualFrame _vFrame) {
-            var frame = getMatFrame();
-            if (!frame.isObject(getSlot())) {
-                CompilerDirectives.transferToInterpreter();
-                Object result = frame.getValue(getSlot());
-                frame.setObject(getSlot(), result);
-                return result;
-            }
-
-            return frame.getObject(getSlot());
+        public void setMaterializedFrame(MaterializedFrame materializedFrame) {
+            this.materializedFrame = materializedFrame;
         }
     }
 
