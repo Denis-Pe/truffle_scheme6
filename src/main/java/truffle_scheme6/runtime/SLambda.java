@@ -12,6 +12,7 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
 import com.oracle.truffle.api.utilities.CyclicAssumption;
+import truffle_scheme6.nodes.functions.RecursiveTailCallException;
 
 @ExportLibrary(InteropLibrary.class)
 public class SLambda implements TruffleObject {
@@ -49,7 +50,13 @@ public class SLambda implements TruffleObject {
                 @Cached("create(function.getCallTarget())") DirectCallNode callNode,
                 @Cached("function.getCallTarget()") RootCallTarget cachedTarget,
                 @Cached("function.getCallTargetStable()") Assumption callTargetStable) {
-            return callNode.call(arguments);
+            while (true) {
+                try {
+                    return callNode.call(arguments);
+                } catch (RecursiveTailCallException e) {
+                    arguments = e.arguments;
+                }
+            }
         }
 
         @Specialization(replaces = "directDispatch")

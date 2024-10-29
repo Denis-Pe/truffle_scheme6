@@ -8,6 +8,8 @@ import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import truffle_scheme6.SchemeNode;
 import truffle_scheme6.nodes.atoms.SNilLiteralNode;
+import truffle_scheme6.nodes.functions.RecursiveTailCallException;
+import truffle_scheme6.runtime.SLambda;
 import truffle_scheme6.runtime.SNil;
 import truffle_scheme6.runtime.SPair;
 
@@ -48,6 +50,10 @@ public class SListNode extends SchemeNode {
         for (int i = 0; i < length; i++) {
             eArgs[i] = args[i].execute(frame);
         }
+
+        var parentTarget = this.getRootNode().getCallTarget();
+        if (this.isTail() && eForm instanceof SLambda lambda && lambda.getCallTarget() == parentTarget)
+            throw new RecursiveTailCallException(eArgs);
 
         try {
             return this.library.execute(eForm, eArgs);

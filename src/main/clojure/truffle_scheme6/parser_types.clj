@@ -314,9 +314,6 @@
                (FrameDescriptor/newBuilder (count arguments))
                (str (gensym "lambda-"))))
 
-;; todo recursion and, if the day is going great,
-;;  tail call optimization recursion in the same session
-
 (defmulti specialize-list
   "Return a special form node if the args given match
   the pattern of a syntax, otherwise returns nil"
