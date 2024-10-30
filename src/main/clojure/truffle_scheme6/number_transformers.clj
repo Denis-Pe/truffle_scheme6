@@ -87,7 +87,9 @@
   [prefix content]
   (let [prefix (rest prefix)                                ; skip tag
         exactness (if (= (ffirst prefix) :exactness) (second (first prefix)) (second (second prefix)))
-        exact? (and (some? exactness) (= (str/lower-case exactness) "#e"))
+        exact? (if (some? exactness)
+                 (= (str/lower-case exactness) "#e")
+                 nil)
         transformed (insta/transform {:complex2  (partial transform-complex exact? 2)
                                       :complex8  (partial transform-complex exact? 8)
                                       :complex10 (partial transform-complex exact? 10)

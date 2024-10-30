@@ -55,7 +55,7 @@ public class SInexactReal32Node extends SNumberLiteralNode {
                 floatValue = operation.apply(floatValue);
             }
 
-            return new SExactNumberNode(floatValue);
+            return new SInexactReal32Node(floatValue);
         }
     }
 

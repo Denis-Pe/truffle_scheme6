@@ -1,34 +1,29 @@
 package truffle_scheme6.nodes.atoms.numbers;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import truffle_scheme6.SchemeNode;
 
 import java.math.BigInteger;
 
-public class SInexactIntegerNode extends SNumberLiteralNode {
-    private final long value;
+public class SExactBigIntegerNode extends SNumberLiteralNode {
+    private final BigInteger value;
 
-    public SInexactIntegerNode(long value) {
+    public SExactBigIntegerNode(BigInteger value) {
         this.value = value;
     }
 
-    public static SInexactIntegerNode one() {
-        return new SInexactIntegerNode(1);
-    }
-
     @Override
-    public Object execute(VirtualFrame frame) {
+    public BigInteger execute(VirtualFrame frame) {
         return value;
     }
 
     @Override
-    public Object executeFrozen(VirtualFrame frame) {
+    public BigInteger executeFrozen(VirtualFrame frame) {
         return value;
     }
 
     @Override
     public SNumberLiteralNode negate() {
-        return new SInexactIntegerNode(-value);
+        return new SExactBigIntegerNode(value.negate());
     }
 
     @Override
@@ -38,6 +33,6 @@ public class SInexactIntegerNode extends SNumberLiteralNode {
 
     @Override
     public String toString() {
-        return "#i%s".formatted(value);
+        return "#e%s".formatted(value);
     }
 }

@@ -5,24 +5,24 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import java.math.BigDecimal;
 import java.util.function.Function;
 
-public class SExactNumberNode extends SNumberLiteralNode {
+public class SExactRealNode extends SNumberLiteralNode {
     private final BigDecimal value;
 
-    public SExactNumberNode(BigDecimal value) {
+    public SExactRealNode(BigDecimal value) {
         this.value = value;
     }
 
-    public SExactNumberNode(double value) {
+    public SExactRealNode(double value) {
         this.value = new BigDecimal(value);
     }
 
-    public SExactNumberNode(long value) {
+    public SExactRealNode(long value) {
         this.value = new BigDecimal(value);
     }
 
     @Override
     public SNumberLiteralNode negate() {
-        return new SExactNumberNode(value.negate());
+        return new SExactRealNode(value.negate());
     }
 
     @Override
@@ -42,17 +42,17 @@ public class SExactNumberNode extends SNumberLiteralNode {
                 bigValue = operation.apply(bigValue);
             }
 
-            return new SExactNumberNode(bigValue);
+            return new SExactRealNode(bigValue);
         }
     }
 
     @Override
-    public Object execute(VirtualFrame frame) {
+    public BigDecimal execute(VirtualFrame frame) {
         return value;
     }
 
     @Override
-    public Object executeFrozen(VirtualFrame frame) {
+    public BigDecimal executeFrozen(VirtualFrame frame) {
         return value;
     }
 

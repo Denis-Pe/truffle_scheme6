@@ -5,7 +5,7 @@
            (truffle_scheme6 SchemeNode)
            (truffle_scheme6.nodes.atoms SCharacterLiteralNode SNilLiteralNode SStringLiteralNode SSymbolLiteralNode SSymbolLiteralNode$ReadFromMaterialized SSymbolLiteralNode$ReadArgDispatch SSymbolLiteralNode$ReadGlobal SSymbolLiteralNodeFactory$ReadLocalNodeGen)
            (truffle_scheme6.nodes.atoms.bools SFalseLiteralNode STrueLiteralNode)
-           (truffle_scheme6.nodes.atoms.numbers SComplexLiteralNode SExactNumberNode SFractionLiteralNode SInexactIntegerNode SInexactReal32Node SInexactReal64Node SOctetLiteralNode)
+           (truffle_scheme6.nodes.atoms.numbers SComplexLiteralNode SExactBigIntegerNode SExactRealNode SFractionLiteralNode SExactFixnumNode SInexactReal32Node SInexactReal64Node SOctetLiteralNode)
            (truffle_scheme6.nodes.composites SByteVectorLiteralNode SListNode SVectorLiteralNode)
            (truffle_scheme6.nodes.functions SReadArgSlotNode SReadVarArgsNode)
            (truffle_scheme6.nodes.special SBeginNode SDefineVarNode SDefunNode SLambdaNode SLetNode SQuoteNode SSetClosureNode SSetGlobalNode SSetLocalNode)))
@@ -23,6 +23,14 @@
         (conj acc next)))
     #{}
     sequential))
+
+(defn parse-arbitrary-integer
+  "If a value fits in a long number,
+  returns a long, otherwise BigInteger"
+  ([^String s] (parse-arbitrary-integer s 10))
+  ([^String s radix] (try (Long/parseLong s radix)
+                          (catch NumberFormatException _e
+                            (BigInteger. ^String s ^int radix)))))
 
 (defprotocol PSchemeNode
   ; organized in the order that they would be run from a top-level parser
@@ -80,9 +88,12 @@
   (specialize [this] this)
   (tagged [this _ _ _] this)
   (to-java [this]
-    (let [val (if exact?
-                (SExactNumberNode. (BigDecimal. (BigInteger. ^String uint-str ^int radix)))
-                (SInexactIntegerNode. (Long/parseLong uint-str radix)))]
+    (let [val (if (false? exact?)
+                (SInexactReal64Node. (.doubleValue (BigInteger. ^String uint-str ^int radix)))
+                (let [n (parse-arbitrary-integer uint-str radix)]
+                  (if (instance? BigInteger n)
+                    (SExactBigIntegerNode. n)
+                    (SExactFixnumNode. n))))]
       (if (= sign "-")
         (.negate val)
         val))))
@@ -99,7 +110,7 @@
   (specialize [this] this)
   (tagged [this _ _ _] this)
   (to-java [this]
-    (let [val (cond exact? (SExactNumberNode. ^BigDecimal (BigDecimal. ^String decimal-str))
+    (let [val (cond exact? (SExactRealNode. ^BigDecimal (BigDecimal. ^String decimal-str))
                     (some #{"s" "S" "f" "F"} [exp-mark]) (SInexactReal32Node. (Float/parseFloat decimal-str))
                     :else (SInexactReal64Node. (Double/parseDouble decimal-str)))
           val (if exp-val (.applyExp val exp-val) val)

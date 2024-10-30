@@ -55,7 +55,7 @@ public class SInexactReal64Node extends SNumberLiteralNode {
                 doubleValue = operation.apply(doubleValue);
             }
 
-            return new SExactNumberNode(doubleValue);
+            return new SInexactReal64Node(doubleValue);
         }
     }
 
