@@ -17,6 +17,12 @@ public class SBeginNode extends SSpecialNode {
     }
 
     @Override
+    public void setIsTail() {
+        super.setIsTail();
+        if (nodes.length > 0) nodes[nodes.length - 1].setIsTail();
+    }
+
+    @Override
     public Object execute(VirtualFrame frame) {
         Object res = Constants.UNSPECIFIED;
 

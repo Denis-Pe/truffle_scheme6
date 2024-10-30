@@ -112,6 +112,12 @@ public class SLetNode extends SSpecialNode {
     }
 
     @Override
+    public void setIsTail() {
+        super.setIsTail();
+        if (body.length > 0) body[body.length - 1].setIsTail();
+    }
+
+    @Override
     public Object execute(VirtualFrame frame) {
         for (var b : bindings) {
             b.execute(frame);
