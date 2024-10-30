@@ -1,6 +1,7 @@
 (ns truffle-scheme6.parser-types
   (:require [clojure.core.match :refer [match]])
   (:import (com.oracle.truffle.api.frame FrameDescriptor FrameSlotKind)
+           (java.math MathContext)
            (org.graalvm.collections Pair)
            (truffle_scheme6 SchemeNode)
            (truffle_scheme6.nodes.atoms SCharacterLiteralNode SNilLiteralNode SStringLiteralNode SSymbolLiteralNode SSymbolLiteralNode$ReadFromMaterialized SSymbolLiteralNode$ReadArgDispatch SSymbolLiteralNode$ReadGlobal SSymbolLiteralNodeFactory$ReadLocalNodeGen)
@@ -103,7 +104,16 @@
   (specialize [this] this)
   (tagged [this _ _ _] this)
   (to-java [this]
-    (SFractionLiteralNode. (to-java numerator-int-literal) (to-java denominator-int-literal))))
+    (let [exact? (:exact? numerator-int-literal)
+          sign (:sign numerator-int-literal)]
+      (if (false? exact?)
+        (let [num-bigdec (bigdec (parse-arbitrary-integer (:uint-str numerator-int-literal)
+                                                          (:radix numerator-int-literal)))
+              deno-bigdec (bigdec (parse-arbitrary-integer (:uint-str denominator-int-literal)
+                                                           (:radix denominator-int-literal)))
+              val (-> num-bigdec (.divide deno-bigdec MathContext/DECIMAL64) (.doubleValue) (SInexactReal64Node.))]
+          (if (= sign "-") (.negate val) val))
+        (SFractionLiteralNode. (to-java numerator-int-literal) (to-java denominator-int-literal))))))
 
 (defrecord DecimalLiteral [exact? sign decimal-str exp-mark exp-val mantissa-width] ; mantissa is ignored for now
   PSchemeNode
