@@ -29,11 +29,6 @@ public class SExactFixnumNode extends SIntegerLiteralNode {
     }
 
     @Override
-    public Long executeFrozen(VirtualFrame frame) {
-        return value;
-    }
-
-    @Override
     public SNumberLiteralNode negate() {
         return new SExactFixnumNode(-value);
     }

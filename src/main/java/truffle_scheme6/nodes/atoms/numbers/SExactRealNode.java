@@ -52,11 +52,6 @@ public class SExactRealNode extends SNumberLiteralNode {
     }
 
     @Override
-    public BigDecimal executeFrozen(VirtualFrame frame) {
-        return value;
-    }
-
-    @Override
     public String toString() {
         return "#e%s".formatted(value.toString());
     }

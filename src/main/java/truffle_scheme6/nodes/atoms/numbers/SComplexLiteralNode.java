@@ -20,12 +20,6 @@ public class SComplexLiteralNode extends SNumberLiteralNode {
     }
 
     @Override
-    public Object executeFrozen(VirtualFrame frame) {
-        // todo
-        return null;
-    }
-
-    @Override
     public SNumberLiteralNode negate() {
         return new SComplexLiteralNode(real.negate(), imag.negate());
     }

@@ -25,11 +25,6 @@ public class SFractionLiteralNode extends SNumberLiteralNode {
     }
 
     @Override
-    public Object executeFrozen(VirtualFrame frame) {
-        return execute(frame);
-    }
-
-    @Override
     public SNumberLiteralNode negate() {
         return new SFractionLiteralNode((SIntegerLiteralNode) numerator.negate(), denominator);
     }

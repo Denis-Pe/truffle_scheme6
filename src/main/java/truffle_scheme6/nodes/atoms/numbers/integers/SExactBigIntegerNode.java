@@ -28,11 +28,6 @@ public class SExactBigIntegerNode extends SIntegerLiteralNode {
     }
 
     @Override
-    public BigInteger executeFrozen(VirtualFrame frame) {
-        return value;
-    }
-
-    @Override
     public SNumberLiteralNode negate() {
         return new SExactBigIntegerNode(value.negate());
     }

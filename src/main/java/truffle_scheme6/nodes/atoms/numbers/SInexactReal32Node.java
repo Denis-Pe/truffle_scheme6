@@ -29,11 +29,6 @@ public class SInexactReal32Node extends SNumberLiteralNode {
     }
 
     @Override
-    public Object executeFrozen(VirtualFrame frame) {
-        return value;
-    }
-
-    @Override
     public SNumberLiteralNode negate() {
         return new SInexactReal32Node(-value);
     }
