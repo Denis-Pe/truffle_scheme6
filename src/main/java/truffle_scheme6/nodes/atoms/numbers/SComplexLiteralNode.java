@@ -3,7 +3,10 @@ package truffle_scheme6.nodes.atoms.numbers;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import truffle_scheme6.nodes.atoms.numbers.integers.SExactBigIntegerNode;
 import truffle_scheme6.nodes.atoms.numbers.integers.SExactFixnumNode;
+import truffle_scheme6.runtime.numbers.*;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.function.Function;
 
 public class SComplexLiteralNode extends SNumberLiteralNode {
@@ -67,7 +70,13 @@ public class SComplexLiteralNode extends SNumberLiteralNode {
 
     @Override
     public Object execute(VirtualFrame frame) {
-        return null;
+        return switch (this.type) {
+            case BigDecimal -> new ComplexBigDec((BigDecimal) real.execute(frame), (BigDecimal) imag.execute(frame));
+            case Double -> new ComplexDouble((double) real.execute(frame), (double) imag.execute(frame));
+            case Float -> new ComplexFloat((float) real.execute(frame), (float) imag.execute(frame));
+            case BigInteger -> new ComplexBigInt((BigInteger) real.execute(frame), (BigInteger) imag.execute(frame));
+            case Long -> new ComplexLong((long) real.execute(frame), (long) imag.execute(frame));
+        };
     }
 
     @Override
