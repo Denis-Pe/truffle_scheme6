@@ -10,7 +10,7 @@
            (truffle_scheme6.nodes.atoms.numbers.integers SExactFixnumNode SExactBigIntegerNode)
            (truffle_scheme6.nodes.composites SByteVectorLiteralNode SListNode SVectorLiteralNode)
            (truffle_scheme6.nodes.functions SReadArgSlotNode SReadVarArgsNode)
-           (truffle_scheme6.nodes.special SBeginNode SDefineVarNode SDefunNode SLambdaNode SLetNode SQuoteNode SSetClosureNode SSetGlobalNode SSetLocalNode)))
+           (truffle_scheme6.nodes.special SBeginNode SDefineVarNode SDefunNode SIfNode SLambdaNode SLetNode SQuoteNode SSetClosureNode SSetGlobalNode SSetLocalNode)))
 
 (defn- node-array
   [aseq]
@@ -39,6 +39,12 @@
   (specialize [this] "Transforms a list node into an appropriate special node, otherwise returns the same thing")
   (tagged [this symbol-codepoints->dispatch frame-desc-builder frame-names] "Transform child symbols according to specified dispatch. Should be run on child nodes")
   (to-java [this] "Transforms a given node to a Java object"))
+
+(extend-protocol PSchemeNode
+  nil
+  (specialize [this] nil)
+  (tagged [this _ _ _] nil)
+  (to-java [this] nil))
 
 (defn except-unsupported [node op-name]
   (UnsupportedOperationException.
@@ -259,19 +265,10 @@
   PSchemeNode
   (specialize [this] (->DefineVarNode identifier (specialize value)))
   (tagged [this symbol-codepoints->dispatch frame-desc-builder frame-names]
-    (->DefineVarNode (tagged identifier symbol-codepoints->dispatch frame-desc-builder frame-names)
-                     (tagged value symbol-codepoints->dispatch frame-desc-builder frame-names)))
+    (let [f #(tagged % symbol-codepoints->dispatch frame-desc-builder frame-names)]
+      (->DefineVarNode (f identifier) (f value))))
   (to-java [this]
     (SDefineVarNode. (to-java identifier) (to-java value))))
-
-(defrecord DefineUnspecifiedNode [identifier]
-  PSchemeNode
-  (specialize [this] (->DefineUnspecifiedNode identifier))
-  (tagged [this symbol-codepoints->dispatch frame-desc-builder frame-names]
-    (->DefineUnspecifiedNode
-      (tagged identifier symbol-codepoints->dispatch frame-desc-builder frame-names)))
-  (to-java [this]
-    (SDefineVarNode. (to-java identifier) nil)))
 
 (defrecord DefineFunNode [identifier formals body-forms frame-desc-builder fun-name]
   PSchemeNode
@@ -351,6 +348,17 @@
                (FrameDescriptor/newBuilder (count arguments))
                (str (gensym "lambda-"))))
 
+(defrecord IfNode [condition then else]
+  PSchemeNode
+  (specialize [this] (->IfNode (specialize condition)
+                               (specialize then)
+                               (specialize else)))
+  (tagged [this symbol-codepoints->dispatch frame-desc-builder frame-names]
+    (let [f #(tagged % symbol-codepoints->dispatch frame-desc-builder frame-names)]
+      (->IfNode (f condition) (f then) (f else))))
+  (to-java [this]
+    (SIfNode. (to-java condition) (to-java then) (to-java else))))
+
 (defmulti specialize-list
   "Return a special form node if the args given match
   the pattern of a syntax, otherwise returns nil"
@@ -424,9 +432,7 @@
   (let [nargs (count args)]
     (cond (and (or (= 1 nargs) (= 2 nargs)) (instance? SymbolLiteral (first args)))
           (let [[identifier value] args]
-            (if value
-              (->DefineVarNode identifier value)
-              (->DefineUnspecifiedNode identifier)))
+            (->DefineVarNode identifier value))
 
           (and (>= nargs 1) (instance? ListNode (first args)))
           (let [[spec-list & body] args
@@ -477,6 +483,11 @@
                       body-forms)
 
         :else nil))))
+
+(defmethod specialize-list "if" [_if & args]
+  (if (or (= (count args) 2)
+          (= (count args) 3))
+    (apply ->IfNode args)))
 
 (defmethod specialize-list :default [& _] nil)
 
