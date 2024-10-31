@@ -2,6 +2,7 @@ package truffle_scheme6.nodes.atoms.numbers;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 
+import java.math.BigDecimal;
 import java.util.function.Function;
 
 public class SInexactReal32Node extends SNumberLiteralNode {
@@ -11,21 +12,24 @@ public class SInexactReal32Node extends SNumberLiteralNode {
         this.value = value;
     }
 
-    public static SInexactReal32Node nan() {
-        return new SInexactReal32Node(Float.NaN);
-    }
-
-    public static SInexactReal32Node posInf() {
-        return new SInexactReal32Node(Float.POSITIVE_INFINITY);
-    }
-
-    public static SInexactReal32Node negInf() {
-        return new SInexactReal32Node(Float.NEGATIVE_INFINITY);
-    }
-
     @Override
     public Object execute(VirtualFrame frame) {
         return value;
+    }
+
+    @Override
+    public SExactRealNode asExactReal() {
+        return new SExactRealNode(new BigDecimal(value));
+    }
+
+    @Override
+    public SInexactReal64Node asInexact64() {
+        return new SInexactReal64Node(value);
+    }
+
+    @Override
+    public SInexactReal32Node asInexact32() {
+        return this;
     }
 
     @Override

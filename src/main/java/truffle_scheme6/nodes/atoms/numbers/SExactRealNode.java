@@ -21,6 +21,11 @@ public class SExactRealNode extends SNumberLiteralNode {
     }
 
     @Override
+    public SExactRealNode asExactReal() {
+        return this;
+    }
+
+    @Override
     public SNumberLiteralNode negate() {
         return new SExactRealNode(value.negate());
     }
