@@ -3,10 +3,6 @@ package truffle_scheme6.runtime;
 import java.util.HashMap;
 import java.util.Map;
 
-// todo
-//  variables to add
-//  nan.0
-//  inf.0
 public final class GlobalScope {
     private final Map<SSymbol, Object> vars = new HashMap<>();
 
