@@ -8,36 +8,38 @@
   ([exact? radix ureal-node]
    (transform-ureal exact? radix "+" ureal-node))
   ([exact? radix sign ureal-node]
-   (let [uint-str (str/join (rest (second ureal-node)))]
-     (->IntegerLiteral exact? radix sign uint-str))))
+   (let [value (vec (rest ureal-node))]
+     (match value
+       [uinteger] (->IntegerLiteral exact? radix sign (str/join (rest uinteger)))
+       [numerator "/" denominator] (->FractionLiteral (->IntegerLiteral exact? radix sign (str/join (rest numerator)))
+                                                      (->IntegerLiteral exact? radix "+" (str/join (rest denominator))))
+       [decimal mantissa-width] (let [decimal-str (butlast (rest decimal))
+                                      decimal-str (str/join (if (= :uinteger10 (ffirst decimal-str))
+                                                              (rest (first decimal-str))
+                                                              decimal-str))
+                                      suffix (last decimal)
+                                      suffix-content (rest suffix)
+                                      [exp-mark exp-val] (if (= suffix [:suffix])
+                                                           [nil nil]
+                                                           [(second (first suffix-content))
+                                                            (Integer/parseInt (str
+                                                                                ; the sign of the exponent
+                                                                                (second (second suffix-content))
+                                                                                ; the digits of the exponent
+                                                                                (str/join (drop 2 suffix-content))))])]
+                                  (->DecimalLiteral exact? sign decimal-str exp-mark exp-val (str/join (rest mantissa-width))))))))
 
 (defn transform-real
   [exact? radix real-node]
   (let [real-node (rest real-node)                          ; skip tag
-        sign (first real-node)
+        sign-full (first real-node)
+        sign (second sign-full)
         value (vec (rest (second real-node)))]
     ; in naninf, the sign is kind of hardcoded whereas in the rest we have the dedicated sign node
     (match value
-      [:naninf "nan.0"] (->NanInfLiteral sign "nan.0")
-      [:naninf "inf.0"] (->NanInfLiteral sign "inf.0")
-      [uinteger] (->IntegerLiteral exact? radix (second sign) (str/join (rest uinteger)))
-      [numerator "/" denominator] (->FractionLiteral (->IntegerLiteral exact? radix (second sign) (str/join (rest numerator)))
-                                                     (->IntegerLiteral exact? radix "+" (str/join (rest denominator))))
-      [decimal mantissa-width] (let [decimal-str (butlast (rest decimal))
-                                     decimal-str (str/join (if (= :uinteger10 (ffirst decimal-str))
-                                                             (rest (first decimal-str))
-                                                             decimal-str))
-                                     suffix (last decimal)
-                                     suffix-content (rest suffix)
-                                     [exp-mark exp-val] (if (= suffix [:suffix])
-                                                          [nil nil]
-                                                          [(second (first suffix-content))
-                                                           (Integer/parseInt (str
-                                                                               ; the sign of the exponent
-                                                                               (second (second suffix-content))
-                                                                               ; the digits of the exponent
-                                                                               (str/join (drop 2 suffix-content))))])]
-                                 (->DecimalLiteral exact? sign decimal-str exp-mark exp-val (str/join (rest mantissa-width)))))))
+      ["nan.0"] (->NanInfLiteral sign-full "nan.0")
+      ["inf.0"] (->NanInfLiteral sign-full "inf.0")
+      :else (transform-ureal exact? radix sign (second real-node)))))
 
 (defn transform-complex
   [exact? radix & args]
