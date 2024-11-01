@@ -5,6 +5,7 @@ import truffle_scheme6.nodes.atoms.numbers.SExactRealNode;
 import truffle_scheme6.nodes.atoms.numbers.SInexactReal32Node;
 import truffle_scheme6.nodes.atoms.numbers.SInexactReal64Node;
 import truffle_scheme6.nodes.atoms.numbers.SNumberLiteralNode;
+import truffle_scheme6.runtime.numbers.SBigInteger;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -27,8 +28,8 @@ public class SExactBigIntegerNode extends SIntegerLiteralNode {
     }
 
     @Override
-    public BigInteger execute(VirtualFrame frame) {
-        return value;
+    public SBigInteger execute(VirtualFrame frame) {
+        return new SBigInteger(value);
     }
 
     @Override

@@ -20,8 +20,7 @@ public class SComplexLiteralNode extends SNumberLiteralNode {
         Float,
         Double,
         BigDecimal,
-        Long,
-        BigInteger
+        Rational
     }
 
     private static Type biggestTypeNeeded(SNumberLiteralNode real, SNumberLiteralNode imag) {
@@ -34,9 +33,9 @@ public class SComplexLiteralNode extends SNumberLiteralNode {
         } else if (instance.apply(SInexactReal32Node.class)) {
             return Type.Float;
         } else if (instance.apply(SExactBigIntegerNode.class)) {
-            return Type.BigInteger;
+            return Type.Rational;
         } else if (instance.apply(SExactFixnumNode.class)) {
-            return Type.Long;
+            return Type.Rational;
         } else {
             throw new IllegalArgumentException("Unsupported types: " + real.getClass() + ", " + imag.getClass());
         }
@@ -57,13 +56,7 @@ public class SComplexLiteralNode extends SNumberLiteralNode {
                 this.real = real.asInexact32();
                 this.imag = imag.asInexact32();
             }
-            case BigInteger -> {
-                this.real = real.asExactBigInt();
-                this.imag = imag.asExactBigInt();
-            }
-            case Long -> {
-                this.real = real.asExactFixnum();
-                this.imag = imag.asExactFixnum();
+            case Rational -> {
             }
         }
     }
@@ -71,11 +64,10 @@ public class SComplexLiteralNode extends SNumberLiteralNode {
     @Override
     public Object execute(VirtualFrame frame) {
         return switch (this.type) {
-            case BigDecimal -> new ComplexBigDec((BigDecimal) real.execute(frame), (BigDecimal) imag.execute(frame));
-            case Double -> new ComplexDouble((double) real.execute(frame), (double) imag.execute(frame));
-            case Float -> new ComplexFloat((float) real.execute(frame), (float) imag.execute(frame));
-            case BigInteger -> new ComplexBigInt((BigInteger) real.execute(frame), (BigInteger) imag.execute(frame));
-            case Long -> new ComplexLong((long) real.execute(frame), (long) imag.execute(frame));
+            case BigDecimal -> new SComplexBigDec((BigDecimal) real.execute(frame), (BigDecimal) imag.execute(frame));
+            case Double -> new SComplexDouble((double) real.execute(frame), (double) imag.execute(frame));
+            case Float -> new SComplexFloat((float) real.execute(frame), (float) imag.execute(frame));
+            case Rational -> new SComplexRational((SRational) real.execute(frame), (SRational) imag.execute(frame));
         };
     }
 
