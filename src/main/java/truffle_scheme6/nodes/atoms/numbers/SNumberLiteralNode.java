@@ -2,8 +2,6 @@ package truffle_scheme6.nodes.atoms.numbers;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import truffle_scheme6.SchemeNode;
-import truffle_scheme6.nodes.atoms.numbers.integers.SExactBigIntegerNode;
-import truffle_scheme6.nodes.atoms.numbers.integers.SExactFixnumNode;
 
 public abstract class SNumberLiteralNode extends SchemeNode {
     public abstract SNumberLiteralNode negate();
