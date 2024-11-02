@@ -48,8 +48,13 @@ public class SExactBigIntegerNode extends SIntegerLiteralNode {
     }
 
     @Override
-    public SExactBigIntegerNode asExactBigInt() {
-        return this;
+    public boolean isOne() {
+        return value.equals(BigInteger.ONE);
+    }
+
+    @Override
+    public boolean isZero() {
+        return value.equals(BigInteger.ZERO);
     }
 
     @Override

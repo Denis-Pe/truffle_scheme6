@@ -57,6 +57,11 @@ public class SExactRealNode extends SNumberLiteralNode {
     }
 
     @Override
+    public boolean isZero() {
+        return value.equals(BigDecimal.ZERO);
+    }
+
+    @Override
     public String toString() {
         return "#e%s".formatted(value.toString());
     }

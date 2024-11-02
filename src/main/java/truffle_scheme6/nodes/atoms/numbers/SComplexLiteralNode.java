@@ -63,12 +63,22 @@ public class SComplexLiteralNode extends SNumberLiteralNode {
 
     @Override
     public Object execute(VirtualFrame frame) {
-        return switch (this.type) {
-            case BigDecimal -> new SComplexBigDec((BigDecimal) real.execute(frame), (BigDecimal) imag.execute(frame));
-            case Double -> new SComplexDouble((double) real.execute(frame), (double) imag.execute(frame));
-            case Float -> new SComplexFloat((float) real.execute(frame), (float) imag.execute(frame));
-            case Rational -> new SComplexRational((SRational) real.execute(frame), (SRational) imag.execute(frame));
-        };
+        if (imag.isZero()) {
+            return real.execute(frame);
+        } else {
+            return switch (this.type) {
+                case BigDecimal ->
+                        new SComplexBigDec((BigDecimal) real.execute(frame), (BigDecimal) imag.execute(frame));
+                case Double -> new SComplexDouble((double) real.execute(frame), (double) imag.execute(frame));
+                case Float -> new SComplexFloat((float) real.execute(frame), (float) imag.execute(frame));
+                case Rational -> new SComplexRational((SRational) real.execute(frame), (SRational) imag.execute(frame));
+            };
+        }
+    }
+
+    @Override
+    public boolean isZero() {
+        return real.isZero() && imag.isZero();
     }
 
     @Override

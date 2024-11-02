@@ -42,6 +42,11 @@ public class SInexactReal64Node extends SNumberLiteralNode {
     }
 
     @Override
+    public boolean isZero() {
+        return value == 0.0;
+    }
+
+    @Override
     public SNumberLiteralNode negate() {
         return new SInexactReal64Node(-value);
     }

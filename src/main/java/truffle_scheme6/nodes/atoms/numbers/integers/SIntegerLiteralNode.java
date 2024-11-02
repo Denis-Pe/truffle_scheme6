@@ -8,4 +8,6 @@ public abstract class SIntegerLiteralNode extends SNumberLiteralNode {
     public abstract BigInteger asBigInteger();
 
     public abstract long asLong();
+
+    public abstract boolean isOne();
 }

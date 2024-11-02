@@ -47,13 +47,13 @@ public class SExactFixnumNode extends SIntegerLiteralNode {
     }
 
     @Override
-    public SExactBigIntegerNode asExactBigInt() {
-        return new SExactBigIntegerNode(BigInteger.valueOf(value));
+    public boolean isOne() {
+        return value == 1L;
     }
 
     @Override
-    public SExactFixnumNode asExactFixnum() {
-        return this;
+    public boolean isZero() {
+        return value == 0L;
     }
 
     @Override

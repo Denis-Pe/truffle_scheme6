@@ -13,15 +13,26 @@ public class SFractionLiteralNode extends SNumberLiteralNode {
     public SFractionLiteralNode(SIntegerLiteralNode numerator, SIntegerLiteralNode denominator) {
         this.numerator = numerator;
         this.denominator = denominator;
+
+        if (denominator.isZero()) {
+            throw new ArithmeticException("denominator cannot be zero");
+        }
     }
 
     @Override
     public Object execute(VirtualFrame frame) {
-        if (numerator instanceof SExactBigIntegerNode || denominator instanceof SExactBigIntegerNode) {
+        if (denominator.isOne()) {
+            return numerator.execute(frame);
+        } else if (numerator instanceof SExactBigIntegerNode || denominator instanceof SExactBigIntegerNode) {
             return new SFractionBigInt(numerator.asBigInteger(), denominator.asBigInteger());
         } else {
             return new SFractionLong(numerator.asLong(), denominator.asLong());
         }
+    }
+
+    @Override
+    public boolean isZero() {
+        return numerator.isZero();
     }
 
     @Override

@@ -33,6 +33,11 @@ public class SInexactReal32Node extends SNumberLiteralNode {
     }
 
     @Override
+    public boolean isZero() {
+        return value == 0.0f;
+    }
+
+    @Override
     public SNumberLiteralNode negate() {
         return new SInexactReal32Node(-value);
     }

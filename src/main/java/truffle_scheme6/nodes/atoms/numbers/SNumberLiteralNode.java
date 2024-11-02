@@ -23,13 +23,7 @@ public abstract class SNumberLiteralNode extends SchemeNode {
         throw notUsedByParser(this);
     }
     
-    public SExactBigIntegerNode asExactBigInt() {
-        throw notUsedByParser(this);
-    }
-    
-    public SExactFixnumNode asExactFixnum() {
-        throw notUsedByParser(this);
-    }
+    public abstract boolean isZero();
 
     // self-evaluating objects
     @Override
