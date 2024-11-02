@@ -9,13 +9,21 @@ import com.oracle.truffle.api.library.ExportMessage;
 import java.math.BigInteger;
 
 @ExportLibrary(InteropLibrary.class)
-public class SFractionBigInt implements TruffleObject {
+public class SFractionBigInt extends SRational implements TruffleObject {
     private final BigInteger numerator;
     private final BigInteger denominator;
 
     public SFractionBigInt(BigInteger numerator, BigInteger denominator) {
         this.numerator = numerator;
         this.denominator = denominator;
+    }
+
+    public BigInteger getNumerator() {
+        return numerator;
+    }
+
+    public BigInteger getDenominator() {
+        return denominator;
     }
 
     @ExportMessage

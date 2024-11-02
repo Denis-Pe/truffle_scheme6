@@ -6,6 +6,9 @@ import truffle_scheme6.nodes.atoms.numbers.integers.SIntegerLiteralNode;
 import truffle_scheme6.runtime.numbers.SFractionBigInt;
 import truffle_scheme6.runtime.numbers.SFractionLong;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+
 public class SFractionLiteralNode extends SNumberLiteralNode {
     private final SIntegerLiteralNode numerator;
     private final SIntegerLiteralNode denominator;
@@ -28,6 +31,21 @@ public class SFractionLiteralNode extends SNumberLiteralNode {
         } else {
             return new SFractionLong(numerator.asLong(), denominator.asLong());
         }
+    }
+
+    @Override
+    public SExactRealNode asExactReal() {
+        return new SExactRealNode(new BigDecimal(numerator.asBigInteger()).divide(new BigDecimal(denominator.asBigInteger()), MathContext.DECIMAL128));
+    }
+
+    @Override
+    public SInexactReal64Node asInexact64() {
+        return new SInexactReal64Node(numerator.asBigInteger().doubleValue() / denominator.asBigInteger().doubleValue());
+    }
+
+    @Override
+    public SInexactReal32Node asInexact32() {
+        return new SInexactReal32Node(numerator.asBigInteger().floatValue() / denominator.asBigInteger().floatValue());
     }
 
     @Override

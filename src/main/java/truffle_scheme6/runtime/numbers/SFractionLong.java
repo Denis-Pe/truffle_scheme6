@@ -16,6 +16,14 @@ public class SFractionLong extends SRational implements TruffleObject {
         this.denominator = denominator;
     }
 
+    public long getNumerator() {
+        return numerator;
+    }
+
+    public long getDenominator() {
+        return denominator;
+    }
+
     @ExportMessage
     boolean isNumber() {
         return true;

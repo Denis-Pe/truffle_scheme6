@@ -9,7 +9,7 @@ import com.oracle.truffle.api.library.ExportMessage;
 import java.math.BigInteger;
 
 @ExportLibrary(InteropLibrary.class)
-public class SBigInteger extends SRational implements TruffleObject {
+public class SBigInt extends SRational implements TruffleObject {
     private final BigInteger value;
 
     private static final BigInteger MIN_BYTE = BigInteger.valueOf(Byte.MIN_VALUE);
@@ -22,8 +22,12 @@ public class SBigInteger extends SRational implements TruffleObject {
     private static final BigInteger MAX_INT = BigInteger.valueOf(Integer.MAX_VALUE);
     private static final BigInteger MAX_LONG = BigInteger.valueOf(Long.MAX_VALUE);
 
-    public SBigInteger(BigInteger value) {
+    public SBigInt(BigInteger value) {
         this.value = value;
+    }
+
+    public BigInteger getValue() {
+        return value;
     }
 
     @ExportMessage

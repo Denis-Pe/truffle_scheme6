@@ -22,6 +22,10 @@ public class SFixnum extends SRational implements TruffleObject {
         this.value = value;
     }
 
+    public long getValue() {
+        return value;
+    }
+
     @ExportMessage
     boolean isNumber() {
         return true;
