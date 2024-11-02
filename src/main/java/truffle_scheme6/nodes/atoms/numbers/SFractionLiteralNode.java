@@ -7,6 +7,7 @@ import truffle_scheme6.runtime.numbers.SFractionBigInt;
 import truffle_scheme6.runtime.numbers.SFractionLong;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.MathContext;
 
 public class SFractionLiteralNode extends SNumberLiteralNode {
@@ -27,9 +28,26 @@ public class SFractionLiteralNode extends SNumberLiteralNode {
         if (denominator.isOne()) {
             return numerator.execute(frame);
         } else if (numerator instanceof SExactBigIntegerNode || denominator instanceof SExactBigIntegerNode) {
-            return new SFractionBigInt(numerator.asBigInteger(), denominator.asBigInteger());
+            var num = numerator.asBigInteger();
+            var den = denominator.asBigInteger();
+
+            var divRem = num.divideAndRemainder(den);
+            var div = divRem[0];
+            var rem = divRem[1];
+            if (rem.equals(BigInteger.ZERO)) {
+                return div;
+            } else {
+                return new SFractionBigInt(numerator.asBigInteger(), denominator.asBigInteger());
+            }
         } else {
-            return new SFractionLong(numerator.asLong(), denominator.asLong());
+            var num = numerator.asLong();
+            var den = denominator.asLong();
+
+            if (num % den == 0) {
+                return num / den;
+            } else {
+                return new SFractionLong(numerator.asLong(), denominator.asLong());
+            }
         }
     }
 
