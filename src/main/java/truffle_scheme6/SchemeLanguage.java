@@ -2,14 +2,7 @@ package truffle_scheme6;
 
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.TruffleLanguage;
-import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.nodes.Node;
-import truffle_scheme6.builtins.SIsNumberNodeGen;
-import truffle_scheme6.builtins.SIsSymbolNodeGen;
-import truffle_scheme6.nodes.functions.SReadArgSlotNode;
-import truffle_scheme6.nodes.roots.SLambdaRoot;
-import truffle_scheme6.runtime.SLambda;
-import truffle_scheme6.runtime.SSymbol;
 
 @TruffleLanguage.Registration(id = "scheme", name = "R6RS Scheme")
 public final class SchemeLanguage extends TruffleLanguage<SchemeLanguageContext> {
@@ -27,13 +20,6 @@ public final class SchemeLanguage extends TruffleLanguage<SchemeLanguageContext>
 
     @Override
     protected SchemeLanguageContext createContext(Env env) {
-        var ctx = new SchemeLanguageContext();
-
-        var isSymbol = new SLambdaRoot(this, FrameDescriptor.newBuilder().build(), "symbol?", SIsSymbolNodeGen.create(new SReadArgSlotNode(0)));
-        ctx.globalScope.setVar(SSymbol.get("symbol?"), new SLambda(isSymbol.getCallTarget()));
-        var isNumber = new SLambdaRoot(this, FrameDescriptor.newBuilder().build(), "number?", SIsNumberNodeGen.create(new SReadArgSlotNode(0)));
-        ctx.globalScope.setVar(SSymbol.get("number?"), new SLambda(isNumber.getCallTarget()));
-
-        return ctx;
+        return new SchemeLanguageContext(this);
     }
 }

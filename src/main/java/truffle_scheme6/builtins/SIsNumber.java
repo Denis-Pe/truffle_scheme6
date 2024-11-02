@@ -2,11 +2,11 @@ package truffle_scheme6.builtins;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.nodes.NodeInfo;
+import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.nodes.functions.SReadArgSlotNode;
 import truffle_scheme6.runtime.numbers.*;
 
-@NodeInfo(shortName = "number?")
+@BuiltinInfo(name = "number?")
 @NodeChild(value = "arg", type = SReadArgSlotNode.class)
 public abstract class SIsNumber extends SBuiltin {
     @Specialization
