@@ -495,10 +495,7 @@
 
 (defmethod detect-slot-kind TrueLiteral [_] FrameSlotKind/Boolean)
 
-(defmethod detect-slot-kind IntegerLiteral [n]
-  (if (:exact? n)
-    FrameSlotKind/Object
-    FrameSlotKind/Long))
+(defmethod detect-slot-kind IntegerLiteral [_] FrameSlotKind/Object)
 
 (defmethod detect-slot-kind FractionLiteral [_] FrameSlotKind/Object)
 
