@@ -14,7 +14,6 @@ public class SComplexLiteralNode extends SNumberLiteralNode {
     private SNumberLiteralNode real;
     @Child
     private SNumberLiteralNode imag;
-    private final Type type;
 
     private enum Type {
         Float,
@@ -42,23 +41,8 @@ public class SComplexLiteralNode extends SNumberLiteralNode {
     }
 
     public SComplexLiteralNode(SNumberLiteralNode real, SNumberLiteralNode imag) {
-        this.type = biggestTypeNeeded(real, imag);
-        switch (type) {
-            case BigDecimal -> {
-                this.real = real.asExactReal();
-                this.imag = imag.asExactReal();
-            }
-            case Double -> {
-                this.real = real.asInexact64();
-                this.imag = imag.asInexact64();
-            }
-            case Float -> {
-                this.real = real.asInexact32();
-                this.imag = imag.asInexact32();
-            }
-            case Rational -> {
-            }
-        }
+        this.real = real;
+        this.imag = imag;
     }
 
     @Override
@@ -66,11 +50,13 @@ public class SComplexLiteralNode extends SNumberLiteralNode {
         if (imag.isZero()) {
             return real.execute(frame);
         } else {
-            return switch (this.type) {
+            return switch (biggestTypeNeeded(real, imag)) {
                 case BigDecimal ->
-                        new SComplexBigDec((BigDecimal) real.execute(frame), (BigDecimal) imag.execute(frame));
-                case Double -> new SComplexDouble((double) real.execute(frame), (double) imag.execute(frame));
-                case Float -> new SComplexFloat((float) real.execute(frame), (float) imag.execute(frame));
+                        new SComplexBigDec(real.asExactReal().execute(frame), imag.asExactReal().execute(frame));
+                case Double ->
+                        new SComplexDouble((double) real.asInexact64().execute(frame), (double) imag.asInexact64().execute(frame));
+                case Float ->
+                        new SComplexFloat((float) real.asInexact32().execute(frame), (float) imag.asInexact32().execute(frame));
                 case Rational -> new SComplexRational((SRational) real.execute(frame), (SRational) imag.execute(frame));
             };
         }

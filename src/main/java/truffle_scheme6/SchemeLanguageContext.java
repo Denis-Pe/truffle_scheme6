@@ -39,6 +39,9 @@ public class SchemeLanguageContext {
         installBuiltin(SIsRealFactory.getInstance());
         installBuiltin(SIsRationalFactory.getInstance());
         installBuiltin(SIsIntegerFactory.getInstance());
+        installBuiltin(SIsRealValuedFactory.getInstance());
+        installBuiltin(SIsRationalValuedFactory.getInstance());
+        installBuiltin(SIsIntegerValuedFactory.getInstance());
     }
 
     private void installBuiltin(NodeFactory<? extends SBuiltin> factory) {

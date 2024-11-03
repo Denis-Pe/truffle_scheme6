@@ -10,10 +10,10 @@ import truffle_scheme6.runtime.numbers.*;
 
 import java.math.BigDecimal;
 
-@BuiltinInfo(name = "complex?")
+@BuiltinInfo(name = "real-valued?")
 @NodeChild(value = "arg", type = SReadArgSlotNode.class)
 @TypeSystemReference(STypesStrong.class)
-public abstract class SIsComplex extends SBuiltin {
+public abstract class SIsRealValued extends SBuiltin {
     @Specialization
     public boolean doFloat(float _f) {
         return true;
@@ -31,9 +31,9 @@ public abstract class SIsComplex extends SBuiltin {
                 || arg instanceof BigDecimal
                 || arg instanceof SFractionBigInt
                 || arg instanceof SFractionLong
-                || arg instanceof SComplexBigDec
-                || arg instanceof SComplexDouble
-                || arg instanceof SComplexFloat
-                || arg instanceof SComplexRational;
+                || (arg instanceof SComplexBigDec complexBigDec && complexBigDec.getImag().equals(BigDecimal.ZERO))
+                || (arg instanceof SComplexDouble complexDouble && complexDouble.getImag() == 0.0)
+                || (arg instanceof SComplexFloat complexFloat && complexFloat.getImag() == 0.0f)
+                || (arg instanceof SComplexRational complexRational && complexRational.getImag().isZero());
     }
 }

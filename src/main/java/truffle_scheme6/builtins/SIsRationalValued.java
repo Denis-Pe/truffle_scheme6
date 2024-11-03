@@ -10,30 +10,26 @@ import truffle_scheme6.runtime.numbers.*;
 
 import java.math.BigDecimal;
 
-@BuiltinInfo(name = "complex?")
+@BuiltinInfo(name = "rational-valued?")
 @NodeChild(value = "arg", type = SReadArgSlotNode.class)
 @TypeSystemReference(STypesStrong.class)
-public abstract class SIsComplex extends SBuiltin {
+public abstract class SIsRationalValued extends SBuiltin {
     @Specialization
     public boolean doFloat(float _f) {
-        return true;
+        return false;
     }
 
     @Specialization
     public boolean doDouble(double _d) {
-        return true;
+        return false;
     }
 
     @Specialization
     public boolean doObject(Object arg) {
         return arg instanceof SBigInt
                 || arg instanceof SFixnum
-                || arg instanceof BigDecimal
                 || arg instanceof SFractionBigInt
                 || arg instanceof SFractionLong
-                || arg instanceof SComplexBigDec
-                || arg instanceof SComplexDouble
-                || arg instanceof SComplexFloat
-                || arg instanceof SComplexRational;
+                || (arg instanceof SComplexRational complexRational && complexRational.getImag().isZero());
     }
 }
