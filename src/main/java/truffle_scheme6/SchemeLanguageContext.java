@@ -6,6 +6,7 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.nodes.Node;
 import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.builtins.*;
+import truffle_scheme6.builtins.numerical.*;
 import truffle_scheme6.nodes.functions.SReadArgNode;
 import truffle_scheme6.nodes.functions.SReadArgSlotNode;
 import truffle_scheme6.nodes.functions.SReadVarArgsNode;
