@@ -9,7 +9,7 @@ import com.oracle.truffle.api.library.ExportMessage;
 import java.math.BigInteger;
 
 @ExportLibrary(InteropLibrary.class)
-public class SFractionBigInt extends SRational implements TruffleObject {
+public class SFractionBigInt extends SFraction implements TruffleObject {
     private final BigInteger numerator;
     private final BigInteger denominator;
 
@@ -24,6 +24,20 @@ public class SFractionBigInt extends SRational implements TruffleObject {
 
     public BigInteger getDenominator() {
         return denominator;
+    }
+
+    @Override
+    public boolean equalsLong(long num) {
+        var divRem = numerator.divideAndRemainder(denominator);
+        var div = divRem[0];
+        var rem = divRem[1];
+
+        return div.equals(BigInteger.valueOf(num)) && rem.equals(BigInteger.ZERO);
+    }
+
+    @Override
+    public boolean isPerfectlyDivisible() {
+        return numerator.remainder(denominator).equals(BigInteger.ZERO);
     }
 
     @ExportMessage

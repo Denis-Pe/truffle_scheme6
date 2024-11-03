@@ -26,6 +26,11 @@ public class SFixnum extends SRational implements TruffleObject {
         return value;
     }
 
+    @Override
+    public boolean equalsLong(long num) {
+        return value == num;
+    }
+
     @ExportMessage
     boolean isNumber() {
         return true;

@@ -30,6 +30,11 @@ public class SBigInt extends SRational implements TruffleObject {
         return value;
     }
 
+    @Override
+    public boolean equalsLong(long num) {
+        return value.equals(BigInteger.valueOf(num));
+    }
+
     @ExportMessage
     boolean isNumber() {
         return true;

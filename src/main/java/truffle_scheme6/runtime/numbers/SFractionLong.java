@@ -7,7 +7,7 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 
 @ExportLibrary(InteropLibrary.class)
-public class SFractionLong extends SRational implements TruffleObject {
+public class SFractionLong extends SFraction implements TruffleObject {
     private final long numerator;
     private final long denominator;
 
@@ -22,6 +22,16 @@ public class SFractionLong extends SRational implements TruffleObject {
 
     public long getDenominator() {
         return denominator;
+    }
+
+    @Override
+    public boolean equalsLong(long num) {
+        return numerator / denominator == num && numerator % denominator == 0;
+    }
+
+    @Override
+    public boolean isPerfectlyDivisible() {
+        return numerator % denominator == 0;
     }
 
     @ExportMessage
