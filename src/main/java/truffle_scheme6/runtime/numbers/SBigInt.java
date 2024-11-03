@@ -31,6 +31,26 @@ public class SBigInt extends SRational implements TruffleObject {
     }
 
     @Override
+    public int intValue() {
+        return value.intValue();
+    }
+
+    @Override
+    public long longValue() {
+        return value.longValue();
+    }
+
+    @Override
+    public float floatValue() {
+        return value.floatValue();
+    }
+
+    @Override
+    public double doubleValue() {
+        return value.doubleValue();
+    }
+
+    @Override
     public boolean equalsLong(long num) {
         return value.equals(BigInteger.valueOf(num));
     }

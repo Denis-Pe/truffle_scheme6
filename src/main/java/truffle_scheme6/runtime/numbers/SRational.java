@@ -1,6 +1,6 @@
 package truffle_scheme6.runtime.numbers;
 
-public abstract class SRational {
+public abstract class SRational extends Number {
     public boolean isZero() {
         return equalsLong(0);
     }

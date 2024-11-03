@@ -31,6 +31,26 @@ public class SFixnum extends SRational implements TruffleObject {
         return value == num;
     }
 
+    @Override
+    public int intValue() {
+        return (int) value;
+    }
+
+    @Override
+    public long longValue() {
+        return value;
+    }
+
+    @Override
+    public float floatValue() {
+        return value;
+    }
+
+    @Override
+    public double doubleValue() {
+        return value;
+    }
+
     @ExportMessage
     boolean isNumber() {
         return true;

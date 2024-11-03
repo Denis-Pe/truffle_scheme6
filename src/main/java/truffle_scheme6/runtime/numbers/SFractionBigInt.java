@@ -40,6 +40,26 @@ public class SFractionBigInt extends SFraction implements TruffleObject {
         return numerator.remainder(denominator).equals(BigInteger.ZERO);
     }
 
+    @Override
+    public int intValue() {
+        return numerator.intValue() / denominator.intValue();
+    }
+
+    @Override
+    public long longValue() {
+        return numerator.longValue() / denominator.longValue();
+    }
+
+    @Override
+    public float floatValue() {
+        return numerator.floatValue() / denominator.floatValue();
+    }
+
+    @Override
+    public double doubleValue() {
+        return numerator.doubleValue() / denominator.doubleValue();
+    }
+
     @ExportMessage
     boolean isNumber() {
         return true;

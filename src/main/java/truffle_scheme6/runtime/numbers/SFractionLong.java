@@ -34,6 +34,26 @@ public class SFractionLong extends SFraction implements TruffleObject {
         return numerator % denominator == 0;
     }
 
+    @Override
+    public int intValue() {
+        return ((int) numerator) / ((int) denominator);
+    }
+
+    @Override
+    public long longValue() {
+        return numerator / denominator;
+    }
+
+    @Override
+    public float floatValue() {
+        return ((float) numerator) / ((float) denominator);
+    }
+
+    @Override
+    public double doubleValue() {
+        return ((double) numerator) / ((double) denominator);
+    }
+
     @ExportMessage
     boolean isNumber() {
         return true;
