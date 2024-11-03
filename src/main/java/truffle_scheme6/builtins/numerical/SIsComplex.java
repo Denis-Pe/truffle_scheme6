@@ -1,19 +1,20 @@
-package truffle_scheme6.builtins;
+package truffle_scheme6.builtins.numerical;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.dsl.TypeSystemReference;
 import truffle_scheme6.annotations.BuiltinInfo;
+import truffle_scheme6.builtins.SBuiltin;
 import truffle_scheme6.nodes.STypesStrong;
 import truffle_scheme6.nodes.functions.SReadArgSlotNode;
 import truffle_scheme6.runtime.numbers.*;
 
 import java.math.BigDecimal;
 
-@BuiltinInfo(name = "number?")
+@BuiltinInfo(name = "complex?")
 @NodeChild(value = "arg", type = SReadArgSlotNode.class)
 @TypeSystemReference(STypesStrong.class)
-public abstract class SIsNumber extends SBuiltin {
+public abstract class SIsComplex extends SBuiltin {
     @Specialization
     public boolean doFloat(float _f) {
         return true;
