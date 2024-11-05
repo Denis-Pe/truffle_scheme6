@@ -63,16 +63,16 @@ public class SListNode extends SchemeNode {
     }
 
     @Override
-    public SPair executeFrozen(VirtualFrame frame) {
-        SPair ret = new SPair(SNil.SINGLETON, args[args.length - 1].executeFrozen(frame));
+    public SPair freeze(VirtualFrame frame) {
+        SPair ret = new SPair(SNil.SINGLETON, args[args.length - 1].freeze(frame));
 
         for (int i = args.length - 2; i >= 0; i--) {
-            ret.setCar(args[i].executeFrozen(frame));
+            ret.setCar(args[i].freeze(frame));
 
             ret = new SPair(SNil.SINGLETON, ret);
         }
 
-        ret.setCar(form.executeFrozen(frame));
+        ret.setCar(form.freeze(frame));
 
         return ret;
     }

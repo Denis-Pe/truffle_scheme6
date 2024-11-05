@@ -12,7 +12,7 @@ public class SQuoteNode extends SSpecialNode {
 
     @Override
     public Object execute(VirtualFrame frame) {
-        return child.executeFrozen(frame);
+        return child.freeze(frame);
     }
 
     @Override

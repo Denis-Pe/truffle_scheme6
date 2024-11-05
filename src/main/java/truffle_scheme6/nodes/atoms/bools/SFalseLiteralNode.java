@@ -13,7 +13,7 @@ public final class SFalseLiteralNode extends SchemeNode {
     }
 
     @Override
-    public Object executeFrozen(VirtualFrame frame) {
+    public Object freeze(VirtualFrame frame) {
         return false;
     }
 

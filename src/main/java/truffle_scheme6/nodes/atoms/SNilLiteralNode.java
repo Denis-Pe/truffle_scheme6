@@ -15,7 +15,7 @@ public final class SNilLiteralNode extends SchemeNode {
     }
 
     @Override
-    public Object executeFrozen(VirtualFrame frame) {
+    public Object freeze(VirtualFrame frame) {
         return SNil.SINGLETON;
     }
 

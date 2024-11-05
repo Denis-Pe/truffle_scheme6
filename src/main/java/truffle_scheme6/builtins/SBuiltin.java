@@ -7,7 +7,7 @@ import truffle_scheme6.SchemeNode;
 @GenerateNodeFactory
 public abstract class SBuiltin extends SchemeNode {
     @Override
-    public final Object executeFrozen(VirtualFrame frame) {
+    public final Object freeze(VirtualFrame frame) {
         throw new UnsupportedOperationException("Can't freeze a builtin procedure node");
     }
 }

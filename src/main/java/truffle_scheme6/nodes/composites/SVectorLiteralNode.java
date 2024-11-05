@@ -5,8 +5,6 @@ import truffle_scheme6.SchemeNode;
 import truffle_scheme6.runtime.SVector;
 import truffle_scheme6.utils.StringFormatting;
 
-import java.util.Arrays;
-
 public final class SVectorLiteralNode extends SchemeNode {
     @Children
     private SchemeNode[] elms;
@@ -31,11 +29,11 @@ public final class SVectorLiteralNode extends SchemeNode {
     }
 
     @Override
-    public Object executeFrozen(VirtualFrame frame) {
+    public Object freeze(VirtualFrame frame) {
         var res = new Object[elms.length];
 
         for (int i = 0; i < elms.length; i++) {
-            res[i] = elms[i].executeFrozen(frame);
+            res[i] = elms[i].freeze(frame);
         }
 
         return new SVector(res);

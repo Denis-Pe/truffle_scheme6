@@ -38,7 +38,7 @@ public final class SStringLiteralNode extends SchemeNode {
     }
 
     @Override
-    public Object executeFrozen(VirtualFrame frame) {
+    public Object freeze(VirtualFrame frame) {
         return new SString(value);
     }
 

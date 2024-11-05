@@ -19,7 +19,7 @@ public final class SSymbolLiteralNode extends SchemeNode {
         protected SSymbolLiteralNode parent;
 
         @Override
-        public final Object executeFrozen(VirtualFrame frame) {
+        public final Object freeze(VirtualFrame frame) {
             throw new UnsupportedOperationException("Can't freeze a SSymbolLiteralNode.ReadArg node");
         }
     }
@@ -162,7 +162,7 @@ public final class SSymbolLiteralNode extends SchemeNode {
     }
 
     @Override
-    public SSymbol executeFrozen(VirtualFrame frame) {
+    public SSymbol freeze(VirtualFrame frame) {
         return symbol;
     }
 

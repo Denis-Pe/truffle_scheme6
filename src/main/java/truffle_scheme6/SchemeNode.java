@@ -22,6 +22,10 @@ public abstract class SchemeNode extends Node {
     public byte executeByte(VirtualFrame frame) throws UnexpectedResultException {
         return STypesGen.expectByte(execute(frame));
     }
+    
+    public long executeLong(VirtualFrame frame) throws UnexpectedResultException {
+        return STypesGen.expectLong(execute(frame));
+    }
 
     public float executeFloat(VirtualFrame frame) throws UnexpectedResultException {
         return STypesGen.expectFloat(execute(frame));
@@ -31,7 +35,7 @@ public abstract class SchemeNode extends Node {
         return STypesGen.expectDouble(execute(frame));
     }
 
-    public abstract Object executeFrozen(VirtualFrame frame);
+    public abstract Object freeze(VirtualFrame frame);
 
     public boolean isTail() {
         return isTail;

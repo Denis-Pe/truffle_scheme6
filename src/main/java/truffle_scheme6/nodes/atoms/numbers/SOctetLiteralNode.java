@@ -17,7 +17,7 @@ public class SOctetLiteralNode extends SchemeNode {
     }
 
     @Override
-    public Byte executeFrozen(VirtualFrame frame) {
+    public Byte freeze(VirtualFrame frame) {
         return value;
     }
 

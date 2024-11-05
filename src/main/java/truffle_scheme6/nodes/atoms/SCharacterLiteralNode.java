@@ -34,7 +34,7 @@ public class SCharacterLiteralNode extends SchemeNode {
     }
 
     @Override
-    public Object executeFrozen(VirtualFrame frame) {
+    public Object freeze(VirtualFrame frame) {
         return new SChar(value);
     }
 

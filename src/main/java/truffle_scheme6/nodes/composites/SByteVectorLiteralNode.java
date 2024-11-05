@@ -31,7 +31,7 @@ public final class SByteVectorLiteralNode extends SchemeNode {
     }
 
     @Override
-    public Object executeFrozen(VirtualFrame frame) {
+    public Object freeze(VirtualFrame frame) {
         return execute(frame);
     }
 

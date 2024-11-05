@@ -8,7 +8,7 @@ public abstract class SReadArgNode extends SchemeNode {
     public abstract Object execute(VirtualFrame frame);
 
     @Override
-    public final Object executeFrozen(VirtualFrame frame) {
+    public final Object freeze(VirtualFrame frame) {
         throw new UnsupportedOperationException("Cannot freeze read argument node");
     }
 }

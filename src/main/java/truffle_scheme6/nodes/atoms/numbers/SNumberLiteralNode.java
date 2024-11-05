@@ -27,7 +27,7 @@ public abstract class SNumberLiteralNode extends SchemeNode {
 
     // self-evaluating objects
     @Override
-    public final Object executeFrozen(VirtualFrame frame) {
+    public final Object freeze(VirtualFrame frame) {
         return execute(frame);
     }
 
