@@ -28,8 +28,8 @@ public class SExactBigIntegerNode extends SIntegerLiteralNode {
     }
 
     @Override
-    public SBigInt execute(VirtualFrame frame) {
-        return new SBigInt(value);
+    public BigInteger execute(VirtualFrame frame) {
+        return value;
     }
 
     @Override

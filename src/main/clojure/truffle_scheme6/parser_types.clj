@@ -495,9 +495,12 @@
 
 (defmethod detect-slot-kind TrueLiteral [_] FrameSlotKind/Boolean)
 
-(defmethod detect-slot-kind IntegerLiteral [_] FrameSlotKind/Object)
+(defmethod detect-slot-kind IntegerLiteral [lit]
+  (cond (false? (:exact? lit)) FrameSlotKind/Double
+        (instance? BigInteger (parse-arbitrary-integer (:uint-str lit) (:radix lit))) FrameSlotKind/Object
+        :else FrameSlotKind/Long))
 
-(defmethod detect-slot-kind FractionLiteral [_] FrameSlotKind/Object)
+(defmethod detect-slot-kind FractionLiteral [_] FrameSlotKind/Illegal) ; todo, maybe
 
 (defmethod detect-slot-kind DecimalLiteral [n]
   (match [(:exact? n) (:exp-mark n)]

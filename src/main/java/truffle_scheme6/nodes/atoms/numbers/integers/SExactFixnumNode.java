@@ -27,8 +27,8 @@ public class SExactFixnumNode extends SIntegerLiteralNode {
     }
 
     @Override
-    public SFixnum execute(VirtualFrame frame) {
-        return new SFixnum(value);
+    public Long execute(VirtualFrame frame) {
+        return value;
     }
 
     @Override
