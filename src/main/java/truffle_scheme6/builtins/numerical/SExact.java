@@ -10,18 +10,19 @@ import truffle_scheme6.nodes.functions.SReadArgSlotNode;
 import truffle_scheme6.runtime.numbers.*;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 @BuiltinInfo(name = "exact")
 @NodeChild(value = "arg", type = SReadArgSlotNode.class)
 @TypeSystemReference(STypesStrong.class)
 public abstract class SExact extends SBuiltin {
     @Specialization
-    public SFixnum doFixnum(SFixnum fixnum) {
+    public long doLong(long fixnum) {
         return fixnum;
     }
 
     @Specialization
-    public SBigInt doBigInt(SBigInt bigint) {
+    public BigInteger doBigInteger(BigInteger bigint) {
         return bigint;
     }
 

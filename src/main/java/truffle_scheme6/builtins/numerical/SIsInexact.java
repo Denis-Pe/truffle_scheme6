@@ -14,6 +14,11 @@ import truffle_scheme6.runtime.numbers.*;
 @TypeSystemReference(STypesStrong.class)
 public abstract class SIsInexact extends SBuiltin {
     @Specialization
+    public boolean doLong(long _l) {
+        return false;
+    }
+
+    @Specialization
     public boolean doFloat(float f) {
         return true;
     }

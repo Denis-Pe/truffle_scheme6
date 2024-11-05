@@ -10,11 +10,17 @@ import truffle_scheme6.nodes.functions.SReadArgSlotNode;
 import truffle_scheme6.runtime.numbers.*;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 @BuiltinInfo(name = "real?")
 @NodeChild(value = "arg", type = SReadArgSlotNode.class)
 @TypeSystemReference(STypesStrong.class)
 public abstract class SIsReal extends SBuiltin {
+    @Specialization
+    public boolean doLong(long _l) {
+        return true;
+    }
+
     @Specialization
     public boolean doFloat(float _f) {
         return true;
@@ -27,8 +33,7 @@ public abstract class SIsReal extends SBuiltin {
 
     @Specialization
     public boolean doObject(Object arg) {
-        return arg instanceof SBigInt
-                || arg instanceof SFixnum
+        return arg instanceof BigInteger
                 || arg instanceof BigDecimal
                 || arg instanceof SFractionBigInt
                 || arg instanceof SFractionLong;

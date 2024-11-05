@@ -1,6 +1,6 @@
 package truffle_scheme6.runtime.numbers;
 
-public class SComplexFloat {
+public class SComplexFloat implements SNumber {
     private final float real;
     private final float imag;
 

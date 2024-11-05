@@ -9,10 +9,17 @@ import truffle_scheme6.nodes.STypesStrong;
 import truffle_scheme6.nodes.functions.SReadArgSlotNode;
 import truffle_scheme6.runtime.numbers.*;
 
+import java.math.BigInteger;
+
 @BuiltinInfo(name = "integer-valued?")
 @NodeChild(value = "arg", type = SReadArgSlotNode.class)
 @TypeSystemReference(STypesStrong.class)
 public abstract class SIsIntegerValued extends SBuiltin {
+    @Specialization
+    public boolean doLong(long _l) {
+        return true;
+    }
+
     @Specialization
     public boolean doFloat(float _f) {
         return false;
@@ -25,16 +32,11 @@ public abstract class SIsIntegerValued extends SBuiltin {
 
     @Specialization
     public boolean doObject(Object arg) {
-        var nonComplex = arg instanceof SBigInt
-                || arg instanceof SFixnum
-                || (arg instanceof SFractionBigInt fractionBig && fractionBig.isPerfectlyDivisible())
-                || (arg instanceof SFractionLong fractionLong && fractionLong.isPerfectlyDivisible());
-
-        return nonComplex || arg instanceof SComplexRational complexRational && complexRational.getImag().isZero() && (
-                complexRational.getImag() instanceof SFixnum
-                        || complexRational.getImag() instanceof SBigInt
-                        || (complexRational.getImag() instanceof SFractionBigInt fractionBig && fractionBig.isPerfectlyDivisible())
-                        || (complexRational.getImag() instanceof SFractionLong fractionLong && fractionLong.isPerfectlyDivisible())
-        );
+        return arg instanceof BigInteger
+                || (arg instanceof SFraction plainFraction && plainFraction.isPerfectlyDivisible())
+                || arg instanceof SComplexRational complexRational
+                && complexRational.getImag().isZero()
+                && complexRational.getReal() instanceof SFraction realFraction
+                && realFraction.isPerfectlyDivisible();
     }
 }

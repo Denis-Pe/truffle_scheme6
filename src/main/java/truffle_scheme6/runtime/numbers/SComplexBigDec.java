@@ -2,7 +2,7 @@ package truffle_scheme6.runtime.numbers;
 
 import java.math.BigDecimal;
 
-public class SComplexBigDec {
+public class SComplexBigDec implements SComplex<BigDecimal, BigDecimal> {
     private final BigDecimal real;
     private final BigDecimal imag;
 
@@ -11,10 +11,12 @@ public class SComplexBigDec {
         this.imag = imag;
     }
 
+    @Override
     public BigDecimal getReal() {
         return real;
     }
 
+    @Override
     public BigDecimal getImag() {
         return imag;
     }

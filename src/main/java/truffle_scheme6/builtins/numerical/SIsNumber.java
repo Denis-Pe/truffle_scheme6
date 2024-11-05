@@ -10,25 +10,30 @@ import truffle_scheme6.nodes.functions.SReadArgSlotNode;
 import truffle_scheme6.runtime.numbers.*;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 @BuiltinInfo(name = "number?")
 @NodeChild(value = "arg", type = SReadArgSlotNode.class)
 @TypeSystemReference(STypesStrong.class)
 public abstract class SIsNumber extends SBuiltin {
     @Specialization
-    public boolean doFloat(float _f) {
+    protected boolean doLong(long _l) {
         return true;
     }
 
     @Specialization
-    public boolean doDouble(double _d) {
+    protected boolean doFloat(float _f) {
         return true;
     }
 
     @Specialization
-    public boolean doObject(Object arg) {
-        return arg instanceof SBigInt
-                || arg instanceof SFixnum
+    protected boolean doDouble(double _d) {
+        return true;
+    }
+
+    @Specialization
+    protected boolean doObject(Object arg) {
+        return arg instanceof BigInteger
                 || arg instanceof BigDecimal
                 || arg instanceof SFractionBigInt
                 || arg instanceof SFractionLong

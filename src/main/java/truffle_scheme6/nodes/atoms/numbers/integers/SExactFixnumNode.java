@@ -5,7 +5,6 @@ import truffle_scheme6.nodes.atoms.numbers.SExactRealNode;
 import truffle_scheme6.nodes.atoms.numbers.SInexactReal32Node;
 import truffle_scheme6.nodes.atoms.numbers.SInexactReal64Node;
 import truffle_scheme6.nodes.atoms.numbers.SNumberLiteralNode;
-import truffle_scheme6.runtime.numbers.SFixnum;
 
 import java.math.BigInteger;
 

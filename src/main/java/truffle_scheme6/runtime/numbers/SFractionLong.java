@@ -6,8 +6,11 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 @ExportLibrary(InteropLibrary.class)
-public class SFractionLong extends SFraction implements TruffleObject {
+public class SFractionLong implements SFraction, TruffleObject {
     private final long numerator;
     private final long denominator;
 
@@ -32,11 +35,6 @@ public class SFractionLong extends SFraction implements TruffleObject {
     @Override
     public boolean isPerfectlyDivisible() {
         return numerator % denominator == 0;
-    }
-
-    @Override
-    public int intValue() {
-        return ((int) numerator) / ((int) denominator);
     }
 
     @Override
@@ -96,12 +94,12 @@ public class SFractionLong extends SFraction implements TruffleObject {
 
     @ExportMessage
     double asDouble() {
-        return ((double) numerator) / ((double) denominator);
+        return doubleValue();
     }
 
     @ExportMessage
     float asFloat() {
-        return ((float) numerator) / ((float) denominator);
+        return floatValue();
     }
 
     @ExportMessage

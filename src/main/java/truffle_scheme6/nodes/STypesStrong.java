@@ -9,7 +9,7 @@ import truffle_scheme6.runtime.SNil;
  * e.g. type checks where a float or double would otherwise come
  * from the implicit cast of another value
  */
-@TypeSystem({boolean.class, byte.class, float.class, double.class})
+@TypeSystem({boolean.class, byte.class, long.class, float.class, double.class})
 public abstract class STypesStrong {
     @TypeCheck(SNil.class)
     public static boolean isSNull(Object value) {

@@ -14,6 +14,11 @@ import truffle_scheme6.runtime.numbers.*;
 @TypeSystemReference(STypesStrong.class)
 public abstract class SIsRationalValued extends SBuiltin {
     @Specialization
+    public boolean doLong(long _l) {
+        return true;
+    }
+
+    @Specialization
     public boolean doFloat(float _f) {
         return false;
     }
@@ -25,8 +30,7 @@ public abstract class SIsRationalValued extends SBuiltin {
 
     @Specialization
     public boolean doObject(Object arg) {
-        return arg instanceof SBigInt
-                || arg instanceof SFixnum
+        return arg instanceof Integer
                 || arg instanceof SFractionBigInt
                 || arg instanceof SFractionLong
                 || (arg instanceof SComplexRational complexRational && complexRational.getImag().isZero());

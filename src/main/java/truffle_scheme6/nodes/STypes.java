@@ -1,5 +1,6 @@
 package truffle_scheme6.nodes;
 
+import clojure.lang.BigInt;
 import com.oracle.truffle.api.dsl.ImplicitCast;
 import com.oracle.truffle.api.dsl.TypeCheck;
 import com.oracle.truffle.api.dsl.TypeSystem;
@@ -26,7 +27,7 @@ import java.math.MathContext;
  * treat whole numbers as fractions with 1 as a denominator, which might be a tradeoff worth making
  * </p>
  */
-@TypeSystem({boolean.class, byte.class, float.class, double.class})
+@TypeSystem({boolean.class, byte.class, long.class, float.class, double.class})
 public abstract class STypes {
     @TypeCheck(SNil.class)
     public static boolean isSNull(Object value) {
@@ -34,33 +35,33 @@ public abstract class STypes {
     }
 
     @ImplicitCast
-    public static SBigInt castBigInt(SFixnum fixnum) {
-        return new SBigInt(BigInteger.valueOf(fixnum.getValue()));
+    public static BigInteger castBigInt(long fixnum) {
+        return BigInteger.valueOf(fixnum);
     }
 
     @ImplicitCast
-    public static SFractionLong castFractionLong(SFixnum fixnum) {
-        return new SFractionLong(fixnum.getValue(), 1);
+    public static SFractionLong castFractionLong(long fixnum) {
+        return new SFractionLong(fixnum, 1L);
     }
 
     @ImplicitCast
-    public static SFractionBigInt castFractionBigInt(SFixnum fixnum) {
-        return new SFractionBigInt(BigInteger.valueOf(fixnum.getValue()), BigInteger.ONE);
+    public static SFractionBigInt castFractionBigInt(long fixnum) {
+        return new SFractionBigInt(BigInteger.valueOf(fixnum), BigInteger.ONE);
     }
 
     @ImplicitCast
-    public static SFractionBigInt castFractionBigInt(SBigInt bigint) {
-        return new SFractionBigInt(bigint.getValue(), BigInteger.ONE);
+    public static SFractionBigInt castFractionBigInt(BigInteger bigint) {
+        return new SFractionBigInt(bigint, BigInteger.ONE);
     }
 
     @ImplicitCast
-    public static float castFloat(SFixnum fixnum) {
-        return (float) fixnum.getValue();
+    public static float castFloat(long fixnum) {
+        return fixnum;
     }
 
     @ImplicitCast
-    public static float castFloat(SBigInt bigint) {
-        return bigint.getValue().floatValue();
+    public static float castFloat(BigInteger bigint) {
+        return bigint.floatValue();
     }
 
     @ImplicitCast
@@ -79,13 +80,13 @@ public abstract class STypes {
     }
 
     @ImplicitCast
-    public static double castDouble(SFixnum fixnum) {
-        return (double) fixnum.getValue();
+    public static double castDouble(long fixnum) {
+        return fixnum;
     }
 
     @ImplicitCast
-    public static double castDouble(SBigInt bigint) {
-        return bigint.getValue().doubleValue();
+    public static double castDouble(BigInteger bigint) {
+        return bigint.doubleValue();
     }
 
     @ImplicitCast
@@ -109,13 +110,13 @@ public abstract class STypes {
     }
 
     @ImplicitCast
-    public static BigDecimal castBigDecimal(SFixnum fixnum) {
-        return new BigDecimal(fixnum.getValue());
+    public static BigDecimal castBigDecimal(long fixnum) {
+        return BigDecimal.valueOf(fixnum);
     }
 
     @ImplicitCast
-    public static BigDecimal castBigDecimal(SBigInt bigint) {
-        return new BigDecimal(bigint.getValue());
+    public static BigDecimal castBigDecimal(BigInteger bigint) {
+        return new BigDecimal(bigint);
     }
 
     @ImplicitCast

@@ -1,6 +1,6 @@
 package truffle_scheme6.runtime.numbers;
 
-public class SComplexRational {
+public class SComplexRational implements SNumber {
     private final SRational real;
     private final SRational imag;
 

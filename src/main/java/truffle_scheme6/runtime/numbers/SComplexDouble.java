@@ -1,6 +1,6 @@
 package truffle_scheme6.runtime.numbers;
 
-public class SComplexDouble {
+public class SComplexDouble implements SNumber {
     private final double real;
     private final double imag;
 

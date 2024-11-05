@@ -1,13 +1,13 @@
 package truffle_scheme6.runtime.numbers;
 
-public abstract class SRational extends Number {
-    public boolean isZero() {
+public interface SRational extends SReal {
+    default boolean isZero() {
         return equalsLong(0);
     }
 
-    public boolean isOne() {
+    default boolean isOne() {
         return equalsLong(1);
     }
 
-    public abstract boolean equalsLong(long num);
+    boolean equalsLong(long num);
 }
