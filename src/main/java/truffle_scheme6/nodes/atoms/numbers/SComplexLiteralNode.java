@@ -60,7 +60,7 @@ public class SComplexLiteralNode extends SNumberLiteralNode {
                 case Float ->
                         new SComplexFloat((float) real.asInexact32().execute(frame), (float) imag.asInexact32().execute(frame));
                 case Rational ->
-                        new SComplexRational((SFraction) real.asFraction().execute(frame), (SFraction) imag.asFraction().execute(frame));
+                        new SComplexRational(real.asFraction().executeAlwaysFraction(), imag.asFraction().executeAlwaysFraction());
             };
         }
     }

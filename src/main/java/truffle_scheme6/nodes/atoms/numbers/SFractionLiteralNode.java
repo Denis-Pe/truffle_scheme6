@@ -3,6 +3,7 @@ package truffle_scheme6.nodes.atoms.numbers;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import truffle_scheme6.nodes.atoms.numbers.integers.SExactBigIntegerNode;
 import truffle_scheme6.nodes.atoms.numbers.integers.SIntegerLiteralNode;
+import truffle_scheme6.runtime.numbers.SFraction;
 import truffle_scheme6.runtime.numbers.SFractionBigInt;
 import truffle_scheme6.runtime.numbers.SFractionLong;
 
@@ -48,6 +49,14 @@ public class SFractionLiteralNode extends SNumberLiteralNode {
             } else {
                 return new SFractionLong(numerator.asLong(), denominator.asLong());
             }
+        }
+    }
+
+    public SFraction executeAlwaysFraction() {
+        if (numerator instanceof SExactBigIntegerNode || denominator instanceof SExactBigIntegerNode) {
+            return new SFractionBigInt(numerator.asBigInteger(), denominator.asBigInteger());
+        } else {
+            return new SFractionLong(numerator.asLong(), denominator.asLong());
         }
     }
 
