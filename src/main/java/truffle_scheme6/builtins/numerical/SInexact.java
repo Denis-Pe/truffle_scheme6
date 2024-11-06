@@ -28,12 +28,12 @@ public abstract class SInexact extends SBuiltin {
 
     @Specialization
     public double doFractionLong(SFractionLong fractionLong) {
-        return ((double) fractionLong.getNumerator()) / ((double) fractionLong.getDenominator());
+        return ((double) fractionLong.numerator()) / ((double) fractionLong.denominator());
     }
 
     @Specialization
     public double doFractionBigInt(SFractionBigInt fractionBigInt) {
-        return fractionBigInt.getNumerator().doubleValue() / fractionBigInt.getDenominator().doubleValue();
+        return fractionBigInt.numerator().doubleValue() / fractionBigInt.denominator().doubleValue();
     }
 
     @Specialization
@@ -54,8 +54,8 @@ public abstract class SInexact extends SBuiltin {
     @Specialization
     public SComplexDouble doComplexBigDec(SComplexBigDec complexBigDec) {
         return new SComplexDouble(
-                complexBigDec.getReal().doubleValue(),
-                complexBigDec.getImag().doubleValue()
+                complexBigDec.real().doubleValue(),
+                complexBigDec.imag().doubleValue()
         );
     }
 
@@ -72,7 +72,7 @@ public abstract class SInexact extends SBuiltin {
     @Specialization
     public SComplexDouble doComplexRational(SComplexRational complexRational) {
         return new SComplexDouble(
-                complexRational.getReal().doubleValue(), complexRational.getImag().doubleValue()
+                complexRational.real().doubleValue(), complexRational.imag().doubleValue()
         );
     }
 }

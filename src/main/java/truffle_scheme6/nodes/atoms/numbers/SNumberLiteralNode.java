@@ -22,7 +22,11 @@ public abstract class SNumberLiteralNode extends SchemeNode {
     public SInexactReal32Node asInexact32() {
         throw notUsedByParser(this);
     }
-    
+
+    public SFractionLiteralNode asFraction() {
+        throw notUsedByParser(this);
+    }
+
     public abstract boolean isZero();
 
     // self-evaluating objects

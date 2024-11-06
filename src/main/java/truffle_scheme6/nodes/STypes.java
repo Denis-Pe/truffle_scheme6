@@ -1,6 +1,5 @@
 package truffle_scheme6.nodes;
 
-import clojure.lang.BigInt;
 import com.oracle.truffle.api.dsl.ImplicitCast;
 import com.oracle.truffle.api.dsl.TypeCheck;
 import com.oracle.truffle.api.dsl.TypeSystem;
@@ -66,12 +65,12 @@ public abstract class STypes {
 
     @ImplicitCast
     public static float castFloat(SFractionLong fraction) {
-        return (float) fraction.getNumerator() / (float) fraction.getDenominator();
+        return (float) fraction.numerator() / (float) fraction.denominator();
     }
 
     @ImplicitCast
     public static float castFloat(SFractionBigInt fraction) {
-        return fraction.getNumerator().floatValue() / fraction.getDenominator().floatValue();
+        return fraction.numerator().floatValue() / fraction.denominator().floatValue();
     }
 
     @ImplicitCast
@@ -91,12 +90,12 @@ public abstract class STypes {
 
     @ImplicitCast
     public static double castDouble(SFractionLong fraction) {
-        return (double) fraction.getNumerator() / (double) fraction.getDenominator();
+        return (double) fraction.numerator() / (double) fraction.denominator();
     }
 
     @ImplicitCast
     public static double castDouble(SFractionBigInt fraction) {
-        return fraction.getNumerator().doubleValue() / fraction.getDenominator().doubleValue();
+        return fraction.numerator().doubleValue() / fraction.denominator().doubleValue();
     }
 
     @ImplicitCast
@@ -123,11 +122,11 @@ public abstract class STypes {
     public static BigDecimal castBigDecimal(SFractionLong fraction) {
         // todo revisit: what does the standard say about rational numbers that equal repeating decimals?
         //   same with a Ctrl + Shift + F of all MathContext usages that are similar to this one
-        return new BigDecimal(fraction.getNumerator()).divide(new BigDecimal(fraction.getDenominator()), MathContext.DECIMAL128);
+        return new BigDecimal(fraction.numerator()).divide(new BigDecimal(fraction.denominator()), MathContext.DECIMAL128);
     }
 
     @ImplicitCast
     public static BigDecimal castBigDecimal(SFractionBigInt fraction) {
-        return new BigDecimal(fraction.getNumerator()).divide(new BigDecimal(fraction.getDenominator()), MathContext.DECIMAL128);
+        return new BigDecimal(fraction.numerator()).divide(new BigDecimal(fraction.denominator()), MathContext.DECIMAL128);
     }
 }

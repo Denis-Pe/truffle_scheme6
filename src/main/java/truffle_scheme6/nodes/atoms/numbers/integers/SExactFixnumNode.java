@@ -1,10 +1,7 @@
 package truffle_scheme6.nodes.atoms.numbers.integers;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import truffle_scheme6.nodes.atoms.numbers.SExactRealNode;
-import truffle_scheme6.nodes.atoms.numbers.SInexactReal32Node;
-import truffle_scheme6.nodes.atoms.numbers.SInexactReal64Node;
-import truffle_scheme6.nodes.atoms.numbers.SNumberLiteralNode;
+import truffle_scheme6.nodes.atoms.numbers.*;
 
 import java.math.BigInteger;
 
@@ -53,6 +50,14 @@ public class SExactFixnumNode extends SIntegerLiteralNode {
     @Override
     public boolean isZero() {
         return value == 0L;
+    }
+
+    @Override
+    public SFractionLiteralNode asFraction() {
+        return new SFractionLiteralNode(
+                this,
+                new SExactFixnumNode(1)
+        );
     }
 
     @Override

@@ -35,6 +35,8 @@ public class SComplexLiteralNode extends SNumberLiteralNode {
             return Type.Rational;
         } else if (instance.apply(SExactFixnumNode.class)) {
             return Type.Rational;
+        } else if (instance.apply(SFractionLiteralNode.class)) {
+            return Type.Rational;
         } else {
             throw new IllegalArgumentException("Unsupported types: " + real.getClass() + ", " + imag.getClass());
         }
@@ -57,7 +59,8 @@ public class SComplexLiteralNode extends SNumberLiteralNode {
                         new SComplexDouble((double) real.asInexact64().execute(frame), (double) imag.asInexact64().execute(frame));
                 case Float ->
                         new SComplexFloat((float) real.asInexact32().execute(frame), (float) imag.asInexact32().execute(frame));
-                case Rational -> new SComplexRational((SRational) real.execute(frame), (SRational) imag.execute(frame));
+                case Rational ->
+                        new SComplexRational((SFraction) real.asFraction().execute(frame), (SFraction) imag.asFraction().execute(frame));
             };
         }
     }

@@ -37,9 +37,9 @@ public abstract class SIsRealValued extends SBuiltin {
                 || arg instanceof BigDecimal
                 || arg instanceof SFractionBigInt
                 || arg instanceof SFractionLong
-                || (arg instanceof SComplexBigDec complexBigDec && complexBigDec.getImag().equals(BigDecimal.ZERO))
-                || (arg instanceof SComplexDouble complexDouble && complexDouble.getImag() == 0.0)
-                || (arg instanceof SComplexFloat complexFloat && complexFloat.getImag() == 0.0f)
-                || (arg instanceof SComplexRational complexRational && complexRational.getImag().isZero());
+                || (arg instanceof SComplexBigDec complexBigDec && complexBigDec.imag().equals(BigDecimal.ZERO))
+                || (arg instanceof SComplexDouble complexDouble && complexDouble.imag() == 0.0)
+                || (arg instanceof SComplexFloat complexFloat && complexFloat.imag() == 0.0f)
+                || (arg instanceof SComplexRational complexRational && complexRational.imag().isZero());
     }
 }

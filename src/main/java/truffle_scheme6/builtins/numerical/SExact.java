@@ -58,12 +58,12 @@ public abstract class SExact extends SBuiltin {
 
     @Specialization
     public SComplexBigDec doComplexDouble(SComplexDouble complexDouble) {
-        return new SComplexBigDec(BigDecimal.valueOf(complexDouble.getReal()), BigDecimal.valueOf(complexDouble.getImag()));
+        return new SComplexBigDec(BigDecimal.valueOf(complexDouble.real()), BigDecimal.valueOf(complexDouble.imag()));
     }
 
     @Specialization
     public SComplexBigDec doComplexFloat(SComplexFloat complexFloat) {
-        return new SComplexBigDec(BigDecimal.valueOf(complexFloat.getReal()), BigDecimal.valueOf(complexFloat.getImag()));
+        return new SComplexBigDec(BigDecimal.valueOf(complexFloat.real()), BigDecimal.valueOf(complexFloat.imag()));
     }
 
     @Specialization

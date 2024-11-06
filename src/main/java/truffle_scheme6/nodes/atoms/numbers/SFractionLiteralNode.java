@@ -72,6 +72,11 @@ public class SFractionLiteralNode extends SNumberLiteralNode {
     }
 
     @Override
+    public SFractionLiteralNode asFraction() {
+        return this;
+    }
+
+    @Override
     public SNumberLiteralNode negate() {
         return new SFractionLiteralNode((SIntegerLiteralNode) numerator.negate(), denominator);
     }

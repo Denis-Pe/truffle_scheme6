@@ -33,6 +33,6 @@ public abstract class SIsRationalValued extends SBuiltin {
         return arg instanceof Integer
                 || arg instanceof SFractionBigInt
                 || arg instanceof SFractionLong
-                || (arg instanceof SComplexRational complexRational && complexRational.getImag().isZero());
+                || (arg instanceof SComplexRational complexRational && complexRational.imag().isZero());
     }
 }

@@ -35,8 +35,8 @@ public abstract class SIsIntegerValued extends SBuiltin {
         return arg instanceof BigInteger
                 || (arg instanceof SFraction plainFraction && plainFraction.isPerfectlyDivisible())
                 || arg instanceof SComplexRational complexRational
-                && complexRational.getImag().isZero()
-                && complexRational.getReal() instanceof SFraction realFraction
+                && complexRational.imag().isZero()
+                && complexRational.real() instanceof SFraction realFraction
                 && realFraction.isPerfectlyDivisible();
     }
 }
