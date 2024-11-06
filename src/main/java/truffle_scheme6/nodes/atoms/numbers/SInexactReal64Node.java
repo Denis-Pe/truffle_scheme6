@@ -27,7 +27,7 @@ public class SInexactReal64Node extends SNumberLiteralNode {
     }
 
     @Override
-    public Object execute(VirtualFrame frame) {
+    public Double execute(VirtualFrame frame) {
         return value;
     }
 

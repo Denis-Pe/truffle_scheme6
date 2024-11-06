@@ -13,7 +13,7 @@ public class SInexactReal32Node extends SNumberLiteralNode {
     }
 
     @Override
-    public Object execute(VirtualFrame frame) {
+    public Float execute(VirtualFrame frame) {
         return value;
     }
 
