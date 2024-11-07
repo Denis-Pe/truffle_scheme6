@@ -52,7 +52,7 @@ public class SchemeLanguageContext {
         installBuiltin(SExactFactory.getInstance());
         installBuiltin(SInexactFactory.getInstance());
         
-        
+        installBuiltin(SNumsEqualFactory.getInstance());
     }
 
     private void installBuiltin(NodeFactory<? extends SBuiltin> factory) {
