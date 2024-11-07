@@ -13,7 +13,7 @@ public interface SchemeParser {
         {
             IFn req = Clojure.var("clojure.core", "require");
             req.invoke(Clojure.read("truffle-scheme6.java-parser-export"));
-            clojureParseFn = Clojure.var("truffle-scheme6.java-parser-export", "parse");
+            clojureParseFn = Clojure.var("truffle-scheme6.java-exports", "parse");
         }
 
         @Override

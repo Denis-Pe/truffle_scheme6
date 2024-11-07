@@ -1,4 +1,4 @@
-(ns truffle-scheme6.java-parser-export
+(ns truffle-scheme6.java-exports
   (:require [truffle-scheme6.parser-types :refer [specialize tagged to-java]]
             [truffle-scheme6.reader :refer [read-scheme]])
   (:import (com.oracle.truffle.api.frame FrameDescriptor)
