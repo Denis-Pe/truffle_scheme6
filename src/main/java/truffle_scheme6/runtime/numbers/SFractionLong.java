@@ -34,6 +34,11 @@ public record SFractionLong(long numerator, long denominator) implements SFracti
         return ((double) numerator) / ((double) denominator);
     }
 
+    @Override
+    public BigDecimal bigDecimalValue() {
+        return BigDecimal.valueOf(numerator).divide(BigDecimal.valueOf(denominator), MathContext.DECIMAL128);
+    }
+
     public SFractionBigInt asBigInt() {
         return new SFractionBigInt(
                 BigInteger.valueOf(numerator),
@@ -75,11 +80,6 @@ public record SFractionLong(long numerator, long denominator) implements SFracti
         } else {
             return ComparisonResult.from(divComp);
         }
-    }
-
-    @Override
-    public ComparisonResult compareTo(BigDecimal x) {
-        return ComparisonResult.from((BigDecimal.valueOf(numerator).divide(BigDecimal.valueOf(denominator), MathContext.DECIMAL128)).compareTo(x));
     }
 
     @ExportMessage

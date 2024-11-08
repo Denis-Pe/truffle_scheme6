@@ -40,6 +40,11 @@ public record SFractionBigInt(BigInteger numerator, BigInteger denominator) impl
     }
 
     @Override
+    public BigDecimal bigDecimalValue() {
+        return new BigDecimal(numerator).divide(new BigDecimal(denominator), MathContext.DECIMAL128);
+    }
+
+    @Override
     public ComparisonResult compareTo(long n) {
         return compareTo(BigInteger.valueOf(n));
     }
@@ -81,13 +86,6 @@ public record SFractionBigInt(BigInteger numerator, BigInteger denominator) impl
     public ComparisonResult compareTo(SFractionLong q) {
         return compareTo(
                 q.asBigInt()
-        );
-    }
-
-    @Override
-    public ComparisonResult compareTo(BigDecimal x) {
-        return ComparisonResult.from(
-                (new BigDecimal(numerator).divide(new BigDecimal(denominator), MathContext.DECIMAL128)).compareTo(x)
         );
     }
 

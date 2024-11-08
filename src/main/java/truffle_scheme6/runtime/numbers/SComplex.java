@@ -1,5 +1,7 @@
 package truffle_scheme6.runtime.numbers;
 
-public interface SComplex {
+import truffle_scheme6.builtins.private_utils.NumericallyComparable;
+
+public interface SComplex extends NumericallyComparable {
     boolean isRealValued();
 }

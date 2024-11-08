@@ -3,7 +3,11 @@ package truffle_scheme6.runtime.numbers;
 import truffle_scheme6.builtins.private_utils.ComparisonResult;
 import truffle_scheme6.builtins.private_utils.NumericallyComparable;
 
+import java.math.BigDecimal;
+
 public interface SFraction extends NumericallyComparable {
+    BigDecimal bigDecimalValue();
+
     double doubleValue();
 
     default float floatValue() {
@@ -34,7 +38,12 @@ public interface SFraction extends NumericallyComparable {
                 Double.compare(this.doubleValue(), x)
         );
     }
-    
+
+    @Override
+    default ComparisonResult compareTo(BigDecimal x) {
+        return ComparisonResult.from(this.bigDecimalValue().compareTo(x));
+    }
+
     @Override
     default ComparisonResult compareTo(SComplexBigDec z) {
         return z.isRealValued() ? compareTo(z.real()) : ComparisonResult.Unequal;
