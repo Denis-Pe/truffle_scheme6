@@ -18,5 +18,17 @@ public enum ComparisonResult {
         } else {
             return LessThan;
         }
-    } 
+    }
+
+    /**
+     * For greater/less than, returns the opposite. Otherwise, the same value is returned
+     */
+    public ComparisonResult invert() {
+        return switch (this) {
+            case LessThan -> GreaterThan;
+            case Equal -> Equal;
+            case GreaterThan -> LessThan;
+            case Unequal -> Unequal;
+        };
+    }
 }
