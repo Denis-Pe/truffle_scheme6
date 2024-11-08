@@ -34,6 +34,11 @@ public class SchemeRoot extends RootNode {
     }
 
     @Override
+    public String getName() {
+        return "root";
+    }
+
+    @Override
     public String toString() {
         return StringFormatting.separatedBy("\n", nodes);
     }
