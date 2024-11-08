@@ -35,8 +35,7 @@ public abstract class SIsExact extends SBuiltin {
     public boolean doObject(Object arg) {
         return arg instanceof BigInteger
                 || arg instanceof BigDecimal
-                || arg instanceof SFractionBigInt
-                || arg instanceof SFractionLong
+                || arg instanceof SFraction
                 || arg instanceof SComplexBigDec
                 || arg instanceof SComplexRational;
     }

@@ -35,11 +35,7 @@ public abstract class SIsNumber extends SBuiltin {
     protected boolean doObject(Object arg) {
         return arg instanceof BigInteger
                 || arg instanceof BigDecimal
-                || arg instanceof SFractionBigInt
-                || arg instanceof SFractionLong
-                || arg instanceof SComplexBigDec
-                || arg instanceof SComplexDouble
-                || arg instanceof SComplexFloat
-                || arg instanceof SComplexRational;
+                || arg instanceof SFraction
+                || arg instanceof SComplex;
     }
 }

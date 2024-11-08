@@ -35,11 +35,7 @@ public abstract class SIsRealValued extends SBuiltin {
     public boolean doObject(Object arg) {
         return arg instanceof BigInteger
                 || arg instanceof BigDecimal
-                || arg instanceof SFractionBigInt
-                || arg instanceof SFractionLong
-                || (arg instanceof SComplexBigDec complexBigDec && complexBigDec.imag().equals(BigDecimal.ZERO))
-                || (arg instanceof SComplexDouble complexDouble && complexDouble.imag() == 0.0)
-                || (arg instanceof SComplexFloat complexFloat && complexFloat.imag() == 0.0f)
-                || (arg instanceof SComplexRational complexRational && complexRational.imag().isZero());
+                || arg instanceof SFraction
+                || arg instanceof SComplex complex && complex.isRealValued();
     }
 }

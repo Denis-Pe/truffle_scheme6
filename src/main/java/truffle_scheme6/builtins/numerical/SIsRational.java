@@ -7,6 +7,7 @@ import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.builtins.SBuiltin;
 import truffle_scheme6.nodes.STypesStrong;
 import truffle_scheme6.nodes.functions.SReadArgSlotNode;
+import truffle_scheme6.runtime.numbers.SFraction;
 import truffle_scheme6.runtime.numbers.SFractionBigInt;
 import truffle_scheme6.runtime.numbers.SFractionLong;
 
@@ -33,8 +34,6 @@ public abstract class SIsRational extends SBuiltin {
 
     @Specialization
     public boolean doObject(Object arg) {
-        return arg instanceof BigInteger
-                || arg instanceof SFractionBigInt
-                || arg instanceof SFractionLong;
+        return arg instanceof BigInteger || arg instanceof SFraction;
     }
 }

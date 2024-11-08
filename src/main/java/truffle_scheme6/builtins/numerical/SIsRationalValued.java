@@ -31,8 +31,7 @@ public abstract class SIsRationalValued extends SBuiltin {
     @Specialization
     public boolean doObject(Object arg) {
         return arg instanceof Integer
-                || arg instanceof SFractionBigInt
-                || arg instanceof SFractionLong
-                || (arg instanceof SComplexRational complexRational && complexRational.imag().isZero());
+                || arg instanceof SFraction
+                || (arg instanceof SComplexRational complex && complex.isRealValued());
     }
 }
