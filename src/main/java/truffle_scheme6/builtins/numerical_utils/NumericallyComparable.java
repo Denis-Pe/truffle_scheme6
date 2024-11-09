@@ -1,4 +1,4 @@
-package truffle_scheme6.builtins.private_utils;
+package truffle_scheme6.builtins.numerical_utils;
 
 import truffle_scheme6.runtime.numbers.*;
 

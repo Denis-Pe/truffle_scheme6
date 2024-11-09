@@ -1,6 +1,6 @@
 package truffle_scheme6.runtime.numbers;
 
-import truffle_scheme6.builtins.private_utils.ComparisonResult;
+import truffle_scheme6.builtins.numerical_utils.ComparisonResult;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

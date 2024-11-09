@@ -5,7 +5,7 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import truffle_scheme6.builtins.private_utils.ComparisonResult;
+import truffle_scheme6.builtins.numerical_utils.ComparisonResult;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

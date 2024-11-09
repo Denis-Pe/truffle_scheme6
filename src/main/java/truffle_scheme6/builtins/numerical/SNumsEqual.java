@@ -5,8 +5,8 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.builtins.SBuiltin;
-import truffle_scheme6.builtins.private_utils.ComparisonResult;
-import truffle_scheme6.builtins.private_utils.NumericallyComparable;
+import truffle_scheme6.builtins.numerical_utils.ComparisonResult;
+import truffle_scheme6.builtins.numerical_utils.NumericallyComparable;
 import truffle_scheme6.nodes.functions.SReadVarArgsNode;
 
 @BuiltinInfo(name = "=", lastVarArgs = true)
