@@ -9,18 +9,18 @@ import truffle_scheme6.builtins.numerical_utils.ComparisonResult;
 import truffle_scheme6.builtins.numerical_utils.NumericallyComparable;
 import truffle_scheme6.nodes.functions.SReadVarArgsNode;
 
-@BuiltinInfo(name = "=", lastVarArgs = true)
-@NodeChild(value = "args", type = SReadVarArgsNode.class)
-public abstract class SNumsEqual extends SBuiltin {
+@BuiltinInfo(name = "<", lastVarArgs = true)
+@NodeChild(value = "arg", type = SReadVarArgsNode.class)
+public abstract class SNumsIncreasing extends SBuiltin {
     @Specialization
-    public boolean doObjectArr(Object[] args) {
+    public Object doObjectArr(Object[] args) {
         if (args.length == 0) {
             throw new RuntimeException("Not enough arguments given");
         } else if (args.length == 1) {
             return true;
         } else {
             try {
-                return NumericallyComparable.comparePairs(args, comparisonResult -> comparisonResult == ComparisonResult.Equal);
+                return NumericallyComparable.comparePairs(args, comparisonResult -> comparisonResult == ComparisonResult.LessThan);
             } catch (UnsupportedTypeException e) {
                 throw new RuntimeException(e);
             }
