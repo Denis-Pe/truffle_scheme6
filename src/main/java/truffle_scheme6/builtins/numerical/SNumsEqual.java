@@ -4,7 +4,6 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.builtins.SBuiltin;
-import truffle_scheme6.builtins.numerical_utils.ComparisonResult;
 import truffle_scheme6.nodes.functions.SReadVarArgsNode;
 
 @BuiltinInfo(name = "=", lastVarArgs = true)
@@ -21,7 +20,7 @@ public abstract class SNumsEqual extends SBuiltin {
         } else {
             var equal = true;
             for (int i = 1; i < args.length; i++) {
-                equal = equal && comparator.execute(args[i - 1], args[i]) == ComparisonResult.Equal;
+                equal = equal && comparator.execute(args[i - 1], args[i]) == UComparisonResult.Equal;
             }
             return equal;
         }

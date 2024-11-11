@@ -1,6 +1,10 @@
-package truffle_scheme6.builtins.numerical_utils;
+package truffle_scheme6.builtins.numerical;
 
-public enum ComparisonResult {
+/**
+ * Utility enum as a result of number comparisons.
+ * Package private
+ */
+enum UComparisonResult {
     LessThan,
     Equal,
     GreaterThan,
@@ -10,7 +14,7 @@ public enum ComparisonResult {
      */
     Unequal;
     
-    public static ComparisonResult from(int compareToResult) {
+    public static UComparisonResult from(int compareToResult) {
         if (compareToResult == 0) {
             return Equal;
         } else if (compareToResult > 0) {
@@ -18,17 +22,5 @@ public enum ComparisonResult {
         } else {
             return LessThan;
         }
-    }
-
-    /**
-     * For greater/less than, returns the opposite. Otherwise, the same value is returned
-     */
-    public ComparisonResult invert() {
-        return switch (this) {
-            case LessThan -> GreaterThan;
-            case Equal -> Equal;
-            case GreaterThan -> LessThan;
-            case Unequal -> Unequal;
-        };
     }
 }

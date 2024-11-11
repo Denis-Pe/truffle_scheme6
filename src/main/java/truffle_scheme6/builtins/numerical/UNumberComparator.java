@@ -4,88 +4,91 @@ import com.oracle.truffle.api.dsl.GeneratePackagePrivate;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.dsl.TypeSystemReference;
 import com.oracle.truffle.api.nodes.Node;
-import truffle_scheme6.builtins.numerical_utils.ComparisonResult;
 import truffle_scheme6.nodes.STypes;
 import truffle_scheme6.runtime.numbers.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+/**
+ * Utility node for number comparisons.
+ * Package private
+ */
 @GeneratePackagePrivate
 @TypeSystemReference(STypes.class)
-public abstract class UNumberComparator extends Node {
-    public abstract ComparisonResult execute(Object a, Object b);
+abstract class UNumberComparator extends Node {
+    public abstract UComparisonResult execute(Object a, Object b);
 
     /*--- REAL COMPARISONS ---*/
 
     @Specialization
-    static ComparisonResult doLongs(long a, long b) {
-        return ComparisonResult.from(Long.compare(a, b));
+    static UComparisonResult doLongs(long a, long b) {
+        return UComparisonResult.from(Long.compare(a, b));
     }
 
     @Specialization
-    static ComparisonResult doBigIntegers(BigInteger a, BigInteger b) {
-        return ComparisonResult.from(a.compareTo(b));
+    static UComparisonResult doBigIntegers(BigInteger a, BigInteger b) {
+        return UComparisonResult.from(a.compareTo(b));
     }
 
     @Specialization
-    static ComparisonResult doLongFractions(SFractionLong a, SFractionLong b) {
-        return ComparisonResult.from(a.compareTo(b));
+    static UComparisonResult doLongFractions(SFractionLong a, SFractionLong b) {
+        return UComparisonResult.from(a.compareTo(b));
     }
 
     @Specialization
-    static ComparisonResult doBigFractions(SFractionBigInt a, SFractionBigInt b) {
-        return ComparisonResult.from(a.compareTo(b));
+    static UComparisonResult doBigFractions(SFractionBigInt a, SFractionBigInt b) {
+        return UComparisonResult.from(a.compareTo(b));
     }
 
     @Specialization
-    static ComparisonResult doFloats(float a, float b) {
-        return ComparisonResult.from(Float.compare(a, b));
+    static UComparisonResult doFloats(float a, float b) {
+        return UComparisonResult.from(Float.compare(a, b));
     }
 
     @Specialization
-    static ComparisonResult doDoubles(double a, double b) {
-        return ComparisonResult.from(Double.compare(a, b));
+    static UComparisonResult doDoubles(double a, double b) {
+        return UComparisonResult.from(Double.compare(a, b));
     }
 
     @Specialization
-    static ComparisonResult doBigDecimals(BigDecimal a, BigDecimal b) {
-        return ComparisonResult.from(a.compareTo(b));
+    static UComparisonResult doBigDecimals(BigDecimal a, BigDecimal b) {
+        return UComparisonResult.from(a.compareTo(b));
     }
 
     /*--- COMPLEX COMPARISONS ---*/
 
     @Specialization
-    static ComparisonResult doComplexRational(SComplexRational a, SComplexRational b) {
+    static UComparisonResult doComplexRational(SComplexRational a, SComplexRational b) {
         // todo 
         //  I'm going to split SComplexRational into two classes but for now I want to complete this before I do
-        return ComparisonResult.Equal;
+        return UComparisonResult.Equal;
     }
 
     @Specialization
-    static ComparisonResult doComplexFloat(SComplexFloat a, SComplexFloat b) {
+    static UComparisonResult doComplexFloat(SComplexFloat a, SComplexFloat b) {
         if (a.real() == b.real() && a.imag() == b.imag()) {
-            return ComparisonResult.Equal;
+            return UComparisonResult.Equal;
         } else {
-            return ComparisonResult.Unequal;
+            return UComparisonResult.Unequal;
         }
     }
 
     @Specialization
-    static ComparisonResult doComplexDouble(SComplexDouble a, SComplexDouble b) {
+    static UComparisonResult doComplexDouble(SComplexDouble a, SComplexDouble b) {
         if (a.real() == b.real() && a.imag() == b.imag()) {
-            return ComparisonResult.Equal;
+            return UComparisonResult.Equal;
         } else {
-            return ComparisonResult.Unequal;
+            return UComparisonResult.Unequal;
         }
     }
 
     @Specialization
-    static ComparisonResult doComplexBigDec(SComplexBigDec a, SComplexBigDec b) {
+    static UComparisonResult doComplexBigDec(SComplexBigDec a, SComplexBigDec b) {
         if (a.real().equals(b.real()) && a.imag().equals(b.imag())) {
-            return ComparisonResult.Equal;
+            return UComparisonResult.Equal;
         } else {
-            return ComparisonResult.Unequal;
+            return UComparisonResult.Unequal;
         }
     }
 }
