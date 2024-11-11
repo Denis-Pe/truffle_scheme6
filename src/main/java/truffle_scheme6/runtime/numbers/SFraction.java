@@ -10,6 +10,8 @@ public interface SFraction {
     default float floatValue() {
         return (float) doubleValue();
     }
+    
+    SFractionBigInt asBigInt();
 
     /**
      * In other words, is it integer-valued?

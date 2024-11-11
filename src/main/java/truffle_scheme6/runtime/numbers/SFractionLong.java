@@ -38,6 +38,7 @@ public record SFractionLong(long numerator, long denominator) implements SFracti
         return BigDecimal.valueOf(numerator).divide(BigDecimal.valueOf(denominator), MathContext.DECIMAL128);
     }
 
+    @Override
     public SFractionBigInt asBigInt() {
         return new SFractionBigInt(
                 BigInteger.valueOf(numerator),

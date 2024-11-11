@@ -27,13 +27,13 @@ public abstract class SExact extends SBuiltin {
     }
 
     @Specialization
-    public SFractionLong doFractionLong(SFractionLong fractionLong) {
-        return fractionLong;
+    public SFractionLong doFractionLong(SFractionLong fraction) {
+        return fraction;
     }
 
     @Specialization
-    public SFractionBigInt doFractionBigInt(SFractionBigInt fractionBigInt) {
-        return fractionBigInt;
+    public SFractionBigInt doFractionBigInt(SFractionBigInt fraction) {
+        return fraction;
     }
 
     @Specialization
@@ -52,22 +52,27 @@ public abstract class SExact extends SBuiltin {
     }
 
     @Specialization
-    public SComplexBigDec doComplexBigDec(SComplexBigDec complexBigDec) {
-        return complexBigDec;
+    public SComplexBigDec doComplexBigDec(SComplexBigDec complex) {
+        return complex;
     }
 
     @Specialization
-    public SComplexBigDec doComplexDouble(SComplexDouble complexDouble) {
-        return new SComplexBigDec(BigDecimal.valueOf(complexDouble.real()), BigDecimal.valueOf(complexDouble.imag()));
+    public SComplexBigDec doComplexDouble(SComplexDouble complex) {
+        return new SComplexBigDec(BigDecimal.valueOf(complex.real()), BigDecimal.valueOf(complex.imag()));
     }
 
     @Specialization
-    public SComplexBigDec doComplexFloat(SComplexFloat complexFloat) {
-        return new SComplexBigDec(BigDecimal.valueOf(complexFloat.real()), BigDecimal.valueOf(complexFloat.imag()));
+    public SComplexBigDec doComplexFloat(SComplexFloat complex) {
+        return new SComplexBigDec(BigDecimal.valueOf(complex.real()), BigDecimal.valueOf(complex.imag()));
     }
 
     @Specialization
-    public SComplexRational doComplexRational(SComplexRational complexRational) {
-        return complexRational;
+    public SComplexBigInt doComplexBigInt(SComplexBigInt complex) {
+        return complex;
+    }
+
+    @Specialization
+    public SComplexLong doComplexLong(SComplexLong complex) {
+        return complex;
     }
 }

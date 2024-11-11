@@ -48,6 +48,11 @@ public record SFractionBigInt(BigInteger numerator, BigInteger denominator) impl
                 .compareTo(other.numerator.multiply(denominator));
     }
 
+    @Override
+    public SFractionBigInt asBigInt() {
+        return this;
+    }
+
     @ExportMessage
     boolean isNumber() {
         return true;

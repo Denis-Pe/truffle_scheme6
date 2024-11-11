@@ -35,23 +35,23 @@ public class SchemeLanguageContext {
 
     private void installBuiltins() {
         installBuiltin(SIsSymbolFactory.getInstance());
-        
+
         installBuiltin(SIsNumberFactory.getInstance());
         installBuiltin(SIsComplexFactory.getInstance());
         installBuiltin(SIsRealFactory.getInstance());
         installBuiltin(SIsRationalFactory.getInstance());
         installBuiltin(SIsIntegerFactory.getInstance());
-        
+
         installBuiltin(SIsRealValuedFactory.getInstance());
         installBuiltin(SIsRationalValuedFactory.getInstance());
         installBuiltin(SIsIntegerValuedFactory.getInstance());
-        
+
         installBuiltin(SIsExactFactory.getInstance());
         installBuiltin(SIsInexactFactory.getInstance());
-        
+
         installBuiltin(SExactFactory.getInstance());
         installBuiltin(SInexactFactory.getInstance());
-        
+
         installBuiltin(SNumsEqualFactory.getInstance());
         installBuiltin(SNumsIncreasingFactory.getInstance());
     }
@@ -75,6 +75,7 @@ public class SchemeLanguageContext {
 
         var funNode = factory.createNode((Object[]) argReaders);
         var lambdaRoot = new SLambdaRoot(language, new FrameDescriptor(), name, funNode);
-        this.globalScope.setVar(SSymbol.get(name), new SLambda(lambdaRoot.getCallTarget()));
+        if (!this.globalScope.setVar(SSymbol.get(name), new SLambda(lambdaRoot.getCallTarget())))
+            throw new IllegalStateException("Standard library installation failed: name `" + name + "` already bound");
     }
 }

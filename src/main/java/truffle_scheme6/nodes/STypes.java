@@ -140,35 +140,51 @@ public abstract class STypes {
         return new BigDecimal(fraction.numerator()).divide(new BigDecimal(fraction.denominator()), MathContext.DECIMAL128);
     }
 
-    /*---- COMPLEX=>REAL CASTS ----*/
+    /*---- REAL=>COMPLEX CASTS ----*/
 
     @ImplicitCast
-    public static SComplexRational castSComplexRational(long l) {
-        return new SComplexRational(
+    public static SComplexLong castSComplexLong(long l) {
+        return new SComplexLong(
                 new SFractionLong(l, 1),
                 new SFractionLong(0, 1)
         );
     }
 
     @ImplicitCast
-    public static SComplexRational castSComplexRational(BigInteger bigint) {
-        return new SComplexRational(
-                new SFractionBigInt(bigint, BigInteger.ONE),
-                new SFractionBigInt(BigInteger.ZERO, BigInteger.ONE)
-        );
-    }
-
-    @ImplicitCast
-    public static SComplexRational castSComplexRational(SFractionLong fraction) {
-        return new SComplexRational(
+    public static SComplexLong castSComplexLong(SFractionLong fraction) {
+        return new SComplexLong(
                 fraction,
                 new SFractionLong(0, 1)
         );
     }
 
     @ImplicitCast
-    public static SComplexRational castSComplexRational(SFractionBigInt fraction) {
-        return new SComplexRational(
+    public static SComplexBigInt castSComplexBigInt(long l) {
+        return new SComplexBigInt(
+                new SFractionBigInt(BigInteger.valueOf(l), BigInteger.ONE),
+                new SFractionBigInt(BigInteger.ZERO, BigInteger.ONE)
+        );
+    }
+
+    @ImplicitCast
+    public static SComplexBigInt castSComplexBigInt(BigInteger bigint) {
+        return new SComplexBigInt(
+                new SFractionBigInt(bigint, BigInteger.ONE),
+                new SFractionBigInt(BigInteger.ZERO, BigInteger.ONE)
+        );
+    }
+
+    @ImplicitCast
+    public static SComplexBigInt castSComplexBigInt(SFractionLong fraction) {
+        return new SComplexBigInt(
+                fraction.asBigInt(),
+                new SFractionBigInt(BigInteger.ZERO, BigInteger.ONE)
+        );
+    }
+
+    @ImplicitCast
+    public static SComplexBigInt castSComplexBigInt(SFractionBigInt fraction) {
+        return new SComplexBigInt(
                 fraction,
                 new SFractionBigInt(BigInteger.ZERO, BigInteger.ONE)
         );
@@ -267,7 +283,15 @@ public abstract class STypes {
     /*---- COMPLEX=>COMPLEX CASTS ----*/
 
     @ImplicitCast
-    public static SComplexFloat castSComplexFloat(SComplexRational complex) {
+    public static SComplexBigInt castSComplexBigInt(SComplexLong complex) {
+        return new SComplexBigInt(
+                complex.real().asBigInt(),
+                complex.imag().asBigInt()
+        );
+    }
+
+    @ImplicitCast
+    public static SComplexFloat castSComplexFloat(SComplexLong complex) {
         return new SComplexFloat(
                 complex.real().floatValue(),
                 complex.imag().floatValue()
@@ -275,7 +299,23 @@ public abstract class STypes {
     }
 
     @ImplicitCast
-    public static SComplexDouble castSComplexDouble(SComplexRational complex) {
+    public static SComplexFloat castSComplexFloat(SComplexBigInt complex) {
+        return new SComplexFloat(
+                complex.real().floatValue(),
+                complex.imag().floatValue()
+        );
+    }
+
+    @ImplicitCast
+    public static SComplexDouble castSComplexDouble(SComplexLong complex) {
+        return new SComplexDouble(
+                complex.real().doubleValue(),
+                complex.imag().doubleValue()
+        );
+    }
+    
+    @ImplicitCast
+    public static SComplexDouble castSComplexDouble(SComplexBigInt complex) {
         return new SComplexDouble(
                 complex.real().doubleValue(),
                 complex.imag().doubleValue()
@@ -291,7 +331,15 @@ public abstract class STypes {
     }
 
     @ImplicitCast
-    public static SComplexBigDec castSComplexBigDec(SComplexRational complex) {
+    public static SComplexBigDec castSComplexBigDec(SComplexLong complex) {
+        return new SComplexBigDec(
+                complex.real().bigDecimalValue(),
+                complex.imag().bigDecimalValue()
+        );
+    }
+    
+    @ImplicitCast
+    public static SComplexBigDec castSComplexBigDec(SComplexBigInt complex) {
         return new SComplexBigDec(
                 complex.real().bigDecimalValue(),
                 complex.imag().bigDecimalValue()

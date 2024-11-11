@@ -5,8 +5,6 @@ import truffle_scheme6.nodes.atoms.numbers.integers.SExactBigIntegerNode;
 import truffle_scheme6.nodes.atoms.numbers.integers.SExactFixnumNode;
 import truffle_scheme6.runtime.numbers.*;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.function.Function;
 
 public class SComplexLiteralNode extends SNumberLiteralNode {
@@ -55,12 +53,17 @@ public class SComplexLiteralNode extends SNumberLiteralNode {
             return switch (biggestTypeNeeded(real, imag)) {
                 case BigDecimal ->
                         new SComplexBigDec(real.asExactReal().execute(frame), imag.asExactReal().execute(frame));
-                case Double ->
-                        new SComplexDouble(real.asInexact64().execute(frame), imag.asInexact64().execute(frame));
-                case Float ->
-                        new SComplexFloat(real.asInexact32().execute(frame), imag.asInexact32().execute(frame));
-                case Rational ->
-                        new SComplexRational(real.asFraction().executeAlwaysFraction(), imag.asFraction().executeAlwaysFraction());
+                case Double -> new SComplexDouble(real.asInexact64().execute(frame), imag.asInexact64().execute(frame));
+                case Float -> new SComplexFloat(real.asInexact32().execute(frame), imag.asInexact32().execute(frame));
+                case Rational -> {
+                    SFraction realF = real.asFraction().executeAlwaysFraction();
+                    SFraction imagF = imag.asFraction().executeAlwaysFraction();
+                    if (realF instanceof SFractionBigInt || imagF instanceof SFractionBigInt) {
+                        yield new SComplexBigInt(realF.asBigInt(), imagF.asBigInt());
+                    } else {
+                        yield new SComplexLong((SFractionLong) realF, (SFractionLong) imagF);
+                    }
+                }
             };
         }
     }

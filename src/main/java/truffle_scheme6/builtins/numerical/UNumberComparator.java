@@ -9,6 +9,8 @@ import truffle_scheme6.runtime.numbers.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Utility node for number comparisons.
@@ -59,10 +61,21 @@ abstract class UNumberComparator extends Node {
     /*--- COMPLEX COMPARISONS ---*/
 
     @Specialization
-    static UComparisonResult doComplexRational(SComplexRational a, SComplexRational b) {
-        // todo 
-        //  I'm going to split SComplexRational into two classes but for now I want to complete this before I do
-        return UComparisonResult.Equal;
+    static UComparisonResult doComplexLongs(SComplexLong a, SComplexLong b) {
+        if (a.real().equals(b.real()) && a.imag().equals(b.imag())) {
+            return UComparisonResult.Equal;
+        } else {
+            return UComparisonResult.Unequal;
+        }
+    }
+
+    @Specialization
+    static UComparisonResult doComplexBigInts(SComplexBigInt a, SComplexBigInt b) {
+        if (a.real().equals(b.real()) && a.imag().equals(b.imag())) {
+            return UComparisonResult.Equal;
+        } else {
+            return UComparisonResult.Unequal;
+        }
     }
 
     @Specialization
