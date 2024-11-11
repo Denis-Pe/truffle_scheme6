@@ -5,14 +5,13 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import truffle_scheme6.builtins.numerical_utils.ComparisonResult;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 
 @ExportLibrary(InteropLibrary.class)
-public record SFractionLong(long numerator, long denominator) implements SFraction, TruffleObject {
+public record SFractionLong(long numerator, long denominator) implements SFraction, Comparable<SFractionLong>, TruffleObject {
 
     @Override
     public boolean equalsLong(long num) {
@@ -47,39 +46,8 @@ public record SFractionLong(long numerator, long denominator) implements SFracti
     }
 
     @Override
-    public ComparisonResult compareTo(long n) {
-        var comp = Long.compare(numerator / denominator, n);
-
-        if (comp == 0) {
-            return numerator % denominator == 0 ? ComparisonResult.Equal : ComparisonResult.GreaterThan;
-        } else {
-            return ComparisonResult.from(comp);
-        }
-    }
-
-    @Override
-    public ComparisonResult compareTo(BigInteger n) {
-        return this.asBigInt().compareTo(n);
-    }
-
-    @Override
-    public ComparisonResult compareTo(SFractionBigInt q) {
-        return this.asBigInt().compareTo(q);
-    }
-
-    @Override
-    public ComparisonResult compareTo(SFractionLong other) {
-        var div1 = numerator / denominator;
-        var rem1 = numerator % denominator;
-        var div2 = other.numerator / other.denominator;
-        var rem2 = other.numerator % other.denominator;
-
-        var divComp = Long.compare(div1, div2);
-        if (divComp == 0) {
-            return ComparisonResult.from(Long.compare(rem1, rem2));
-        } else {
-            return ComparisonResult.from(divComp);
-        }
+    public int compareTo(SFractionLong other) {
+        return Long.compare(numerator * other.denominator, other.numerator * denominator);
     }
 
     @ExportMessage
