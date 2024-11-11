@@ -12,7 +12,7 @@ import truffle_scheme6.runtime.numbers.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-@BuiltinInfo(name = "inexact?")
+@BuiltinInfo(name = "inexact")
 @NodeChild(value = "arg", type = SReadArgSlotNode.class)
 @TypeSystemReference(STypesStrong.class)
 public abstract class SInexact extends SBuiltin {
@@ -70,9 +70,16 @@ public abstract class SInexact extends SBuiltin {
     }
 
     @Specialization
-    public SComplexDouble doComplexRational(SComplexRational complexRational) {
+    public SComplexDouble doComplexBigInt(SComplexBigInt complex) {
         return new SComplexDouble(
-                complexRational.real().doubleValue(), complexRational.imag().doubleValue()
+                complex.real().doubleValue(), complex.imag().doubleValue()
+        );
+    }
+
+    @Specialization
+    public SComplexDouble doComplexLong(SComplexLong complex) {
+        return new SComplexDouble(
+                complex.real().doubleValue(),complex.imag().doubleValue()
         );
     }
 }
