@@ -8,8 +8,6 @@ import truffle_scheme6.builtins.SBuiltin;
 import truffle_scheme6.nodes.STypesStrong;
 import truffle_scheme6.nodes.functions.SReadArgSlotNode;
 import truffle_scheme6.runtime.numbers.SFraction;
-import truffle_scheme6.runtime.numbers.SFractionBigInt;
-import truffle_scheme6.runtime.numbers.SFractionLong;
 
 import java.math.BigInteger;
 

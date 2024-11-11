@@ -7,7 +7,8 @@ import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.builtins.SBuiltin;
 import truffle_scheme6.nodes.STypesStrong;
 import truffle_scheme6.nodes.functions.SReadArgSlotNode;
-import truffle_scheme6.runtime.numbers.*;
+import truffle_scheme6.runtime.numbers.SComplexDouble;
+import truffle_scheme6.runtime.numbers.SComplexFloat;
 
 @BuiltinInfo(name = "inexact?")
 @NodeChild(value = "arg", type = SReadArgSlotNode.class)
