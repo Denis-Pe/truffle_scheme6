@@ -54,6 +54,9 @@ public class SchemeLanguageContext {
 
         installBuiltin(SNumsEqualFactory.getInstance());
         installBuiltin(SNumsIncreasingFactory.getInstance());
+        installBuiltin(SNumsDecreasingFactory.getInstance());
+        installBuiltin(SNumsNonDecreasingFactory.getInstance());
+        installBuiltin(SNumsNonIncreasingFactory.getInstance());
     }
 
     private void installBuiltin(NodeFactory<? extends SBuiltin> factory) {
