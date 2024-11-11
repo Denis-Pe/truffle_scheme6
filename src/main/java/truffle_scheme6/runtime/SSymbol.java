@@ -22,6 +22,9 @@ public class SSymbol implements TruffleObject {
     private final TruffleString value;
     private static final TruffleString.ToJavaStringNode converter = TruffleString.ToJavaStringNode.create();
 
+    private static final TruffleStringBuilder.AppendCodePointNode builderAppend = TruffleStringBuilder.AppendCodePointNode.create();
+    private static final TruffleStringBuilder.ToStringNode builderToString = TruffleStringBuilder.ToStringNode.create();
+    
     private static final Set<SSymbol> registeredSymbols = new HashSet<>();
 
     private SSymbol(TruffleString value) {
@@ -30,13 +33,12 @@ public class SSymbol implements TruffleObject {
 
     private SSymbol(int[] codepoints) {
         TruffleStringBuilder builder = TruffleStringBuilder.create(Constants.ENCODING);
-        var appender = TruffleStringBuilder.AppendCodePointNode.create();
 
         for (var c : codepoints) {
-            appender.execute(builder, c);
+            builderAppend.execute(builder, c);
         }
 
-        this.value = builder.toStringUncached();
+        this.value = builderToString.execute(builder);
     }
 
     private SSymbol(IntStream codepoints) {

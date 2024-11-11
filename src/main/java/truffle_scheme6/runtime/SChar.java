@@ -12,15 +12,15 @@ import truffle_scheme6.Constants;
 public class SChar implements TruffleObject {
     private final TruffleString value;
     private static final TruffleString.ToJavaStringNode converter = TruffleString.ToJavaStringNode.create();
+    private static final TruffleStringBuilder.AppendCodePointNode builderAppend = TruffleStringBuilder.AppendCodePointNode.create();
+    private static final TruffleStringBuilder.ToStringNode builderToString = TruffleStringBuilder.ToStringNode.create();
 
     public SChar(int codepoint) {
         TruffleStringBuilder builder = TruffleStringBuilder.create(Constants.ENCODING);
-        var appender = TruffleStringBuilder.AppendCodePointNode.create();
 
-        appender.execute(builder, codepoint);
+        builderAppend.execute(builder, codepoint);
 
-
-        this.value = builder.toStringUncached();
+        this.value = builderToString.execute(builder);
     }
 
     public SChar(char c) {
@@ -57,7 +57,7 @@ public class SChar implements TruffleObject {
 
     @Override
     public String toString() {
-        return "#\\" + value.toJavaStringUncached();
+        return "#\\" + converter.execute(value);
     }
 
 }

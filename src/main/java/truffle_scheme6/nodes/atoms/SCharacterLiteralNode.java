@@ -12,6 +12,8 @@ public class SCharacterLiteralNode extends SchemeNode {
     //  for now I don't want to spend much time on it
     private final TruffleString value;
     private static final TruffleString.ToJavaStringNode converter = TruffleString.ToJavaStringNode.create();
+    private static final TruffleStringBuilder.AppendCodePointNode builderAppend = TruffleStringBuilder.AppendCodePointNode.create();
+    private static final TruffleStringBuilder.ToStringNode builderToString = TruffleStringBuilder.ToStringNode.create();
 
 
     public SCharacterLiteralNode(char c) {
@@ -20,11 +22,10 @@ public class SCharacterLiteralNode extends SchemeNode {
 
     public SCharacterLiteralNode(int unsignedCodepointInt) {
         var builder = TruffleStringBuilder.create(Constants.ENCODING);
-        var appender = TruffleStringBuilder.AppendCodePointNode.create();
 
-        appender.execute(builder, unsignedCodepointInt);
+        builderAppend.execute(builder, unsignedCodepointInt);
 
-        this.value = builder.toStringUncached();
+        this.value = builderToString.execute(builder);
     }
 
 

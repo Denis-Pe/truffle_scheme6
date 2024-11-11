@@ -12,16 +12,17 @@ import java.util.stream.IntStream;
 public final class SStringLiteralNode extends SchemeNode {
     private final TruffleString value;
     private static final TruffleString.ToJavaStringNode converter = TruffleString.ToJavaStringNode.create();
+    private static final TruffleStringBuilder.AppendCodePointNode builderAppend = TruffleStringBuilder.AppendCodePointNode.create();
+    private static final TruffleStringBuilder.ToStringNode builderToString = TruffleStringBuilder.ToStringNode.create();
 
     public SStringLiteralNode(int[] codepoints) {
         TruffleStringBuilder builder = TruffleStringBuilder.create(Constants.ENCODING);
-        var appender = TruffleStringBuilder.AppendCodePointNode.create();
 
         for (var c : codepoints) {
-            appender.execute(builder, c);
+            builderAppend.execute(builder, c);
         }
 
-        this.value = builder.toStringUncached();
+        this.value = builderToString.execute(builder);
     }
 
     public SStringLiteralNode(IntStream codepoints) {

@@ -13,11 +13,14 @@ import java.util.stream.IntStream;
 @ExportLibrary(InteropLibrary.class)
 public class SString implements TruffleObject {
     private final TruffleString value;
-    private final TruffleString.ToJavaStringNode converter;
+    private final TruffleString.ToJavaStringNode converter = TruffleString.ToJavaStringNode.create();
+    ;
+
+    private static final TruffleStringBuilder.AppendCodePointNode builderAppend = TruffleStringBuilder.AppendCodePointNode.create();
+    private static final TruffleStringBuilder.ToStringNode builderToString = TruffleStringBuilder.ToStringNode.create();
 
     public SString(TruffleString value) {
         this.value = value;
-        this.converter = TruffleString.ToJavaStringNode.create();
     }
 
     public SString(int[] codepoints) {
@@ -25,11 +28,10 @@ public class SString implements TruffleObject {
         var appender = TruffleStringBuilder.AppendCodePointNode.create();
 
         for (var c : codepoints) {
-            appender.execute(builder, c);
+            builderAppend.execute(builder, c);
         }
 
-        this.value = builder.toStringUncached();
-        this.converter = TruffleString.ToJavaStringNode.create();
+        this.value = builderToString.execute(builder);
     }
 
     public SString(IntStream codepoints) {
