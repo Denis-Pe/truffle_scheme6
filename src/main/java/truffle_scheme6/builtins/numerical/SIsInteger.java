@@ -3,16 +3,16 @@ package truffle_scheme6.builtins.numerical;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.dsl.TypeSystemReference;
+import truffle_scheme6.SchemeNode;
 import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.builtins.SBuiltin;
 import truffle_scheme6.nodes.STypesStrong;
-import truffle_scheme6.nodes.functions.SReadArgSlotNode;
 import truffle_scheme6.runtime.numbers.SFraction;
 
 import java.math.BigInteger;
 
 @BuiltinInfo(name = "integer?")
-@NodeChild(value = "arg", type = SReadArgSlotNode.class)
+@NodeChild(value = "arg", type = SchemeNode.class)
 @TypeSystemReference(STypesStrong.class)
 public abstract class SIsInteger extends SBuiltin {
     @Specialization

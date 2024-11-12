@@ -5,7 +5,8 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.dsl.TypeSystemReference;
 import com.oracle.truffle.api.nodes.Node;
 import truffle_scheme6.nodes.STypes;
-import truffle_scheme6.runtime.numbers.*;
+import truffle_scheme6.runtime.numbers.SFractionBigInt;
+import truffle_scheme6.runtime.numbers.SFractionLong;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
