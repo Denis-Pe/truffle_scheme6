@@ -1,0 +1,50 @@
+package truffle_scheme6.builtins.numerical;
+
+import com.oracle.truffle.api.dsl.NodeChild;
+import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.TypeSystemReference;
+import truffle_scheme6.annotations.BuiltinInfo;
+import truffle_scheme6.builtins.SBuiltin;
+import truffle_scheme6.nodes.STypesStrong;
+import truffle_scheme6.nodes.functions.SReadArgSlotNode;
+import truffle_scheme6.runtime.numbers.SFraction;
+import truffle_scheme6.runtime.numbers.SFractionBigInt;
+import truffle_scheme6.runtime.numbers.SFractionLong;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
+@BuiltinInfo(name = "infinite?")
+@NodeChild(value = "arg", type = SReadArgSlotNode.class)
+@TypeSystemReference(STypesStrong.class)
+public abstract class SIsInfinite extends SBuiltin {
+    @Specialization
+    public boolean doLong(long l) {
+        return false;
+    }
+    
+    @Specialization
+    public boolean doBigInteger(BigInteger i) {
+        return false;
+    }
+    
+    @Specialization
+    public boolean doFloat(float f) {
+        return Float.isInfinite(f);
+    }
+    
+    @Specialization
+    public boolean doDouble(double d) {
+        return Double.isInfinite(d);
+    }
+    
+    @Specialization
+    public boolean doBigDecimal(BigDecimal d) {
+        return false;
+    }
+    
+    @Specialization
+    public boolean doFraction(SFraction fraction) {
+        return false;
+    }
+}

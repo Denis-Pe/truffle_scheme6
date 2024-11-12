@@ -59,6 +59,13 @@ public class SchemeLanguageContext {
         installBuiltin(SNumsNonIncreasingFactory.getInstance());
         
         installBuiltin(SIsZeroFactory.getInstance());
+        installBuiltin(SIsPositiveFactory.getInstance());
+        installBuiltin(SIsNegativeFactory.getInstance());
+        installBuiltin(SIsOddFactory.getInstance());
+        installBuiltin(SIsEvenFactory.getInstance());
+        installBuiltin(SIsFiniteFactory.getInstance());
+        installBuiltin(SIsInfiniteFactory.getInstance());
+        installBuiltin(SIsNanFactory.getInstance());
     }
 
     private void installBuiltin(NodeFactory<? extends SBuiltin> factory) {
