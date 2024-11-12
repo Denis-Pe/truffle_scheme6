@@ -9,8 +9,6 @@ import truffle_scheme6.runtime.numbers.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Utility node for number comparisons.
@@ -18,7 +16,7 @@ import java.util.Set;
  */
 @GeneratePackagePrivate
 @TypeSystemReference(STypes.class)
-abstract class UNumberComparator extends Node {
+abstract class URealComparator extends Node {
     public abstract UComparisonResult execute(Object a, Object b);
 
     /*--- REAL COMPARISONS ---*/
@@ -60,48 +58,5 @@ abstract class UNumberComparator extends Node {
 
     /*--- COMPLEX COMPARISONS ---*/
 
-    @Specialization
-    static UComparisonResult doComplexLongs(SComplexLong a, SComplexLong b) {
-        if (a.real().equals(b.real()) && a.imag().equals(b.imag())) {
-            return UComparisonResult.Equal;
-        } else {
-            return UComparisonResult.Unequal;
-        }
-    }
-
-    @Specialization
-    static UComparisonResult doComplexBigInts(SComplexBigInt a, SComplexBigInt b) {
-        if (a.real().equals(b.real()) && a.imag().equals(b.imag())) {
-            return UComparisonResult.Equal;
-        } else {
-            return UComparisonResult.Unequal;
-        }
-    }
-
-    @Specialization
-    static UComparisonResult doComplexFloat(SComplexFloat a, SComplexFloat b) {
-        if (a.real() == b.real() && a.imag() == b.imag()) {
-            return UComparisonResult.Equal;
-        } else {
-            return UComparisonResult.Unequal;
-        }
-    }
-
-    @Specialization
-    static UComparisonResult doComplexDouble(SComplexDouble a, SComplexDouble b) {
-        if (a.real() == b.real() && a.imag() == b.imag()) {
-            return UComparisonResult.Equal;
-        } else {
-            return UComparisonResult.Unequal;
-        }
-    }
-
-    @Specialization
-    static UComparisonResult doComplexBigDec(SComplexBigDec a, SComplexBigDec b) {
-        if (a.real().equals(b.real()) && a.imag().equals(b.imag())) {
-            return UComparisonResult.Equal;
-        } else {
-            return UComparisonResult.Unequal;
-        }
-    }
+    
 }

@@ -9,7 +9,7 @@ import truffle_scheme6.nodes.functions.SReadVarArgsNode;
 @BuiltinInfo(name = "=", lastVarArgs = true)
 @NodeChild(value = "args", type = SReadVarArgsNode.class)
 public abstract class SNumsEqual extends SBuiltin {
-    protected UNumberComparator comparator = UNumberComparatorNodeGen.create();
+    protected UComplexComparator comparator = UComplexComparatorNodeGen.create();
 
     @Specialization
     public boolean doObjectArr(Object[] args) {
