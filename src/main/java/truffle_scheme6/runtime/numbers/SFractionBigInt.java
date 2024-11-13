@@ -43,14 +43,30 @@ public record SFractionBigInt(BigInteger numerator, BigInteger denominator) impl
     }
 
     @Override
+    public SFractionBigInt asBigInt() {
+        return this;
+    }
+    
+    @Override
     public int compareTo(SFractionBigInt other) {
         return (numerator.multiply(other.denominator))
                 .compareTo(other.numerator.multiply(denominator));
     }
 
-    @Override
-    public SFractionBigInt asBigInt() {
-        return this;
+    public SFractionBigInt max(SFractionBigInt other) {
+        if (compareTo(other) < 0) {
+            return other;
+        } else {
+            return this;
+        }
+    }
+    
+    public SFractionBigInt min(SFractionBigInt other) {
+        if (compareTo(other) > 0) {
+            return other;
+        } else {
+            return this;
+        }
     }
 
     @ExportMessage

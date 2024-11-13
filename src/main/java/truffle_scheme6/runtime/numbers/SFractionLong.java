@@ -50,6 +50,22 @@ public record SFractionLong(long numerator, long denominator) implements SFracti
     public int compareTo(SFractionLong other) {
         return Long.compare(numerator * other.denominator, other.numerator * denominator);
     }
+    
+    public SFractionLong max(SFractionLong other) {
+        if (compareTo(other) < 0) {
+            return other;
+        } else {
+            return this;
+        }
+    }
+    
+    public SFractionLong min(SFractionLong other) {
+        if (compareTo(other) > 0) {
+            return other;
+        } else {
+            return this;
+        }
+    }
 
     @ExportMessage
     boolean isNumber() {
