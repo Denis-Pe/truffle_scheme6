@@ -20,8 +20,6 @@ import java.math.BigInteger;
 abstract class URealComparator extends Node {
     public abstract UComparisonResult execute(Object a, Object b);
 
-    /*--- REAL COMPARISONS ---*/
-
     @Specialization
     static UComparisonResult doLongs(long a, long b) {
         return UComparisonResult.from(Long.compare(a, b));
@@ -56,8 +54,4 @@ abstract class URealComparator extends Node {
     static UComparisonResult doBigDecimals(BigDecimal a, BigDecimal b) {
         return UComparisonResult.from(a.compareTo(b));
     }
-
-    /*--- COMPLEX COMPARISONS ---*/
-
-    
 }
