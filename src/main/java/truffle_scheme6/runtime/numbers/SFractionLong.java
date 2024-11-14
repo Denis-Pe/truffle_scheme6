@@ -11,7 +11,11 @@ import java.math.BigInteger;
 import java.math.MathContext;
 
 @ExportLibrary(InteropLibrary.class)
-public record SFractionLong(long numerator, long denominator) implements SFraction, Comparable<SFractionLong>, TruffleObject {
+public record SFractionLong(long numerator,
+                            long denominator) implements SFraction, Comparable<SFractionLong>, TruffleObject {
+    public SFractionLong(long numerator) {
+        this(numerator, 1L);
+    }
 
     @Override
     public boolean equalsLong(long num) {
@@ -50,7 +54,7 @@ public record SFractionLong(long numerator, long denominator) implements SFracti
     public int compareTo(SFractionLong other) {
         return Long.compare(numerator * other.denominator, other.numerator * denominator);
     }
-    
+
     public SFractionLong max(SFractionLong other) {
         if (compareTo(other) < 0) {
             return other;
@@ -58,13 +62,47 @@ public record SFractionLong(long numerator, long denominator) implements SFracti
             return this;
         }
     }
-    
+
     public SFractionLong min(SFractionLong other) {
         if (compareTo(other) > 0) {
             return other;
         } else {
             return this;
         }
+    }
+
+    public SFractionLong add(SFractionLong other) {
+        return new SFractionLong(
+                this.numerator * other.denominator + other.numerator * this.denominator,
+                this.denominator * other.denominator
+        );
+    }
+
+    public SFractionLong subtract(SFractionLong other) {
+        return new SFractionLong(
+                this.numerator * other.denominator - other.numerator * this.denominator,
+                this.denominator * other.denominator
+        );
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof SFractionLong other) {
+            return compareTo(other) == 0;
+        } else if (obj instanceof SFraction other) {
+            return this.asBigInt().compareTo(other.asBigInt()) == 0;
+        } else {
+            return false;
+        }
+    }
+
+    public int signum() {
+        return Long.signum(numerator);
+    }
+
+    @Override
+    public String toString() {
+        return "%d/%d".formatted(numerator, denominator);
     }
 
     @ExportMessage
@@ -135,10 +173,5 @@ public record SFractionLong(long numerator, long denominator) implements SFracti
     @ExportMessage
     String toDisplayString(boolean allowSideEffects) {
         return toString();
-    }
-
-    @Override
-    public String toString() {
-        return "%d/%d".formatted(numerator, denominator);
     }
 }

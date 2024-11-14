@@ -11,8 +11,12 @@ import java.math.BigInteger;
 import java.math.MathContext;
 
 @ExportLibrary(InteropLibrary.class)
-public record SFractionBigInt(BigInteger numerator, BigInteger denominator) implements SFraction, Comparable<SFractionBigInt>, TruffleObject {
-
+public record SFractionBigInt(BigInteger numerator,
+                              BigInteger denominator) implements SFraction, Comparable<SFractionBigInt>, TruffleObject {
+    public SFractionBigInt(BigInteger numerator) {
+        this(numerator, BigInteger.ONE);
+    }
+    
     @Override
     public boolean equalsLong(long num) {
         var divRem = numerator.divideAndRemainder(denominator);
@@ -46,7 +50,7 @@ public record SFractionBigInt(BigInteger numerator, BigInteger denominator) impl
     public SFractionBigInt asBigInt() {
         return this;
     }
-    
+
     @Override
     public int compareTo(SFractionBigInt other) {
         return (numerator.multiply(other.denominator))
@@ -60,7 +64,7 @@ public record SFractionBigInt(BigInteger numerator, BigInteger denominator) impl
             return this;
         }
     }
-    
+
     public SFractionBigInt min(SFractionBigInt other) {
         if (compareTo(other) > 0) {
             return other;
@@ -69,6 +73,40 @@ public record SFractionBigInt(BigInteger numerator, BigInteger denominator) impl
         }
     }
 
+    public SFractionBigInt add(SFractionBigInt other) {
+        return new SFractionBigInt(
+                this.numerator.multiply(other.denominator).add(other.numerator.multiply(this.denominator)),
+                this.denominator.multiply(other.denominator)
+        );
+    }
+
+    public SFractionBigInt subtract(SFractionBigInt other) {
+        return new SFractionBigInt(
+                this.numerator.multiply(other.denominator).subtract(other.numerator.multiply(this.denominator)),
+                this.denominator.multiply(other.denominator)
+        );
+    }
+    
+    public int signum() {
+        return numerator.signum();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof SFractionBigInt other) {
+            return compareTo(other) == 0;
+        } else if (obj instanceof SFraction other) {
+            return compareTo(other.asBigInt()) == 0;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "%d/%d".formatted(numerator, denominator);
+    }
+    
     @ExportMessage
     boolean isNumber() {
         return true;
@@ -137,10 +175,5 @@ public record SFractionBigInt(BigInteger numerator, BigInteger denominator) impl
     @ExportMessage
     String toDisplayString(boolean allowSideEffects) {
         return toString();
-    }
-
-    @Override
-    public String toString() {
-        return "%d/%d".formatted(numerator, denominator);
     }
 }
