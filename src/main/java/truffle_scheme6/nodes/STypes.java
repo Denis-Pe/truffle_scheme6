@@ -42,17 +42,17 @@ public abstract class STypes {
 
     @ImplicitCast
     public static SFractionLong castFractionLong(long fixnum) {
-        return new SFractionLong(fixnum, 1L);
+        return new SFractionLong(fixnum);
     }
 
     @ImplicitCast
     public static SFractionBigInt castFractionBigInt(long fixnum) {
-        return new SFractionBigInt(BigInteger.valueOf(fixnum), BigInteger.ONE);
+        return new SFractionBigInt(BigInteger.valueOf(fixnum));
     }
 
     @ImplicitCast
     public static SFractionBigInt castFractionBigInt(BigInteger bigint) {
-        return new SFractionBigInt(bigint, BigInteger.ONE);
+        return new SFractionBigInt(bigint);
     }
 
     @ImplicitCast
@@ -145,8 +145,8 @@ public abstract class STypes {
     @ImplicitCast
     public static SComplexLong castSComplexLong(long l) {
         return new SComplexLong(
-                new SFractionLong(l, 1),
-                new SFractionLong(0, 1)
+                new SFractionLong(l),
+                new SFractionLong(0)
         );
     }
 
@@ -154,23 +154,23 @@ public abstract class STypes {
     public static SComplexLong castSComplexLong(SFractionLong fraction) {
         return new SComplexLong(
                 fraction,
-                new SFractionLong(0, 1)
+                new SFractionLong(0)
         );
     }
 
     @ImplicitCast
     public static SComplexBigInt castSComplexBigInt(long l) {
         return new SComplexBigInt(
-                new SFractionBigInt(BigInteger.valueOf(l), BigInteger.ONE),
-                new SFractionBigInt(BigInteger.ZERO, BigInteger.ONE)
+                new SFractionBigInt(BigInteger.valueOf(l)),
+                new SFractionBigInt(BigInteger.ZERO)
         );
     }
 
     @ImplicitCast
     public static SComplexBigInt castSComplexBigInt(BigInteger bigint) {
         return new SComplexBigInt(
-                new SFractionBigInt(bigint, BigInteger.ONE),
-                new SFractionBigInt(BigInteger.ZERO, BigInteger.ONE)
+                new SFractionBigInt(bigint),
+                new SFractionBigInt(BigInteger.ZERO)
         );
     }
 
@@ -178,7 +178,7 @@ public abstract class STypes {
     public static SComplexBigInt castSComplexBigInt(SFractionLong fraction) {
         return new SComplexBigInt(
                 fraction.asBigInt(),
-                new SFractionBigInt(BigInteger.ZERO, BigInteger.ONE)
+                new SFractionBigInt(BigInteger.ZERO)
         );
     }
 
@@ -186,7 +186,7 @@ public abstract class STypes {
     public static SComplexBigInt castSComplexBigInt(SFractionBigInt fraction) {
         return new SComplexBigInt(
                 fraction,
-                new SFractionBigInt(BigInteger.ZERO, BigInteger.ONE)
+                new SFractionBigInt(BigInteger.ZERO)
         );
     }
 
