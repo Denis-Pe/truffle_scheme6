@@ -9,6 +9,7 @@ import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.SchemeNode;
 import truffle_scheme6.builtins.SBuiltin;
 import truffle_scheme6.runtime.numbers.*;
+import truffle_scheme6.utils.StaticUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -24,21 +25,11 @@ public abstract class SNumsAdd extends SBuiltin {
         if (args.length == 0) {
             return 0;
         } else if (args.length == 1) {
-            return switch(args[0]) {
-                case Long l -> args[0];
-                case BigInteger bi -> args[0];
-                case SFractionLong fl -> args[0];
-                case SFractionBigInt fb -> args[0];
-                case Float f -> args[0];
-                case Double d -> args[0];
-                case BigDecimal bd -> args[0];
-                case SComplexLong cl -> args[0];
-                case SComplexBigInt cb -> args[0];
-                case SComplexFloat cf -> args[0];
-                case SComplexDouble cd -> args[0];
-                case SComplexBigDec cb -> args[0];
-                default -> throw new RuntimeException(UnsupportedTypeException.create(args, "Value given is not a valid number"));
-            };
+            if (StaticUtils.isNumber(args[0])) {
+                return args[0];
+            } else {
+                throw new RuntimeException(UnsupportedTypeException.create(args, "Value given is not a valid number"));
+            }
         } else {
             var result = args[0];
 
