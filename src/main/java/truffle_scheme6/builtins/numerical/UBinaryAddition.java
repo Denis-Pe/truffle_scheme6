@@ -36,6 +36,11 @@ abstract class UBinaryAddition extends Node {
     }
 
     @Specialization
+    static BigDecimal doBigDecimals(BigDecimal a, BigDecimal b) {
+        return a.add(b);
+    }
+
+    @Specialization
     static float doFloats(float a, float b) {
         return a + b;
     }
@@ -43,11 +48,6 @@ abstract class UBinaryAddition extends Node {
     @Specialization
     static double doDoubles(double a, double b) {
         return a + b;
-    }
-
-    @Specialization
-    static BigDecimal doBigDecimals(BigDecimal a, BigDecimal b) {
-        return a.add(b);
     }
 
     @Specialization
@@ -61,6 +61,11 @@ abstract class UBinaryAddition extends Node {
     }
 
     @Specialization
+    static SComplexBigDec doComplexBigDecimals(SComplexBigDec a, SComplexBigDec b) {
+        return new SComplexBigDec(a.real().add(b.real()), a.imag().add(b.imag()));
+    }
+
+    @Specialization
     static SComplexFloat doComplexFloats(SComplexFloat a, SComplexFloat b) {
         return new SComplexFloat(a.real() + b.real(), a.imag() + b.imag());
     }
@@ -68,10 +73,5 @@ abstract class UBinaryAddition extends Node {
     @Specialization
     static SComplexDouble doComplexDoubles(SComplexDouble a, SComplexDouble b) {
         return new SComplexDouble(a.real() + b.real(), a.imag() + b.imag());
-    }
-
-    @Specialization
-    static SComplexBigDec doComplexBigDecimals(SComplexBigDec a, SComplexBigDec b) {
-        return new SComplexBigDec(a.real().add(b.real()), a.imag().add(b.imag()));
     }
 }

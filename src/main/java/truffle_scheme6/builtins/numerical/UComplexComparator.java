@@ -28,6 +28,15 @@ abstract class UComplexComparator extends URealComparator {
     }
 
     @Specialization
+    static UComparisonResult doComplexBigDec(SComplexBigDec a, SComplexBigDec b) {
+        if (a.real().equals(b.real()) && a.imag().equals(b.imag())) {
+            return UComparisonResult.Equal;
+        } else {
+            return UComparisonResult.Unequal;
+        }
+    }
+
+    @Specialization
     static UComparisonResult doComplexFloat(SComplexFloat a, SComplexFloat b) {
         if (a.real() == b.real() && a.imag() == b.imag()) {
             return UComparisonResult.Equal;
@@ -39,15 +48,6 @@ abstract class UComplexComparator extends URealComparator {
     @Specialization
     static UComparisonResult doComplexDouble(SComplexDouble a, SComplexDouble b) {
         if (a.real() == b.real() && a.imag() == b.imag()) {
-            return UComparisonResult.Equal;
-        } else {
-            return UComparisonResult.Unequal;
-        }
-    }
-
-    @Specialization
-    static UComparisonResult doComplexBigDec(SComplexBigDec a, SComplexBigDec b) {
-        if (a.real().equals(b.real()) && a.imag().equals(b.imag())) {
             return UComparisonResult.Equal;
         } else {
             return UComparisonResult.Unequal;

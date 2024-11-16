@@ -41,6 +41,11 @@ abstract class URealComparator extends Node {
     }
 
     @Specialization
+    static UComparisonResult doBigDecimals(BigDecimal a, BigDecimal b) {
+        return UComparisonResult.from(a.compareTo(b));
+    }
+
+    @Specialization
     static UComparisonResult doFloats(float a, float b) {
         return UComparisonResult.from(Float.compare(a, b));
     }
@@ -48,10 +53,5 @@ abstract class URealComparator extends Node {
     @Specialization
     static UComparisonResult doDoubles(double a, double b) {
         return UComparisonResult.from(Double.compare(a, b));
-    }
-
-    @Specialization
-    static UComparisonResult doBigDecimals(BigDecimal a, BigDecimal b) {
-        return UComparisonResult.from(a.compareTo(b));
     }
 }
