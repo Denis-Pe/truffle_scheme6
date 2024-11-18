@@ -85,6 +85,17 @@ public record SFractionLong(long numerator,
         );
     }
 
+    public SFractionLong multiply(SFractionLong other) {
+        return new SFractionLong(
+                this.numerator * other.numerator,
+                this.denominator * other.denominator
+        );
+    }
+
+    public int signum() {
+        return Long.signum(numerator);
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof SFractionLong other) {
@@ -94,10 +105,6 @@ public record SFractionLong(long numerator,
         } else {
             return false;
         }
-    }
-
-    public int signum() {
-        return Long.signum(numerator);
     }
 
     @Override

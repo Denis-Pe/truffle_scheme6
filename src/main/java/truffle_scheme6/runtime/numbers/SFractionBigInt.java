@@ -87,6 +87,13 @@ public record SFractionBigInt(BigInteger numerator,
         );
     }
     
+    public SFractionBigInt multiply(SFractionBigInt other) {
+        return new SFractionBigInt(
+                this.numerator.multiply(other.numerator),
+                this.denominator.multiply(other.denominator)
+        );
+    }
+    
     public int signum() {
         return numerator.signum();
     }
