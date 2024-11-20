@@ -36,8 +36,8 @@ public abstract class STypes {
     /*---- REAL=>REAL CASTS ----*/
 
     @ImplicitCast
-    public static BigInteger castBigInt(long fixnum) {
-        return BigInteger.valueOf(fixnum);
+    public static SBigInt castBigInt(long fixnum) {
+        return new SBigInt(fixnum);
     }
 
     @ImplicitCast
@@ -51,8 +51,8 @@ public abstract class STypes {
     }
 
     @ImplicitCast
-    public static SFractionBigInt castFractionBigInt(BigInteger bigint) {
-        return new SFractionBigInt(bigint);
+    public static SFractionBigInt castFractionBigInt(SBigInt bigint) {
+        return new SFractionBigInt(bigint.value());
     }
 
     @ImplicitCast
@@ -64,25 +64,25 @@ public abstract class STypes {
     }
 
     @ImplicitCast
-    public static BigDecimal castBigDecimal(long fixnum) {
-        return BigDecimal.valueOf(fixnum);
+    public static SBigDec castBigDe(long fixnum) {
+        return new SBigDec(fixnum);
     }
 
     @ImplicitCast
-    public static BigDecimal castBigDecimal(BigInteger bigint) {
-        return new BigDecimal(bigint);
+    public static SBigDec castBigDec(SBigInt bigint) {
+        return new SBigDec(bigint);
     }
 
     @ImplicitCast
-    public static BigDecimal castBigDecimal(SFractionLong fraction) {
+    public static SBigDec castBigDec(SFractionLong fraction) {
         // todo revisit: what does the standard say about rational numbers that equal repeating decimals?
         //   same with a Ctrl + Shift + F of all MathContext usages that are similar to this one
-        return new BigDecimal(fraction.numerator()).divide(new BigDecimal(fraction.denominator()), MathContext.DECIMAL128);
+        return new SBigDec(new BigDecimal(fraction.numerator()).divide(new BigDecimal(fraction.denominator()), MathContext.DECIMAL128));
     }
 
     @ImplicitCast
-    public static BigDecimal castBigDecimal(SFractionBigInt fraction) {
-        return new BigDecimal(fraction.numerator()).divide(new BigDecimal(fraction.denominator()), MathContext.DECIMAL128);
+    public static SBigDec castBigDecimal(SFractionBigInt fraction) {
+        return new SBigDec(new BigDecimal(fraction.numerator()).divide(new BigDecimal(fraction.denominator()), MathContext.DECIMAL128));
     }
 
     @ImplicitCast
@@ -91,13 +91,13 @@ public abstract class STypes {
     }
 
     @ImplicitCast
-    public static float castFloat(BigInteger bigint) {
-        return bigint.floatValue();
+    public static float castFloat(SBigInt bigint) {
+        return bigint.value().floatValue();
     }
 
     @ImplicitCast
-    public static float castFloat(BigDecimal bigdec) {
-        return bigdec.floatValue();
+    public static float castFloat(SBigDec bigdec) {
+        return bigdec.value().floatValue();
     }
 
     @ImplicitCast
@@ -116,13 +116,13 @@ public abstract class STypes {
     }
 
     @ImplicitCast
-    public static double castDouble(BigInteger bigint) {
-        return bigint.doubleValue();
+    public static double castDouble(SBigInt bigint) {
+        return bigint.value().doubleValue();
     }
 
     @ImplicitCast
-    public static double castDouble(BigDecimal bigdec) {
-        return bigdec.doubleValue();
+    public static double castDouble(SBigDec bigdec) {
+        return bigdec.value().doubleValue();
     }
 
     @ImplicitCast
@@ -167,9 +167,9 @@ public abstract class STypes {
     }
 
     @ImplicitCast
-    public static SComplexBigInt castSComplexBigInt(BigInteger bigint) {
+    public static SComplexBigInt castSComplexBigInt(SBigInt bigint) {
         return new SComplexBigInt(
-                new SFractionBigInt(bigint),
+                new SFractionBigInt(bigint.value()),
                 new SFractionBigInt(BigInteger.ZERO)
         );
     }
@@ -191,68 +191,13 @@ public abstract class STypes {
     }
 
     @ImplicitCast
-    public static SComplexFloat castSComplexFloat(long l) {
-        return new SComplexFloat(l, 0.0f);
-    }
-
-    @ImplicitCast
-    public static SComplexFloat castSComplexFloat(BigInteger bigint) {
-        return new SComplexFloat(bigint.floatValue(), 0.0f);
-    }
-
-    @ImplicitCast
-    public static SComplexFloat castSComplexFloat(SFractionLong fraction) {
-        return new SComplexFloat(fraction.floatValue(), 0.0f);
-    }
-
-    @ImplicitCast
-    public static SComplexFloat castSComplexFloat(SFractionBigInt fraction) {
-        return new SComplexFloat(fraction.floatValue(), 0.0f);
-    }
-
-    @ImplicitCast
-    public static SComplexFloat castSComplexFloat(float f) {
-        return new SComplexFloat(f, 0.0f);
-    }
-
-    @ImplicitCast
-    public static SComplexDouble castSComplexDouble(long l) {
-        return new SComplexDouble(l, 0.0d);
-    }
-
-    @ImplicitCast
-    public static SComplexDouble castSComplexDouble(BigInteger bigint) {
-        return new SComplexDouble(bigint.doubleValue(), 0.0d);
-    }
-
-    @ImplicitCast
-    public static SComplexDouble castSComplexDouble(SFractionLong fraction) {
-        return new SComplexDouble(fraction.doubleValue(), 0.0d);
-    }
-
-    @ImplicitCast
-    public static SComplexDouble castSComplexDouble(SFractionBigInt fraction) {
-        return new SComplexDouble(fraction.doubleValue(), 0.0d);
-    }
-
-    @ImplicitCast
-    public static SComplexDouble castSComplexDouble(float f) {
-        return new SComplexDouble(f, 0.0d);
-    }
-
-    @ImplicitCast
-    public static SComplexDouble castSComplexDouble(double d) {
-        return new SComplexDouble(d, 0.0d);
-    }
-
-    @ImplicitCast
     public static SComplexBigDec castSComplexBigDec(long l) {
         return new SComplexBigDec(BigDecimal.valueOf(l), BigDecimal.ZERO);
     }
 
     @ImplicitCast
-    public static SComplexBigDec castSComplexBigDec(BigInteger bigint) {
-        return new SComplexBigDec(new BigDecimal(bigint), BigDecimal.ZERO);
+    public static SComplexBigDec castSComplexBigDec(SBigInt bigint) {
+        return new SComplexBigDec(new BigDecimal(bigint.value()), BigDecimal.ZERO);
     }
 
     @ImplicitCast
@@ -276,8 +221,63 @@ public abstract class STypes {
     }
 
     @ImplicitCast
-    public static SComplexBigDec castSComplexBigDec(BigDecimal bd) {
-        return new SComplexBigDec(bd, BigDecimal.ZERO);
+    public static SComplexBigDec castSComplexBigDec(SBigDec bd) {
+        return new SComplexBigDec(bd.value(), BigDecimal.ZERO);
+    }
+
+    @ImplicitCast
+    public static SComplexFloat castSComplexFloat(long l) {
+        return new SComplexFloat(l, 0.0f);
+    }
+
+    @ImplicitCast
+    public static SComplexFloat castSComplexFloat(SBigInt bigint) {
+        return new SComplexFloat(bigint.value().floatValue(), 0.0f);
+    }
+
+    @ImplicitCast
+    public static SComplexFloat castSComplexFloat(SFractionLong fraction) {
+        return new SComplexFloat(fraction.floatValue(), 0.0f);
+    }
+
+    @ImplicitCast
+    public static SComplexFloat castSComplexFloat(SFractionBigInt fraction) {
+        return new SComplexFloat(fraction.floatValue(), 0.0f);
+    }
+
+    @ImplicitCast
+    public static SComplexFloat castSComplexFloat(float f) {
+        return new SComplexFloat(f, 0.0f);
+    }
+
+    @ImplicitCast
+    public static SComplexDouble castSComplexDouble(long l) {
+        return new SComplexDouble(l, 0.0d);
+    }
+
+    @ImplicitCast
+    public static SComplexDouble castSComplexDouble(SBigInt bigint) {
+        return new SComplexDouble(bigint.value().doubleValue(), 0.0d);
+    }
+
+    @ImplicitCast
+    public static SComplexDouble castSComplexDouble(SFractionLong fraction) {
+        return new SComplexDouble(fraction.doubleValue(), 0.0d);
+    }
+
+    @ImplicitCast
+    public static SComplexDouble castSComplexDouble(SFractionBigInt fraction) {
+        return new SComplexDouble(fraction.doubleValue(), 0.0d);
+    }
+
+    @ImplicitCast
+    public static SComplexDouble castSComplexDouble(float f) {
+        return new SComplexDouble(f, 0.0d);
+    }
+
+    @ImplicitCast
+    public static SComplexDouble castSComplexDouble(double d) {
+        return new SComplexDouble(d, 0.0d);
     }
 
     /*---- COMPLEX=>COMPLEX CASTS ----*/
