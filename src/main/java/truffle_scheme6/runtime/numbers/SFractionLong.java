@@ -78,6 +78,13 @@ public record SFractionLong(long numerator,
         );
     }
 
+    public SFractionLong addExact(SFractionLong other) {
+        return new SFractionLong(
+                Math.addExact(Math.multiplyExact(this.numerator, other.denominator), Math.multiplyExact(other.numerator, this.denominator)),
+                Math.multiplyExact(this.denominator, other.denominator)
+        );
+    }
+
     public SFractionLong subtract(SFractionLong other) {
         return new SFractionLong(
                 this.numerator * other.denominator - other.numerator * this.denominator,
@@ -85,10 +92,24 @@ public record SFractionLong(long numerator,
         );
     }
 
+    public SFractionLong subtractExact(SFractionLong other) {
+        return new SFractionLong(
+                Math.subtractExact(Math.multiplyExact(this.numerator, other.denominator), Math.multiplyExact(other.numerator, this.denominator)),
+                Math.multiplyExact(this.denominator, other.denominator)
+        );
+    }
+
     public SFractionLong multiply(SFractionLong other) {
         return new SFractionLong(
                 this.numerator * other.numerator,
                 this.denominator * other.denominator
+        );
+    }
+
+    public SFractionLong multiplyExact(SFractionLong other) {
+        return new SFractionLong(
+                Math.multiplyExact(this.numerator, other.numerator),
+                Math.multiplyExact(this.denominator, other.denominator)
         );
     }
 
@@ -100,8 +121,16 @@ public record SFractionLong(long numerator,
         return new SFractionLong(-numerator, denominator);
     }
 
+    public SFractionLong negateExact() {
+        return new SFractionLong(Math.negateExact(numerator), denominator);
+    }
+
     public SFractionLong abs() {
         return new SFractionLong(Math.abs(numerator), denominator);
+    }
+
+    public SFractionLong absExact() {
+        return new SFractionLong(Math.absExact(numerator), denominator);
     }
 
     @Override

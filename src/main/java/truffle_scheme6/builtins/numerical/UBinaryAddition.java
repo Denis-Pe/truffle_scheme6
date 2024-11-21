@@ -12,9 +12,9 @@ import truffle_scheme6.runtime.numbers.*;
 abstract class UBinaryAddition extends Node {
     public abstract Object execute(Object a, Object b);
 
-    @Specialization
+    @Specialization(rewriteOn = ArithmeticException.class)
     static long doLongs(long a, long b) {
-        return a + b;
+        return Math.addExact(a, b);
     }
 
     @Specialization
@@ -22,9 +22,9 @@ abstract class UBinaryAddition extends Node {
         return new SBigInt(a.value().add(b.value()));
     }
 
-    @Specialization
+    @Specialization(rewriteOn = ArithmeticException.class)
     static SFractionLong doLongFractions(SFractionLong a, SFractionLong b) {
-        return a.add(b);
+        return a.addExact(b);
     }
 
     @Specialization

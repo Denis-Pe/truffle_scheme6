@@ -1,5 +1,6 @@
 package truffle_scheme6.builtins.numerical;
 
+import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.dsl.TypeSystemReference;
@@ -16,9 +17,11 @@ import truffle_scheme6.runtime.numbers.SFractionLong;
 @NodeChild(value = "arg", type = SchemeNode.class)
 @TypeSystemReference(STypesStrong.class)
 public abstract class SAbs extends SBuiltin {
-    @Specialization
+    protected long LONG_MIN_VALUE = Long.MIN_VALUE;
+    
+    @Specialization(rewriteOn = ArithmeticException.class)
     public long doLong(long l) {
-        return Math.abs(l);
+        return Math.absExact(l);
     }
 
     @Specialization
@@ -26,9 +29,9 @@ public abstract class SAbs extends SBuiltin {
         return new SBigInt(bigInt.value().abs());
     }
 
-    @Specialization
+    @Specialization(rewriteOn = ArithmeticException.class)
     public SFractionLong doLongFraction(SFractionLong fraction) {
-        return fraction.abs();
+        return fraction.absExact();
     }
 
     @Specialization

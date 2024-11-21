@@ -12,9 +12,9 @@ import truffle_scheme6.runtime.numbers.*;
 abstract class UUnaryNegation extends Node {
     public abstract Object execute(Object value);
 
-    @Specialization
+    @Specialization(rewriteOn = ArithmeticException.class)
     static long doLong(long l) {
-        return -l;
+        return Math.negateExact(l);
     }
 
     @Specialization
@@ -22,9 +22,9 @@ abstract class UUnaryNegation extends Node {
         return new SBigInt(i.value().negate());
     }
 
-    @Specialization
+    @Specialization(rewriteOn = ArithmeticException.class)
     static SFractionLong doLongFraction(SFractionLong fraction) {
-        return fraction.negate();
+        return fraction.negateExact();
     }
 
     @Specialization
