@@ -16,7 +16,7 @@ public record SFractionBigInt(BigInteger numerator,
     public SFractionBigInt(BigInteger numerator) {
         this(numerator, BigInteger.ONE);
     }
-    
+
     @Override
     public boolean equalsLong(long num) {
         var divRem = numerator.divideAndRemainder(denominator);
@@ -86,20 +86,24 @@ public record SFractionBigInt(BigInteger numerator,
                 this.denominator.multiply(other.denominator)
         );
     }
-    
+
     public SFractionBigInt multiply(SFractionBigInt other) {
         return new SFractionBigInt(
                 this.numerator.multiply(other.numerator),
                 this.denominator.multiply(other.denominator)
         );
     }
-    
+
     public int signum() {
         return numerator.signum();
     }
-    
+
     public SFractionBigInt negate() {
         return new SFractionBigInt(numerator.negate(), denominator);
+    }
+
+    public SFractionBigInt abs() {
+        return new SFractionBigInt(numerator.abs(), denominator);
     }
 
     @Override
@@ -117,7 +121,7 @@ public record SFractionBigInt(BigInteger numerator,
     public String toString() {
         return "%d/%d".formatted(numerator, denominator);
     }
-    
+
     @ExportMessage
     boolean isNumber() {
         return true;

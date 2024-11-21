@@ -95,9 +95,13 @@ public record SFractionLong(long numerator,
     public int signum() {
         return Long.signum(numerator);
     }
-    
+
     public SFractionLong negate() {
         return new SFractionLong(-numerator, denominator);
+    }
+
+    public SFractionLong abs() {
+        return new SFractionLong(Math.abs(numerator), denominator);
     }
 
     @Override
