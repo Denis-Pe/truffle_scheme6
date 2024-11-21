@@ -15,6 +15,11 @@ public record SBigInt(BigInteger value) implements TruffleObject {
         this(BigInteger.valueOf(value));
     }
 
+    @Override
+    public String toString() {
+        return value.toString();
+    }
+
     @ExportMessage
     public boolean isNumber() {
         return true;

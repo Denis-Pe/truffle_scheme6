@@ -27,6 +27,11 @@ public record SBigDec(BigDecimal value) implements TruffleObject {
         this(value.value());
     }
 
+    @Override
+    public String toString() {
+        return "#e" + value.toString();
+    }
+
     @ExportMessage
     boolean isNumber() {
         return true;
