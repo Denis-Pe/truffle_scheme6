@@ -17,8 +17,6 @@ import truffle_scheme6.runtime.numbers.SFractionLong;
 @NodeChild(value = "arg", type = SchemeNode.class)
 @TypeSystemReference(STypesStrong.class)
 public abstract class SAbs extends SBuiltin {
-    protected long LONG_MIN_VALUE = Long.MIN_VALUE;
-    
     @Specialization(rewriteOn = ArithmeticException.class)
     public long doLong(long l) {
         return Math.absExact(l);
