@@ -95,6 +95,10 @@ public record SFractionLong(long numerator,
     public int signum() {
         return Long.signum(numerator);
     }
+    
+    public SFractionLong negate() {
+        return new SFractionLong(-numerator, denominator);
+    }
 
     @Override
     public boolean equals(Object obj) {

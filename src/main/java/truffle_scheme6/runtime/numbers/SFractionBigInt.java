@@ -97,6 +97,10 @@ public record SFractionBigInt(BigInteger numerator,
     public int signum() {
         return numerator.signum();
     }
+    
+    public SFractionBigInt negate() {
+        return new SFractionBigInt(numerator.negate(), denominator);
+    }
 
     @Override
     public boolean equals(Object obj) {
