@@ -2,17 +2,11 @@ package truffle_scheme6.builtins.numerical;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
-import com.oracle.truffle.api.nodes.UnexpectedResultException;
-import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.SchemeNode;
+import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.builtins.SBuiltin;
-import truffle_scheme6.runtime.numbers.*;
 import truffle_scheme6.utils.StaticUtils;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
 
 @BuiltinInfo(name = "+", lastVarArgs = true)
 @NodeChild(value = "args", type = SchemeNode.class)

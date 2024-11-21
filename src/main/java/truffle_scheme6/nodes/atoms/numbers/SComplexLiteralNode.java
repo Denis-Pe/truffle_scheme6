@@ -52,7 +52,7 @@ public class SComplexLiteralNode extends SNumberLiteralNode {
         } else {
             return switch (biggestTypeNeeded(real, imag)) {
                 case BigDecimal ->
-                        new SComplexBigDec(real.asExactReal().execute(frame), imag.asExactReal().execute(frame));
+                        new SComplexBigDec(real.asExactReal().getValue(), imag.asExactReal().getValue());
                 case Double -> new SComplexDouble(real.asInexact64().execute(frame), imag.asInexact64().execute(frame));
                 case Float -> new SComplexFloat(real.asInexact32().execute(frame), imag.asInexact32().execute(frame));
                 case Rational -> {

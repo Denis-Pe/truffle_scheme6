@@ -7,10 +7,9 @@ import truffle_scheme6.SchemeNode;
 import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.builtins.SBuiltin;
 import truffle_scheme6.nodes.STypesStrong;
+import truffle_scheme6.runtime.numbers.SBigInt;
 import truffle_scheme6.runtime.numbers.SComplexRational;
 import truffle_scheme6.runtime.numbers.SFraction;
-
-import java.math.BigInteger;
 
 @BuiltinInfo(name = "integer-valued?")
 @NodeChild(value = "arg", type = SchemeNode.class)
@@ -33,7 +32,7 @@ public abstract class SIsIntegerValued extends SBuiltin {
 
     @Specialization
     public boolean doObject(Object arg) {
-        return arg instanceof BigInteger
+        return arg instanceof SBigInt
                 || (arg instanceof SFraction fraction && fraction.isPerfectlyDivisible())
                 || arg instanceof SComplexRational complex
                 && complex.isRealValued()

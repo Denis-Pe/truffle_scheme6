@@ -7,12 +7,7 @@ import truffle_scheme6.SchemeNode;
 import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.builtins.SBuiltin;
 import truffle_scheme6.nodes.STypesStrong;
-import truffle_scheme6.runtime.numbers.SComplexBigDec;
-import truffle_scheme6.runtime.numbers.SComplexRational;
-import truffle_scheme6.runtime.numbers.SFraction;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
+import truffle_scheme6.runtime.numbers.*;
 
 @BuiltinInfo(name = "exact?")
 @NodeChild(value = "arg", type = SchemeNode.class)
@@ -35,8 +30,8 @@ public abstract class SIsExact extends SBuiltin {
 
     @Specialization
     public boolean doObject(Object arg) {
-        return arg instanceof BigInteger
-                || arg instanceof BigDecimal
+        return arg instanceof SBigInt
+                || arg instanceof SBigDec
                 || arg instanceof SFraction
                 || arg instanceof SComplexBigDec
                 || arg instanceof SComplexRational;

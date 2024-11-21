@@ -22,8 +22,8 @@ public abstract class SIsZero extends SBuiltin {
     }
     
     @Specialization
-    public boolean doBigInteger(BigInteger i) {
-        return i.equals(BigInteger.ZERO);
+    public boolean doBigInteger(SBigInt i) {
+        return i.value().equals(BigInteger.ZERO);
     }
     
     @Specialization
@@ -37,8 +37,8 @@ public abstract class SIsZero extends SBuiltin {
     }
     
     @Specialization
-    public boolean doBigDecimal(BigDecimal d) {
-        return d.compareTo(BigDecimal.ZERO) == 0;
+    public boolean doBigDecimal(SBigDec d) {
+        return d.value().compareTo(BigDecimal.ZERO) == 0;
     }
     
     @Specialization

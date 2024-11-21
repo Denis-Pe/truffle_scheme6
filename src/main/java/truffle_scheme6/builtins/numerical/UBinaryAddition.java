@@ -7,9 +7,6 @@ import com.oracle.truffle.api.nodes.Node;
 import truffle_scheme6.nodes.STypes;
 import truffle_scheme6.runtime.numbers.*;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
 @GeneratePackagePrivate
 @TypeSystemReference(STypes.class)
 abstract class UBinaryAddition extends Node {
@@ -21,8 +18,8 @@ abstract class UBinaryAddition extends Node {
     }
 
     @Specialization
-    static BigInteger doBigIntegers(BigInteger a, BigInteger b) {
-        return a.add(b);
+    static SBigInt doBigIntegers(SBigInt a, SBigInt b) {
+        return new SBigInt(a.value().add(b.value()));
     }
 
     @Specialization
@@ -36,8 +33,8 @@ abstract class UBinaryAddition extends Node {
     }
 
     @Specialization
-    static BigDecimal doBigDecimals(BigDecimal a, BigDecimal b) {
-        return a.add(b);
+    static SBigDec doBigDecimals(SBigDec a, SBigDec b) {
+        return new SBigDec(a.value().add(b.value()));
     }
 
     @Specialization

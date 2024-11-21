@@ -5,11 +5,10 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.dsl.TypeSystemReference;
 import com.oracle.truffle.api.nodes.Node;
 import truffle_scheme6.nodes.STypes;
+import truffle_scheme6.runtime.numbers.SBigDec;
+import truffle_scheme6.runtime.numbers.SBigInt;
 import truffle_scheme6.runtime.numbers.SFractionBigInt;
 import truffle_scheme6.runtime.numbers.SFractionLong;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
 
 /**
  * Utility node for number comparisons.
@@ -26,8 +25,8 @@ abstract class URealComparator extends Node {
     }
 
     @Specialization
-    static UComparisonResult doBigIntegers(BigInteger a, BigInteger b) {
-        return UComparisonResult.from(a.compareTo(b));
+    static UComparisonResult doBigIntegers(SBigInt a, SBigInt b) {
+        return UComparisonResult.from(a.value().compareTo(b.value()));
     }
 
     @Specialization
@@ -41,8 +40,8 @@ abstract class URealComparator extends Node {
     }
 
     @Specialization
-    static UComparisonResult doBigDecimals(BigDecimal a, BigDecimal b) {
-        return UComparisonResult.from(a.compareTo(b));
+    static UComparisonResult doBigDecimals(SBigDec a, SBigDec b) {
+        return UComparisonResult.from(a.value().compareTo(b.value()));
     }
 
     @Specialization

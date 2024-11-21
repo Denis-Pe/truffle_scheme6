@@ -7,6 +7,8 @@ import truffle_scheme6.SchemeNode;
 import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.builtins.SBuiltin;
 import truffle_scheme6.nodes.STypesStrong;
+import truffle_scheme6.runtime.numbers.SBigDec;
+import truffle_scheme6.runtime.numbers.SBigInt;
 import truffle_scheme6.runtime.numbers.SFractionBigInt;
 import truffle_scheme6.runtime.numbers.SFractionLong;
 
@@ -23,8 +25,8 @@ public abstract class SIsNegative extends SBuiltin {
     }
     
     @Specialization
-    public boolean doBigInteger(BigInteger i) {
-        return i.compareTo(BigInteger.ZERO) < 0;
+    public boolean doBigInt(SBigInt i) {
+        return i.value().compareTo(BigInteger.ZERO) < 0;
     }
     
     @Specialization
@@ -38,8 +40,8 @@ public abstract class SIsNegative extends SBuiltin {
     }
     
     @Specialization
-    public boolean doBigDecimal(BigDecimal d) {
-        return d.compareTo(BigDecimal.ZERO) < 0;
+    public boolean doBigDecimal(SBigDec d) {
+        return d.value().compareTo(BigDecimal.ZERO) < 0;
     }
     
     @Specialization

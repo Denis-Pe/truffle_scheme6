@@ -2,6 +2,7 @@ package truffle_scheme6.nodes.atoms.numbers.integers;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import truffle_scheme6.nodes.atoms.numbers.*;
+import truffle_scheme6.runtime.numbers.SBigInt;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -24,8 +25,8 @@ public class SExactBigIntegerNode extends SIntegerLiteralNode {
     }
 
     @Override
-    public BigInteger execute(VirtualFrame frame) {
-        return value;
+    public SBigInt execute(VirtualFrame frame) {
+        return new SBigInt(value);
     }
 
     @Override

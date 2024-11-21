@@ -7,10 +7,9 @@ import truffle_scheme6.SchemeNode;
 import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.builtins.SBuiltin;
 import truffle_scheme6.nodes.STypesStrong;
+import truffle_scheme6.runtime.numbers.SBigDec;
+import truffle_scheme6.runtime.numbers.SBigInt;
 import truffle_scheme6.runtime.numbers.SFraction;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
 
 @BuiltinInfo(name = "infinite?")
 @NodeChild(value = "arg", type = SchemeNode.class)
@@ -22,7 +21,7 @@ public abstract class SIsInfinite extends SBuiltin {
     }
     
     @Specialization
-    public boolean doBigInteger(BigInteger i) {
+    public boolean doBigInt(SBigInt i) {
         return false;
     }
     
@@ -37,7 +36,7 @@ public abstract class SIsInfinite extends SBuiltin {
     }
     
     @Specialization
-    public boolean doBigDecimal(BigDecimal d) {
+    public boolean doBigDecimal(SBigDec d) {
         return false;
     }
     

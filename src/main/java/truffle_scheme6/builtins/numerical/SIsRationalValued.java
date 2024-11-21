@@ -7,6 +7,7 @@ import truffle_scheme6.SchemeNode;
 import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.builtins.SBuiltin;
 import truffle_scheme6.nodes.STypesStrong;
+import truffle_scheme6.runtime.numbers.SBigInt;
 import truffle_scheme6.runtime.numbers.SComplexRational;
 import truffle_scheme6.runtime.numbers.SFraction;
 
@@ -31,7 +32,7 @@ public abstract class SIsRationalValued extends SBuiltin {
 
     @Specialization
     public boolean doObject(Object arg) {
-        return arg instanceof Integer
+        return arg instanceof SBigInt
                 || arg instanceof SFraction
                 || (arg instanceof SComplexRational complex && complex.isRealValued());
     }

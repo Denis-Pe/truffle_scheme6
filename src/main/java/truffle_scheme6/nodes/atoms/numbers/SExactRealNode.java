@@ -1,6 +1,7 @@
 package truffle_scheme6.nodes.atoms.numbers;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
+import truffle_scheme6.runtime.numbers.SBigDec;
 
 import java.math.BigDecimal;
 import java.util.function.Function;
@@ -52,13 +53,17 @@ public class SExactRealNode extends SNumberLiteralNode {
     }
 
     @Override
-    public BigDecimal execute(VirtualFrame frame) {
-        return value;
+    public SBigDec execute(VirtualFrame frame) {
+        return new SBigDec(value);
     }
 
     @Override
     public boolean isZero() {
         return value.equals(BigDecimal.ZERO);
+    }
+
+    public BigDecimal getValue() {
+        return value;
     }
 
     @Override

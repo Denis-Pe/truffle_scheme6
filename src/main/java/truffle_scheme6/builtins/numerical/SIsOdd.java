@@ -7,6 +7,7 @@ import truffle_scheme6.SchemeNode;
 import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.builtins.SBuiltin;
 import truffle_scheme6.nodes.STypesStrong;
+import truffle_scheme6.runtime.numbers.SBigInt;
 
 import java.math.BigInteger;
 
@@ -20,7 +21,7 @@ public abstract class SIsOdd extends SBuiltin {
     }
     
     @Specialization
-    public boolean doBigInteger(BigInteger i) {
-        return i.remainder(BigInteger.TWO).compareTo(BigInteger.ZERO) != 0;
+    public boolean doBigInteger(SBigInt i) {
+        return i.value().remainder(BigInteger.TWO).compareTo(BigInteger.ZERO) != 0;
     }
 }

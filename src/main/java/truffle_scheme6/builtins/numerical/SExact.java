@@ -10,7 +10,6 @@ import truffle_scheme6.nodes.STypesStrong;
 import truffle_scheme6.runtime.numbers.*;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 @BuiltinInfo(name = "exact")
 @NodeChild(value = "arg", type = SchemeNode.class)
@@ -22,7 +21,7 @@ public abstract class SExact extends SBuiltin {
     }
 
     @Specialization
-    public BigInteger doBigInteger(BigInteger bigint) {
+    public SBigInt doBigInt(SBigInt bigint) {
         return bigint;
     }
 
@@ -37,17 +36,17 @@ public abstract class SExact extends SBuiltin {
     }
 
     @Specialization
-    public BigDecimal doFloat(float f) {
-        return new BigDecimal(f);
+    public SBigDec doFloat(float f) {
+        return new SBigDec(f);
     }
 
     @Specialization
-    public BigDecimal doDouble(double d) {
-        return new BigDecimal(d);
+    public SBigDec doDouble(double d) {
+        return new SBigDec(d);
     }
 
     @Specialization
-    public BigDecimal doBigDecimal(BigDecimal bigDecimal) {
+    public SBigDec doBigDecimal(SBigDec bigDecimal) {
         return bigDecimal;
     }
 

@@ -9,9 +9,6 @@ import truffle_scheme6.builtins.SBuiltin;
 import truffle_scheme6.nodes.STypesStrong;
 import truffle_scheme6.runtime.numbers.*;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
 @BuiltinInfo(name = "inexact")
 @NodeChild(value = "arg", type = SchemeNode.class)
 @TypeSystemReference(STypesStrong.class)
@@ -22,8 +19,8 @@ public abstract class SInexact extends SBuiltin {
     }
 
     @Specialization
-    public double doBigInteger(BigInteger bigint) {
-        return bigint.doubleValue();
+    public double doBigInt(SBigInt bigint) {
+        return bigint.value().doubleValue();
     }
 
     @Specialization
@@ -47,8 +44,8 @@ public abstract class SInexact extends SBuiltin {
     }
 
     @Specialization
-    public double doBigDecimal(BigDecimal bigDecimal) {
-        return bigDecimal.doubleValue();
+    public double doBigDecimal(SBigDec bigDecimal) {
+        return bigDecimal.value().doubleValue();
     }
 
     @Specialization

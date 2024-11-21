@@ -7,11 +7,10 @@ import truffle_scheme6.SchemeNode;
 import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.builtins.SBuiltin;
 import truffle_scheme6.nodes.STypesStrong;
+import truffle_scheme6.runtime.numbers.SBigDec;
+import truffle_scheme6.runtime.numbers.SBigInt;
 import truffle_scheme6.runtime.numbers.SComplex;
 import truffle_scheme6.runtime.numbers.SFraction;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
 
 @BuiltinInfo(name = "number?")
 @NodeChild(value = "arg", type = SchemeNode.class)
@@ -34,8 +33,8 @@ public abstract class SIsNumber extends SBuiltin {
 
     @Specialization
     protected boolean doObject(Object arg) {
-        return arg instanceof BigInteger
-                || arg instanceof BigDecimal
+        return arg instanceof SBigInt
+                || arg instanceof SBigDec
                 || arg instanceof SFraction
                 || arg instanceof SComplex;
     }
