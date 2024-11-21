@@ -14,7 +14,7 @@ abstract class UBinaryMultiplication extends Node {
 
     @Specialization
     static long doLongs(long a, long b) {
-        return a + b;
+        return a * b;
     }
 
     @Specialization
@@ -49,39 +49,26 @@ abstract class UBinaryMultiplication extends Node {
 
     @Specialization
     static SComplexLong doComplexLongs(SComplexLong a, SComplexLong b) {
-        var newReal = a.real().multiply(b.real())
-                .subtract(a.imag().multiply(b.imag()));
-        var newImag = a.real().multiply(b.imag()).add(a.imag().multiply(b.real()));
-        return new SComplexLong(newReal, newImag);
+        return a.multiply(b);
     }
 
     @Specialization
     static SComplexBigInt doComplexBigInts(SComplexBigInt a, SComplexBigInt b) {
-        var newReal = a.real().multiply(b.real())
-                .subtract(a.imag().multiply(b.imag()));
-        var newImag = a.real().multiply(b.imag()).add(a.imag().multiply(b.real()));
-        return new SComplexBigInt(newReal, newImag);
+        return a.multiply(b);
     }
 
     @Specialization
     static SComplexBigDec doComplexBigDecimals(SComplexBigDec a, SComplexBigDec b) {
-        var newReal = a.real().multiply(b.real())
-                .subtract(a.imag().multiply(b.imag()));
-        var newImag = a.real().multiply(b.imag()).add(a.imag().multiply(b.real()));
-        return new SComplexBigDec(newReal, newImag);
+        return a.multiply(b);
     }
 
     @Specialization
     static SComplexFloat doComplexFloats(SComplexFloat a, SComplexFloat b) {
-        var newReal = a.real() * b.real() - a.imag() * b.imag();
-        var newImag = a.real() * b.imag() + a.imag() * b.real();
-        return new SComplexFloat(newReal, newImag);
+        return a.multiply(b);
     }
 
     @Specialization
     static SComplexDouble doComplexDoubles(SComplexDouble a, SComplexDouble b) {
-        var newReal = a.real() * b.real() - a.imag() * b.imag();
-        var newImag = a.real() * b.imag() + a.imag() * b.real();
-        return new SComplexDouble(newReal, newImag);
+        return a.multiply(b);
     }
 }

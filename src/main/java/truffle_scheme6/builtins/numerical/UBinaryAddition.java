@@ -49,26 +49,26 @@ abstract class UBinaryAddition extends Node {
 
     @Specialization
     static SComplexLong doComplexLongs(SComplexLong a, SComplexLong b) {
-        return new SComplexLong(a.real().add(b.real()), a.imag().add(b.imag()));
+        return a.add(b);
     }
 
     @Specialization
     static SComplexBigInt doComplexBigInts(SComplexBigInt a, SComplexBigInt b) {
-        return new SComplexBigInt(a.real().add(b.real()), a.imag().add(b.imag()));
+        return a.add(b);
     }
 
     @Specialization
     static SComplexBigDec doComplexBigDecimals(SComplexBigDec a, SComplexBigDec b) {
-        return new SComplexBigDec(a.real().add(b.real()), a.imag().add(b.imag()));
+        return a.add(b);
     }
 
     @Specialization
     static SComplexFloat doComplexFloats(SComplexFloat a, SComplexFloat b) {
-        return new SComplexFloat(a.real() + b.real(), a.imag() + b.imag());
+        return a.add(b);
     }
 
     @Specialization
     static SComplexDouble doComplexDoubles(SComplexDouble a, SComplexDouble b) {
-        return new SComplexDouble(a.real() + b.real(), a.imag() + b.imag());
+        return a.add(b);
     }
 }
