@@ -13,6 +13,24 @@ public record SComplexBigInt(SFractionBigInt real, SFractionBigInt imag) impleme
         return imag.isZero();
     }
 
+    public SComplexBigInt add(SComplexBigInt other) {
+        return new SComplexBigInt(real.add(other.real), imag.add(other.imag));
+    }
+    
+    public SComplexBigInt subtract(SComplexBigInt other) {
+        return new SComplexBigInt(real.subtract(other.real), imag.subtract(other.imag));
+    }
+
+    public SComplexBigInt multiply(SComplexBigInt other) {
+        var newReal = real.multiply(other.real).subtract(imag.multiply(other.imag));
+        var newImag = real.multiply(other.imag).add(imag.multiply(other.real));
+        return new SComplexBigInt(newReal, newImag);
+    }
+    
+    public SComplexBigInt negate() {
+        return new SComplexBigInt(real.negate(), imag.negate());
+    }
+
     @Override
     public String toString() {
         return real.toString() +

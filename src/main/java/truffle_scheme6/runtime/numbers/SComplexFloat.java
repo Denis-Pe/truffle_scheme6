@@ -12,6 +12,24 @@ public record SComplexFloat(float real, float imag) implements SComplex, Truffle
         return imag == 0.0f;
     }
 
+    public SComplexFloat add(SComplexFloat other) {
+        return new SComplexFloat(real + other.real, imag + other.imag);
+    }
+
+    public SComplexFloat subtract(SComplexFloat other) {
+        return new SComplexFloat(real - other.real, imag - other.imag);
+    }
+
+    public SComplexFloat multiply(SComplexFloat other) {
+        var newReal = real * other.real - imag * other.imag;
+        var newImag = real * other.imag + imag * other.real;
+        return new SComplexFloat(newReal, newImag);
+    }
+
+    public SComplexFloat negate() {
+        return new SComplexFloat(-real, -imag);
+    }
+
     @Override
     public String toString() {
         return real +

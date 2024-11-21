@@ -12,6 +12,24 @@ public record SComplexDouble(double real, double imag) implements SComplex, Truf
         return imag == 0.0;
     }
 
+    public SComplexDouble add(SComplexDouble other) {
+        return new SComplexDouble(real + other.real, imag + other.imag);
+    }
+    
+    public SComplexDouble subtract(SComplexDouble other) {
+        return new SComplexDouble(real - other.real, imag - other.imag);
+    }
+
+    public SComplexDouble multiply(SComplexDouble other) {
+        var newReal = real * other.real - imag * other.imag;
+        var newImag = real * other.imag + imag * other.real;
+        return new SComplexDouble(newReal, newImag);
+    }
+    
+    public SComplexDouble negate() {
+        return new SComplexDouble(-real, -imag);
+    }
+
     @Override
     public String toString() {
         return real +

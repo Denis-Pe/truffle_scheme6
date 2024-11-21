@@ -12,6 +12,24 @@ public record SComplexLong(SFractionLong real, SFractionLong imag) implements SC
         return imag.isZero();
     }
 
+    public SComplexLong add(SComplexLong other) {
+        return new SComplexLong(real.add(other.real), imag.add(other.imag));
+    }
+
+    public SComplexLong subtract(SComplexLong other) {
+        return new SComplexLong(real.subtract(other.real), imag.subtract(other.imag));
+    }
+
+    public SComplexLong multiply(SComplexLong other) {
+        var newReal = real.multiply(other.real).subtract(imag.multiply(other.imag));
+        var newImag = real.multiply(other.imag).add(imag.multiply(other.real));
+        return new SComplexLong(newReal, newImag);
+    }
+
+    public SComplexLong negate() {
+        return new SComplexLong(real.negate(), imag.negate());
+    }
+
     @Override
     public String toString() {
         return real +
