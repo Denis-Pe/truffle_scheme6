@@ -36,6 +36,8 @@ public class SchemeLanguageContext {
     private void installBuiltins() {
         installBuiltin(SIsSymbolFactory.getInstance());
 
+        /* NUMERICAL */
+        
         installBuiltin(SIsNumberFactory.getInstance());
         installBuiltin(SIsComplexFactory.getInstance());
         installBuiltin(SIsRealFactory.getInstance());
@@ -75,6 +77,10 @@ public class SchemeLanguageContext {
         installBuiltin(SNumsDivFactory.getInstance());
         
         installBuiltin(SAbsFactory.getInstance());
+        
+        /* PAIRS AND LISTS */
+        
+        installBuiltin(SIsPairFactory.getInstance());
     }
 
     private void installBuiltin(NodeFactory<? extends SBuiltin> factory) {
