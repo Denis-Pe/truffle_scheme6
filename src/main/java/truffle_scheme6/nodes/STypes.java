@@ -29,7 +29,7 @@ import java.math.MathContext;
 @TypeSystem({boolean.class, byte.class, long.class, float.class, double.class})
 public abstract class STypes {
     @TypeCheck(SNil.class)
-    public static boolean isSNull(Object value) {
+    public static boolean isNull(Object value) {
         return value == SNil.SINGLETON;
     }
 
