@@ -26,14 +26,27 @@ public record SComplexLong(SFractionLong real, SFractionLong imag) implements SC
         return new SComplexLong(newReal, newImag);
     }
 
+    public SComplexLong divide(SComplexLong other) {
+        var denominator = other.real.multiply(other.real).add(other.imag.multiply(other.imag));
+        var realNumerator = real.multiply(other.real).add(imag.multiply(other.imag));
+        var imagNumerator = imag.multiply(other.real).subtract(real.multiply(other.imag));
+
+        return new SComplexLong(realNumerator.divide(denominator), imagNumerator.divide(denominator));
+    }
+
     public SComplexLong negate() {
         return new SComplexLong(real.negate(), imag.negate());
+    }
+
+    public SComplexLong inverse() {
+        var denominator = real.multiply(real).add(imag.multiply(imag));
+        return new SComplexLong(real.divide(denominator), imag.divide(denominator).negate());
     }
 
     @Override
     public String toString() {
         return real +
-                (real.signum() == -1 ? "" : "+") +
+                (imag.signum() == -1 ? "" : "+") +
                 imag + "i";
     }
 

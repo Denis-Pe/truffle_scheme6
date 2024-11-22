@@ -13,6 +13,14 @@ import java.math.MathContext;
 @ExportLibrary(InteropLibrary.class)
 public record SFractionLong(long numerator,
                             long denominator) implements SFraction, Comparable<SFractionLong>, TruffleObject {
+    public SFractionLong(long numerator, long denominator) {
+        this.numerator = numerator;
+        this.denominator = denominator;
+
+        if (denominator < 1)
+            throw new IllegalArgumentException("denominator must be greater than zero");
+    }
+
     public SFractionLong(long numerator) {
         this(numerator, 1L);
     }
@@ -113,6 +121,22 @@ public record SFractionLong(long numerator,
         );
     }
 
+    public SFractionLong divide(SFractionLong other) {
+        long signum = (long) this.signum() * other.signum();
+        return new SFractionLong(
+                signum * Math.abs(numerator * other.denominator),
+                Math.abs(denominator * other.numerator)
+        );
+    }
+
+    public SFractionLong divideExact(SFractionLong other) {
+        long signum = (long) this.signum() * other.signum();
+        return new SFractionLong(
+                Math.multiplyExact(signum, Math.absExact(Math.multiplyExact(numerator, other.denominator))),
+                Math.absExact(Math.multiplyExact(denominator, other.numerator))
+        );
+    }
+
     public int signum() {
         return Long.signum(numerator);
     }
@@ -133,15 +157,12 @@ public record SFractionLong(long numerator,
         return new SFractionLong(Math.absExact(numerator), denominator);
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof SFractionLong other) {
-            return compareTo(other) == 0;
-        } else if (obj instanceof SFraction other) {
-            return this.asBigInt().compareTo(other.asBigInt()) == 0;
-        } else {
-            return false;
-        }
+    public SFractionLong inverse() {
+        return new SFractionLong(signum() * denominator, Math.abs(numerator));
+    }
+
+    public SFractionLong inverseExact() {
+        return new SFractionLong(Math.multiplyExact(signum(), denominator), Math.absExact(numerator));
     }
 
     @Override

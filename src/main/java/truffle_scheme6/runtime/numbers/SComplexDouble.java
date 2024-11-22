@@ -25,9 +25,22 @@ public record SComplexDouble(double real, double imag) implements SComplex, Truf
         var newImag = real * other.imag + imag * other.real;
         return new SComplexDouble(newReal, newImag);
     }
+
+    public SComplexDouble divide(SComplexDouble other) {
+        var denominator = other.real * other.real + other.imag * other.imag;
+        var realNumerator = real * other.real + imag * other.imag;
+        var imagNumerator = imag * other.real - real * other.imag;
+
+        return new SComplexDouble(realNumerator / denominator, imagNumerator / denominator);
+    }
     
     public SComplexDouble negate() {
         return new SComplexDouble(-real, -imag);
+    }
+
+    public SComplexDouble inverse() {
+        var denominator = real * real + imag * imag;
+        return new SComplexDouble(real / denominator, -(imag / denominator));
     }
 
     @Override

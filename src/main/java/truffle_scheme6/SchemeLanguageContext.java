@@ -72,6 +72,8 @@ public class SchemeLanguageContext {
         
         installBuiltin(SNumsMinusFactory.getInstance());
         
+        installBuiltin(SNumsDivFactory.getInstance());
+        
         installBuiltin(SAbsFactory.getInstance());
     }
 

@@ -26,8 +26,21 @@ public record SComplexFloat(float real, float imag) implements SComplex, Truffle
         return new SComplexFloat(newReal, newImag);
     }
 
+    public SComplexFloat divide(SComplexFloat other) {
+        var denominator = other.real * other.real + other.imag * other.imag;
+        var realNumerator = real * other.real + imag * other.imag;
+        var imagNumerator = imag * other.real - real * other.imag;
+
+        return new SComplexFloat(realNumerator / denominator, imagNumerator / denominator);
+    }
+
     public SComplexFloat negate() {
         return new SComplexFloat(-real, -imag);
+    }
+
+    public SComplexFloat inverse() {
+        var denominator = real * real + imag * imag;
+        return new SComplexFloat(real / denominator, -(imag / denominator));
     }
 
     @Override

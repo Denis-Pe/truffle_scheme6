@@ -26,9 +26,22 @@ public record SComplexBigInt(SFractionBigInt real, SFractionBigInt imag) impleme
         var newImag = real.multiply(other.imag).add(imag.multiply(other.real));
         return new SComplexBigInt(newReal, newImag);
     }
+
+    public SComplexBigInt divide(SComplexBigInt other) {
+        var denominator = other.real.multiply(other.real).add(other.imag.multiply(other.imag));
+        var realNumerator = real.multiply(other.real).add(imag.multiply(other.imag));
+        var imagNumerator = imag.multiply(other.real).subtract(real.multiply(other.imag));
+
+        return new SComplexBigInt(realNumerator.divide(denominator), imagNumerator.divide(denominator));
+    }
     
     public SComplexBigInt negate() {
         return new SComplexBigInt(real.negate(), imag.negate());
+    }
+
+    public SComplexBigInt inverse() {
+        var denominator = real.multiply(real).add(imag.multiply(imag));
+        return new SComplexBigInt(real.divide(denominator), imag.divide(denominator).negate());
     }
 
     @Override

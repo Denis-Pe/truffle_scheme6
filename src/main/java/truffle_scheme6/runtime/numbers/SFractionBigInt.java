@@ -13,6 +13,14 @@ import java.math.MathContext;
 @ExportLibrary(InteropLibrary.class)
 public record SFractionBigInt(BigInteger numerator,
                               BigInteger denominator) implements SFraction, Comparable<SFractionBigInt>, TruffleObject {
+    public SFractionBigInt(BigInteger numerator, BigInteger denominator) {
+        this.numerator = numerator;
+        this.denominator = denominator;
+
+        if (denominator.compareTo(BigInteger.ONE) < 0)
+            throw new IllegalArgumentException("denominator must be greater than zero");
+    }
+
     public SFractionBigInt(BigInteger numerator) {
         this(numerator, BigInteger.ONE);
     }
@@ -94,6 +102,14 @@ public record SFractionBigInt(BigInteger numerator,
         );
     }
 
+    public SFractionBigInt divide(SFractionBigInt other) {
+        BigInteger signum = BigInteger.valueOf((long) this.signum() * other.signum());
+        return new SFractionBigInt(
+                signum.multiply(numerator.multiply(other.denominator).abs()),
+                denominator.multiply(other.numerator).abs()
+        );
+    }
+
     public int signum() {
         return numerator.signum();
     }
@@ -106,15 +122,8 @@ public record SFractionBigInt(BigInteger numerator,
         return new SFractionBigInt(numerator.abs(), denominator);
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof SFractionBigInt other) {
-            return compareTo(other) == 0;
-        } else if (obj instanceof SFraction other) {
-            return compareTo(other.asBigInt()) == 0;
-        } else {
-            return false;
-        }
+    public SFractionBigInt inverse() {
+        return new SFractionBigInt(denominator.multiply(BigInteger.valueOf(numerator.signum())), numerator.abs());
     }
 
     @Override
