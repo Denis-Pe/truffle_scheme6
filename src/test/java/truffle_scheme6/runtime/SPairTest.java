@@ -95,6 +95,9 @@ class SPairTest {
         assertEquals(improper.getCar(), 11);
         improper.setNth(9, 66);
         assertEquals(improper.nth(9), 66);
+
+        assertThrows(IndexOutOfBoundsException.class, () -> proper.nth(-1));
+        assertThrows(IndexOutOfBoundsException.class, () -> improper.nth(-2));
     }
 
     @Test
