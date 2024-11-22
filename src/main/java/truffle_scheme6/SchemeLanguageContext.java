@@ -7,6 +7,7 @@ import com.oracle.truffle.api.nodes.Node;
 import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.builtins.*;
 import truffle_scheme6.builtins.numerical.*;
+import truffle_scheme6.builtins.pairs.*;
 import truffle_scheme6.nodes.functions.SReadArgNode;
 import truffle_scheme6.nodes.functions.SReadArgSlotNode;
 import truffle_scheme6.nodes.functions.SReadVarArgsNode;
@@ -81,6 +82,8 @@ public class SchemeLanguageContext {
         /* PAIRS AND LISTS */
         
         installBuiltin(SIsPairFactory.getInstance());
+        
+        installBuiltin(SConsFactory.getInstance());
     }
 
     private void installBuiltin(NodeFactory<? extends SBuiltin> factory) {
