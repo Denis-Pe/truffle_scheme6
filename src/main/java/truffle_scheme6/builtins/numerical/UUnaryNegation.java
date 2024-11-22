@@ -47,9 +47,9 @@ abstract class UUnaryNegation extends Node {
         return -d;
     }
 
-    @Specialization
+    @Specialization(rewriteOn = ArithmeticException.class)
     static SComplexLong doLongComplex(SComplexLong complex) {
-        return complex.negate();
+        return complex.negateExact();
     }
 
     @Specialization

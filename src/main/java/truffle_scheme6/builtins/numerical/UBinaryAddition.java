@@ -47,9 +47,9 @@ abstract class UBinaryAddition extends Node {
         return a + b;
     }
 
-    @Specialization
+    @Specialization(rewriteOn = ArithmeticException.class)
     static SComplexLong doComplexLongs(SComplexLong a, SComplexLong b) {
-        return a.add(b);
+        return a.addExact(b);
     }
 
     @Specialization

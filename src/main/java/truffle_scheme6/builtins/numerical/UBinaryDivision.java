@@ -52,9 +52,9 @@ abstract class UBinaryDivision extends Node {
         return a / b;
     }
 
-    @Specialization
+    @Specialization(rewriteOn = ArithmeticException.class)
     static SComplexLong doLongComplexes(SComplexLong a, SComplexLong b) {
-        return a.divide(b);
+        return a.divideExact(b);
     }
 
     @Specialization

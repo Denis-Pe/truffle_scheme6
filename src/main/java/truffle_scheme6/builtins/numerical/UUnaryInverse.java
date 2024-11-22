@@ -57,9 +57,9 @@ abstract class UUnaryInverse extends Node {
         return 1.0 / d;
     }
 
-    @Specialization
+    @Specialization(rewriteOn = ArithmeticException.class)
     static SComplexLong doLongComplex(SComplexLong complex) {
-        return complex.inverse();
+        return complex.inverseExact();
     }
 
     @Specialization

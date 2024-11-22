@@ -47,9 +47,9 @@ abstract class UBinaryMultiplication extends Node {
         return a * b;
     }
 
-    @Specialization
+    @Specialization(rewriteOn = ArithmeticException.class)
     static SComplexLong doComplexLongs(SComplexLong a, SComplexLong b) {
-        return a.multiply(b);
+        return a.multiplyExact(b);
     }
 
     @Specialization

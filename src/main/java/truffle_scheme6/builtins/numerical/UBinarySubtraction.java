@@ -47,9 +47,9 @@ abstract class UBinarySubtraction extends Node {
         return a - b;
     }
 
-    @Specialization
+    @Specialization(rewriteOn = ArithmeticException.class)
     static SComplexLong doLongComplexes(SComplexLong a, SComplexLong b) {
-        return a.subtract(b);
+        return a.subtractExact(b);
     }
 
     @Specialization
