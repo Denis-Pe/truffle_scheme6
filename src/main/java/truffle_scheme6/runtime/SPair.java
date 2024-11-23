@@ -31,6 +31,23 @@ public class SPair implements TruffleObject, Iterable<Object> {
         }
     }
 
+    // nil WILL be automatically appended
+    public static SPair list(Object... objects) {
+        if (objects.length < 1) {
+            throw new IllegalArgumentException("Can't create pair from empty array");
+        } else {
+            var last = SNil.SINGLETON;
+            var secondLast = objects[objects.length - 1];
+            var curr = new SPair(secondLast, last);
+
+            for (int i = objects.length - 2; i >= 0; i--) {
+                curr = new SPair(objects[i], curr);
+            }
+
+            return curr;
+        }
+    }
+
     public SPair(Object car, Object cdr) {
         if (car == null || cdr == null) {
             throw new IllegalArgumentException("Can't create pair using Java null");
@@ -61,10 +78,31 @@ public class SPair implements TruffleObject, Iterable<Object> {
         this.cdr = cdr;
     }
 
-    public Object nth(int index) {
+    public Object nth(long index) {
         var curr = this;
 
-        int count = 0;
+        var count = 0L;
+        while (true) {
+            var currCar = curr.car;
+            var currCdr = curr.cdr;
+
+            if (count == index) {
+                return currCar;
+            } else if (currCdr instanceof SPair nextPair) {
+                curr = nextPair;
+                count++;
+            } else if (currCdr != SNil.SINGLETON) {
+                throw new RuntimeException("Improper list");
+            } else {
+                throw new IndexOutOfBoundsException("Index out of bounds");
+            }
+        }
+    }
+
+    public Object nthImproper(long index) {
+        var curr = this;
+
+        var count = 0L;
         while (true) {
             var currCar = curr.car;
             var currCdr = curr.cdr;
@@ -82,12 +120,32 @@ public class SPair implements TruffleObject, Iterable<Object> {
         }
     }
 
-    public void setNth(int index, Object value) {
+    public void setNth(long index, Object value) {
         var curr = this;
 
-        int count = 0;
+        var count = 0L;
         while (true) {
-            var currCar = curr.car;
+            var currCdr = curr.cdr;
+
+            if (count == index) {
+                curr.setCar(value);
+                return;
+            } else if (currCdr instanceof SPair nextPair) {
+                curr = nextPair;
+                count++;
+            } else if (currCdr != SNil.SINGLETON) {
+                throw new RuntimeException("Improper list");
+            } else {
+                throw new IndexOutOfBoundsException("Index out of bounds");
+            }
+        }
+    }
+    
+    public void setNthImproper(long index, Object value) {
+        var curr = this;
+
+        var count = 0L;
+        while (true) {
             var currCdr = curr.cdr;
 
             if (count == index) {
@@ -105,8 +163,27 @@ public class SPair implements TruffleObject, Iterable<Object> {
         }
     }
 
-    @Override
-    public Iterator<Object> iterator() {
+    public boolean isProperList() {
+        var curr = this;
+        while (curr.cdr instanceof SPair next) curr = next;
+        return curr.cdr == SNil.SINGLETON;
+    }
+
+    public long count() {
+        var count = 0L;
+        var curr = this;
+        while (true) {
+            count++;
+            if (curr.cdr instanceof SPair next) curr = next;
+            else if (curr.cdr == SNil.SINGLETON) break;
+            else throw new RuntimeException("Improper list");
+        }
+        return count;
+    }
+
+    // will iterate through the whole thing even if it's improper,
+    //  but won't include nil terminator if proper
+    public Iterator<Object> improperIterator() {
         var outerThis = this;
 
         return new Iterator<Object>() {
@@ -133,6 +210,73 @@ public class SPair implements TruffleObject, Iterable<Object> {
         };
     }
 
+    // will throw an exception if the list is improper, but this iterator iterates the list twice
+    // due to checking for whether it's improper or proper before any iteration
+    public Iterator<Object> properIterator() {
+        if (!isProperList()) {
+            throw new RuntimeException("Improper list");
+        } else {
+            return improperIterator();
+        }
+    }
+
+    @Override
+    public Iterator<Object> iterator() {
+        return properIterator();
+    }
+
+    @Override
+    public String toString() {
+        return toStringList();
+    }
+
+    public String toStringPair() {
+        return "(" + car + " . " + cdr + ")";
+    }
+
+    // if improper list, it will use dotted form,
+    // still different from toStringPair() which will print as a literal pair
+    public String toStringList() {
+        StringBuilder sb = new StringBuilder("(");
+
+        var curr = this;
+
+        while (true) {
+            sb.append(curr.car);
+
+            if (curr.cdr instanceof SPair next) {
+                curr = next;
+            } else if (curr.cdr == SNil.SINGLETON) {
+                break;
+            } else {
+                sb.append(" . ");
+                sb.append(curr.cdr);
+                break;
+            }
+            
+            sb.append(" ");
+        }
+
+        sb.append(")");
+        return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SPair sPair = (SPair) o;
+        return car.equals(sPair.car) && cdr.equals(sPair.cdr);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = car.hashCode();
+        result = 31 * result + cdr.hashCode();
+        return result;
+    }
+
     @ExportMessage
     boolean hasArrayElements() {
         return true;
@@ -140,63 +284,34 @@ public class SPair implements TruffleObject, Iterable<Object> {
 
     @ExportMessage
     long getArraySize() {
-        long count = 1;
-
-        var curr = this;
-        while (true) {
-            var currCdr = curr.cdr;
-
-            if (currCdr instanceof SPair nextCurr) {
-                curr = nextCurr;
-                count++;
-            } else if (currCdr != SNil.SINGLETON) {
-                // todo Chez implementation of the length fn raises an exception in this case:
-                //  worth reconsidering whether or not interop should be able to count improper lists
-                count++;
-                break;
-            } else {
-                break;
-            }
-        }
-
-        return count;
+        return count();
     }
 
     @ExportMessage
     boolean isArrayElementReadable(long index) {
-        try {
-            var _val = nth(Math.toIntExact(index));
-            return true;
-        } catch (IndexOutOfBoundsException | ArithmeticException e) {
-            return false;
-        }
+        return 0 <= index && index < count();
     }
 
     @ExportMessage
     Object readArrayElement(long index) throws InvalidArrayIndexException {
         try {
-            return nth(Math.toIntExact(index));
-        } catch (IndexOutOfBoundsException | ArithmeticException e) {
-            throw InvalidArrayIndexException.create(index);
+            return nth(index);
+        } catch (IndexOutOfBoundsException e) {
+            throw InvalidArrayIndexException.create(index, e);
         }
     }
 
     @ExportMessage
     boolean isArrayElementModifiable(long index) {
-        try {
-            var _val = nth(Math.toIntExact(index));
-            return true;
-        } catch (IndexOutOfBoundsException | ArithmeticException e) {
-            return false;
-        }
+        return 0 <= index && index < count();
     }
 
     @ExportMessage
     void writeArrayElement(long index, Object value) throws InvalidArrayIndexException {
         try {
-            setNth(Math.toIntExact(index), value);
-        } catch (IndexOutOfBoundsException | ArithmeticException e) {
-            throw InvalidArrayIndexException.create(index);
+            setNth(index, value);
+        } catch (IndexOutOfBoundsException e) {
+            throw InvalidArrayIndexException.create(index, e);
         }
     }
 
@@ -218,26 +333,5 @@ public class SPair implements TruffleObject, Iterable<Object> {
     @ExportMessage
     Object toDisplayString(boolean allowSideEffects) {
         return this.toString();
-    }
-
-    @Override
-    public String toString() {
-        return "(" + car + " . " + cdr + ")";
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        SPair sPair = (SPair) o;
-        return car.equals(sPair.car) && cdr.equals(sPair.cdr);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = car.hashCode();
-        result = 31 * result + cdr.hashCode();
-        return result;
     }
 }

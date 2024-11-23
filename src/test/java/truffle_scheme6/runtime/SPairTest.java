@@ -3,7 +3,9 @@ package truffle_scheme6.runtime;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Spliterators;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -54,14 +56,14 @@ class SPairTest {
         );
 
         assertEquals(
-                SPair.from(1, 2, 3, 4).getArraySize(),
+                SPair.list(1, 2, 3, 4).getArraySize(),
                 4
         );
     }
 
     @Test
     public void nth() {
-        var proper = SPair.from(IntStream.range(0, 10).boxed().toArray());
+        var proper = SPair.list(IntStream.range(0, 10).boxed().toArray());
 
         for (int i = 0; i < 10; i++) {
             assertEquals(proper.nth(i), i);
@@ -80,24 +82,24 @@ class SPairTest {
         );
 
         for (int i = 0; i < 10; i++) {
-            assertEquals(improper.nth(i), i);
+            assertEquals(improper.nthImproper(i), i);
         }
 
         assertThrows(IndexOutOfBoundsException.class, () -> proper.nth(10));
-        assertThrows(IndexOutOfBoundsException.class, () -> improper.nth(10));
+        assertThrows(IndexOutOfBoundsException.class, () -> improper.nthImproper(10));
 
         proper.setNth(0, 11);
         assertEquals(proper.getCar(), 11);
         proper.setNth(9, 66);
         assertEquals(proper.nth(9), 66);
 
-        improper.setNth(0, 11);
+        improper.setNthImproper(0, 11);
         assertEquals(improper.getCar(), 11);
-        improper.setNth(9, 66);
-        assertEquals(improper.nth(9), 66);
+        improper.setNthImproper(9, 66);
+        assertEquals(improper.nthImproper(9), 66);
 
         assertThrows(IndexOutOfBoundsException.class, () -> proper.nth(-1));
-        assertThrows(IndexOutOfBoundsException.class, () -> improper.nth(-2));
+        assertThrows(IndexOutOfBoundsException.class, () -> improper.nthImproper(-2));
     }
 
     @Test
@@ -111,9 +113,6 @@ class SPairTest {
 
         var improper1to5 = SPair.from(1, 2, 3, 4, 5);
 
-        assertEquals(
-                StreamSupport.stream(improper1to5.spliterator(), false).toList(),
-                List.of(1, 2, 3, 4, 5)
-        );
+        assertThrows(RuntimeException.class, () -> StreamSupport.stream(improper1to5.spliterator(), false).toList());
     }
 }
