@@ -92,6 +92,8 @@ public class SchemeLanguageContext {
         installBuiltin(SIsNullFactory.getInstance());
         
         installBuiltin(SIsListFactory.getInstance());
+        
+        installBuiltin(SListFactory.getInstance());
     }
 
     private void installBuiltin(NodeFactory<? extends SBuiltin> factory) {
