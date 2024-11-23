@@ -90,6 +90,8 @@ public class SchemeLanguageContext {
         installBuiltin(SCdrFactory.getInstance());
         
         installBuiltin(SIsNullFactory.getInstance());
+        
+        installBuiltin(SIsListFactory.getInstance());
     }
 
     private void installBuiltin(NodeFactory<? extends SBuiltin> factory) {
