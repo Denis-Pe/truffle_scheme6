@@ -7,8 +7,8 @@
 (insta/defparser
   parser
   "
-  <opt-expressions> = whitespace? (expression (whitespace expression)*)? whitespace?
-  <expressions> = whitespace? (expression (whitespace expression)*) whitespace?
+  <opt-expressions> = whitespace? (expression (whitespace? expression)*)? whitespace?
+  <expressions> = whitespace? (expression (whitespace? expression)*) whitespace?
   <expression> = comment / reader / composite / atom
 
   (* READER SYNTAX *)
