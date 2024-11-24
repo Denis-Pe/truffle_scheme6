@@ -2,8 +2,10 @@
   (:require [clojure.core.match :refer [match]]
             [instaparse.core :as insta]
             [truffle-scheme6.number-transformers :refer [transform-number]]
-            [truffle-scheme6.parser-types :refer :all]))
+            [truffle-scheme6.parser-types :refer :all])
+  (:import (truffle_scheme6.exceptions ParseException)))
 
+(declare parser)
 (insta/defparser
   parser
   "
@@ -225,7 +227,7 @@
 
 (defn parse
   [^CharSequence source & {:keys [starting-at]}]
-  (let [parse-strictly (if starting-at #(parser % :start starting-at) parser)]
+  (let [parse-strictly (if starting-at #(insta/parse parser % :start starting-at) (partial insta/parse parser))]
     (->> source
          parse-strictly)))
 
@@ -251,7 +253,10 @@
 
 (defn read-scheme
   [source]
-  (->> source
-       (parse)
-       (produce-nodes)))
+  (let [result (->> source
+                    (parse)
+                    (produce-nodes))]
+    (if-let [failure (insta/get-failure result)]
+      (do (prn (:text failure)) (throw (ParseException. (:index failure) (:line failure) (:column failure) (:text failure))))
+      result)))
 
