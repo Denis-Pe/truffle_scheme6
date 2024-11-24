@@ -1,4 +1,4 @@
-package truffle_scheme6;
+package truffle_scheme6.builtins;
 
 import org.junit.jupiter.api.Test;
 
