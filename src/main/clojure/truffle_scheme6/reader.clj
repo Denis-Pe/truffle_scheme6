@@ -9,9 +9,14 @@
 (insta/defparser
   parser
   "
-  <opt-expressions> = whitespace? (expression (whitespace? expression)*)? whitespace?
-  <expressions> = whitespace? (expression (whitespace? expression)*) whitespace?
-  <expression> = comment / reader / composite / atom
+  (* ROOTS, BLOODY ROOTS *)
+  <opt-expressions> = wht-or-cmt* (expression (wht-or-cmt* expression)*)? wht-or-cmt*
+  <expressions> = wht-or-cmt* (expression (wht-or-cmt* expression)*) wht-or-cmt*
+
+  <expression> = reader / composite / atom
+
+
+  <wht-or-cmt> = whitespace | comment
 
   (* READER SYNTAX *)
   <reader> = quote / quasiquote / unquote / unquote-splicing / syntax / quasisyntax / unsyntax / unsyntax-splicing
@@ -28,18 +33,18 @@
   <composite> = bytevector / vector / list
 
   bytevector = <'#vu8('> octets? <')'>
-  <octets> = whitespace? (octet (whitespace octet)*)? whitespace?
+  <octets> = wht-or-cmt? (octet (wht-or-cmt octet)*)? wht-or-cmt?
   octet = radix2 uinteger2 | radix8 uinteger8 | radix10 uinteger10 | radix16 uinteger16 (* I'll validate further at the node-producing level *)
 
   vector = <'#('> expressions? <')'>
 
-  list = opar opt-expressions cpar | obr opt-expressions cbr | opar expressions whitespace '.' whitespace expression whitespace? cpar | obr expressions whitespace '.' whitespace expression whitespace? cbr
+  list = opar opt-expressions cpar | obr opt-expressions cbr | opar expressions wht-or-cmt '.' wht-or-cmt expression wht-or-cmt? cpar | obr expressions wht-or-cmt '.' wht-or-cmt expression wht-or-cmt? cbr
   <opar> = <'('>
   <cpar> = <')'>
   <obr> = <'['>
   <cbr> = <']'>
 
-  (* ATOMS *)
+  (* ATOMS *) (* nil is produced when transforming lists *)
   <atom> = bool / number / symbol / string / character
 
   <bool> = true | false
@@ -132,7 +137,7 @@
   <comment> = <single-line-comment> / <block-comment> / <form-comment> / '#!r6rs'
   single-line-comment = #';.*'                                                   (* dot doesn't match line breaks *)
   block-comment = '#|' ( block-comment / #'[^|#]' / !'#' '|' !'#' / !'|' '#' !'|' )* '|#'
-  form-comment = '#;' ( whitespace? | comment? )* expression
+  form-comment = '#;' wht-or-cmt* expression
 
   <whitespace> = <#'\\s+'>
 
