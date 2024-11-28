@@ -10,13 +10,14 @@
   parser
   "
   (* ROOTS, BLOODY ROOTS *)
-  <opt-expressions> = wht-or-cmt* (expression (wht-or-cmt* expression)*)? wht-or-cmt*
-  <expressions> = wht-or-cmt* (expression (wht-or-cmt* expression)*) wht-or-cmt*
+  <opt-expressions> = wht-or-cmt* anything? wht-or-cmt*
+  <expressions> = wht-or-cmt* anything wht-or-cmt*
 
   <expression> = reader / composite / atom
-
-
   <wht-or-cmt> = whitespace | comment
+
+  <anything> = exception / expression (wht-or-cmt+ anything)?
+  <exception> = composite (wht-or-cmt* composite)+
 
   (* READER SYNTAX *)
   <reader> = quote / quasiquote / unquote / unquote-splicing / syntax / quasisyntax / unsyntax / unsyntax-splicing
@@ -262,6 +263,6 @@
                     (parse)
                     (produce-nodes))]
     (if-let [failure (insta/get-failure result)]
-      (do (prn (:text failure)) (throw (ParseException. (:index failure) (:line failure) (:column failure) (:text failure))))
+      (throw (ParseException. (:index failure) (:line failure) (:column failure) (:text failure)))
       result)))
 
