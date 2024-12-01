@@ -22,13 +22,15 @@ public class SDefunNode extends SSpecialNode {
 
     private final FrameDescriptor frameDescriptor;
     private final String name;
+    private final boolean isVariadic;
 
-    public SDefunNode(SSymbolLiteralNode identifier, SSymbolLiteralNode[] arguments, SchemeNode[] body, FrameDescriptor frameDescriptor, String name) {
+    public SDefunNode(SSymbolLiteralNode identifier, SSymbolLiteralNode[] arguments, SchemeNode[] body, FrameDescriptor frameDescriptor, String name, boolean isVariadic) {
         this.identifier = identifier;
         this.arguments = arguments;
         this.body = body;
         this.frameDescriptor = frameDescriptor;
         this.name = name;
+        this.isVariadic = isVariadic;
 
         if (body.length > 0) body[body.length - 1].setIsTail();
     }
@@ -39,7 +41,10 @@ public class SDefunNode extends SSpecialNode {
 
         var sl = SchemeLanguage.get(this);
         var context = SchemeLanguageContext.get(this);
-        var lambda = new SLambda(new SLambdaRoot(sl, frameDescriptor, identifier.getSymbol().toString(), body).getCallTarget());
+        var lambda = new SLambda(
+                new SLambdaRoot(sl, frameDescriptor, identifier.getSymbol().toString(), body).getCallTarget(), 
+                isVariadic ? arguments.length - 1 : arguments.length, 
+                isVariadic);
         context.globalScope.setVar(identifier.getSymbol(), lambda);
 
         return Constants.UNSPECIFIED;

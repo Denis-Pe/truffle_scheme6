@@ -38,7 +38,7 @@ public class SchemeLanguageContext {
         installBuiltin(SIsSymbolFactory.getInstance());
 
         /* NUMERICAL */
-        
+
         installBuiltin(SIsNumberFactory.getInstance());
         installBuiltin(SIsComplexFactory.getInstance());
         installBuiltin(SIsRealFactory.getInstance());
@@ -60,7 +60,7 @@ public class SchemeLanguageContext {
         installBuiltin(SNumsDecreasingFactory.getInstance());
         installBuiltin(SNumsNonDecreasingFactory.getInstance());
         installBuiltin(SNumsNonIncreasingFactory.getInstance());
-        
+
         installBuiltin(SIsZeroFactory.getInstance());
         installBuiltin(SIsPositiveFactory.getInstance());
         installBuiltin(SIsNegativeFactory.getInstance());
@@ -69,32 +69,32 @@ public class SchemeLanguageContext {
         installBuiltin(SIsFiniteFactory.getInstance());
         installBuiltin(SIsInfiniteFactory.getInstance());
         installBuiltin(SIsNanFactory.getInstance());
-        
+
         installBuiltin(SNumsAddFactory.getInstance());
         installBuiltin(SNumsMultiplyFactory.getInstance());
-        
+
         installBuiltin(SNumsMinusFactory.getInstance());
-        
+
         installBuiltin(SNumsDivFactory.getInstance());
-        
+
         installBuiltin(SAbsFactory.getInstance());
-        
+
         /* PAIRS AND LISTS */
-        
+
         installBuiltin(SIsPairFactory.getInstance());
-        
+
         installBuiltin(SConsFactory.getInstance());
-        
+
         installBuiltin(SCarFactory.getInstance());
-        
+
         installBuiltin(SCdrFactory.getInstance());
-        
+
         installBuiltin(SIsNullFactory.getInstance());
-        
+
         installBuiltin(SIsListFactory.getInstance());
-        
+
         installBuiltin(SListFactory.getInstance());
-        
+
         installBuiltin(SLengthFactory.getInstance());
     }
 
@@ -104,7 +104,7 @@ public class SchemeLanguageContext {
         var lastVarArgs = info.lastVarArgs();
 
         var numArgs = factory.getExecutionSignature().size();
-        var argReaders = new SReadArgNode[numArgs];
+        Object[] argReaders = new SReadArgNode[numArgs];
         for (int i = 0; i < numArgs; i++) {
             var isLast = i == numArgs - 1;
 
@@ -115,9 +115,9 @@ public class SchemeLanguageContext {
             }
         }
 
-        var funNode = factory.createNode((Object[]) argReaders);
+        var funNode = factory.createNode(argReaders);
         var lambdaRoot = new SLambdaRoot(language, new FrameDescriptor(), name, funNode);
-        if (!this.globalScope.setVar(SSymbol.get(name), new SLambda(lambdaRoot.getCallTarget())))
+        if (!this.globalScope.setVar(SSymbol.get(name), new SLambda(lambdaRoot.getCallTarget(), lastVarArgs ? numArgs - 1 : numArgs, lastVarArgs)))
             throw new IllegalStateException("Base library installation failed: name `" + name + "` already bound");
     }
 }

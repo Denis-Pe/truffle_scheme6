@@ -17,14 +17,15 @@ public class SLambdaNode extends SSpecialNode {
     private SchemeNode[] body;
 
     private final FrameDescriptor frameDescriptor;
-
     private final String name;
+    private final boolean isVariadic;
 
-    public SLambdaNode(SSymbolLiteralNode[] arguments, SchemeNode[] body, FrameDescriptor frameDescriptor, String name) {
+    public SLambdaNode(SSymbolLiteralNode[] arguments, SchemeNode[] body, FrameDescriptor frameDescriptor, String name, boolean isVariadic) {
         this.arguments = arguments;
         this.body = body;
         this.frameDescriptor = frameDescriptor;
         this.name = name;
+        this.isVariadic = isVariadic;
 
         if (body.length > 0) body[body.length - 1].setIsTail();
     }
@@ -34,7 +35,10 @@ public class SLambdaNode extends SSpecialNode {
         StaticUtils.tagClosureReaders(frame, name, body);
 
         var sl = SchemeLanguage.get(this);
-        return new SLambda(new SLambdaRoot(sl, frameDescriptor, body).getCallTarget());
+        return new SLambda(
+                new SLambdaRoot(sl, frameDescriptor, body).getCallTarget(), 
+                isVariadic ? arguments.length - 1 : arguments.length, 
+                isVariadic);
     }
 
     public String getName() {
