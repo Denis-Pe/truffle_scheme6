@@ -11,11 +11,6 @@ public class SReadArgSlotNode extends SReadArgNode {
 
     @Override
     public Object execute(VirtualFrame frame) {
-        var args = frame.getArguments();
-        if (args.length <= slot) {
-            throw new RuntimeException("Not enough arguments passed to function");
-        }
-
-        return args[slot];
+        return frame.getArguments()[slot];
     }
 }

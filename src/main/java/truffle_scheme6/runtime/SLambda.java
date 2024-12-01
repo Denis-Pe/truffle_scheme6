@@ -83,7 +83,11 @@ public class SLambda implements TruffleObject {
         @Specialization(replaces = "directDispatch")
         protected static Object indirectDispatch(
                 SLambda function, Object[] arguments,
-                @Cached IndirectCallNode callNode) {
+                @Cached IndirectCallNode callNode) throws ArityException {
+            if (!function.isArityValid(arguments.length)) {
+                throw ArityException.create((int) function.minArgs, function.isVariadic ? -1 : (int) function.minArgs, arguments.length);
+            }
+
             return callNode.call(function.getCallTarget(), arguments);
         }
     }
