@@ -15,22 +15,7 @@ import truffle_scheme6.runtime.numbers.SComplexFloat;
 @TypeSystemReference(STypesStrong.class)
 public abstract class SIsInexact extends SBuiltin {
     @Specialization
-    public boolean doLong(long _l) {
-        return false;
-    }
-
-    @Specialization
-    public boolean doFloat(float f) {
-        return true;
-    }
-
-    @Specialization
-    public boolean doDouble(double d) {
-        return true;
-    }
-
-    @Specialization
     public boolean doObject(Object arg) {
-        return arg instanceof SComplexDouble || arg instanceof SComplexFloat;
+        return arg instanceof Float || arg instanceof Double || arg instanceof SComplexDouble || arg instanceof SComplexFloat;
     }
 }
