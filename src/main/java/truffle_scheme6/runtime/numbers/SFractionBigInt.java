@@ -126,6 +126,18 @@ public record SFractionBigInt(BigInteger numerator,
         return new SFractionBigInt(denominator.multiply(BigInteger.valueOf(numerator.signum())), numerator.abs());
     }
 
+    /**
+     * Returns the highest <b>positive</b> greatest common divisor
+     */
+    public BigInteger gcd() {
+        return numerator.gcd(denominator);
+    }
+
+    public SFractionBigInt simplified() {
+        var gcd = gcd();
+        return new SFractionBigInt(numerator.divide(gcd), denominator.divide(gcd));
+    }
+
     @Override
     public String toString() {
         return "%d/%d".formatted(numerator, denominator);
