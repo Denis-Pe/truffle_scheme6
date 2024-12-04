@@ -17,7 +17,7 @@ public record SBigInt(BigInteger value) implements TruffleObject {
 
     @Override
     public String toString() {
-        return value.toString();
+        return "#e" + value.toString();
     }
 
     @ExportMessage
@@ -132,7 +132,7 @@ public record SBigInt(BigInteger value) implements TruffleObject {
             return doubleValue;
         }
     }
-    
+
     @ExportMessage
     String toDisplayString(boolean allowSideEffects) {
         return toString();
