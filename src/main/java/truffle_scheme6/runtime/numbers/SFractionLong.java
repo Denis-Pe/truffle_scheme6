@@ -165,6 +165,77 @@ public record SFractionLong(long numerator,
         return new SFractionLong(Math.multiplyExact(signum(), denominator), Math.absExact(numerator));
     }
 
+    /**
+     * Returns the highest <b>positive</b> greatest common divisor
+     */
+    public long gcd() {
+        long a = Math.abs(numerator);
+        long b = denominator;
+
+        long d = 0;
+        while (a % 2 == 0 && b % 2 == 0) {
+            a /= 2;
+            b /= 2;
+            d++;
+        }
+
+        while (a % 2 == 0) a /= 2;
+        while (b % 2 == 0) b /= 2;
+
+        while (a != b) {
+            long max = Math.max(a, b);
+            b = Math.min(a, b);
+            a = max;
+
+            a = a - b;
+
+            while (a % 2 == 0) a /= 2;
+        }
+
+        return (2L << d) * a;
+    }
+
+    /**
+     * Like gcd(), but using exact math operations
+     */
+    public long gcdExact() {
+        long a = Math.absExact(numerator);
+        long b = denominator;
+
+        long d = 0;
+        while (a % 2 == 0 && b % 2 == 0) {
+            a = Math.divideExact(a, 2L);
+            b = Math.divideExact(b, 2L);
+            d = Math.incrementExact(d);
+        }
+
+        while (a % 2 == 0) a = Math.divideExact(a, 2L);
+        while (b % 2 == 0) b = Math.divideExact(b, 2L);
+
+        while (a != b) {
+            long max = Math.max(a, b);
+            b = Math.min(a, b);
+            a = max;
+
+            a = Math.subtractExact(a, b);
+
+            while (a % 2 == 0) a = Math.divideExact(a, 2L);
+        }
+        
+        if (d >= 63L) throw new ArithmeticException();
+        return Math.multiplyExact(2L << d, a);
+    }
+
+    public SFractionLong simplified() {
+        long gcd = gcd();
+        return new SFractionLong(numerator / gcd, denominator / gcd);
+    }
+
+    public SFractionLong simplifiedExact() {
+        long gcd = gcdExact();
+        return new SFractionLong(Math.divideExact(numerator, gcd), Math.divideExact(denominator, gcd));
+    }
+
     @Override
     public String toString() {
         return "%d/%d".formatted(numerator, denominator);
