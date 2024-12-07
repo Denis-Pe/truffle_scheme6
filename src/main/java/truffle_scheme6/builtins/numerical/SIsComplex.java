@@ -17,23 +17,11 @@ import truffle_scheme6.runtime.numbers.SFraction;
 @TypeSystemReference(STypesStrong.class)
 public abstract class SIsComplex extends SBuiltin {
     @Specialization
-    public boolean doLong(long _l) {
-        return true;
-    }
-
-    @Specialization
-    public boolean doFloat(float _f) {
-        return true;
-    }
-
-    @Specialization
-    public boolean doDouble(double _d) {
-        return true;
-    }
-
-    @Specialization
     public boolean doObject(Object arg) {
-        return arg instanceof SBigInt
+        return arg instanceof Long 
+                || arg instanceof Float 
+                || arg instanceof Double 
+                || arg instanceof SBigInt
                 || arg instanceof SBigDec
                 || arg instanceof SFraction
                 || arg instanceof SComplex;
