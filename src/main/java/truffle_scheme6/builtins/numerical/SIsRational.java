@@ -15,22 +15,7 @@ import truffle_scheme6.runtime.numbers.SFraction;
 @TypeSystemReference(STypesStrong.class)
 public abstract class SIsRational extends SBuiltin {
     @Specialization
-    public boolean doLong(long _l) {
-        return true;
-    }
-
-    @Specialization
-    public boolean doFloat(float _f) {
-        return false;
-    }
-
-    @Specialization
-    public boolean doDouble(double _d) {
-        return false;
-    }
-
-    @Specialization
     public boolean doObject(Object arg) {
-        return arg instanceof SBigInt || arg instanceof SFraction;
+        return arg instanceof Long || arg instanceof SBigInt || arg instanceof SFraction;
     }
 }
