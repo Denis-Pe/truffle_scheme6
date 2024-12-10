@@ -7,10 +7,7 @@ import truffle_scheme6.SchemeNode;
 import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.builtins.SBuiltin;
 import truffle_scheme6.nodes.STypesStrong;
-import truffle_scheme6.runtime.numbers.SBigDec;
-import truffle_scheme6.runtime.numbers.SBigInt;
-import truffle_scheme6.runtime.numbers.SFractionBigInt;
-import truffle_scheme6.runtime.numbers.SFractionLong;
+import truffle_scheme6.runtime.numbers.*;
 
 @BuiltinInfo(name = "finite?")
 @NodeChild(value = "arg", type = SchemeNode.class)
@@ -42,12 +39,7 @@ public abstract class SIsFinite extends SBuiltin {
     }
 
     @Specialization
-    public boolean doLongFraction(SFractionLong fraction) {
-        return true;
-    }
-
-    @Specialization
-    public boolean doBigFraction(SFractionBigInt fraction) {
+    public boolean doLongFraction(SFraction fraction) {
         return true;
     }
 }
