@@ -78,6 +78,9 @@ public class SchemeLanguageContext {
         installBuiltin(SNumsDivFactory.getInstance());
 
         installBuiltin(SAbsFactory.getInstance());
+        
+        installBuiltin(SNumeratorFactory.getInstance());
+        installBuiltin(SDenominatorFactory.getInstance());
 
         /* PAIRS AND LISTS */
 
