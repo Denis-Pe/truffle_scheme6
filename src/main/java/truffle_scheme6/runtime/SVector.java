@@ -1,17 +1,13 @@
 package truffle_scheme6.runtime;
 
-import com.oracle.truffle.api.ArrayUtils;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import org.graalvm.polyglot.HostAccess;
 import truffle_scheme6.utils.StringFormatting;
 
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
 
 @ExportLibrary(InteropLibrary.class)
 public class SVector implements TruffleObject {

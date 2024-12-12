@@ -3,11 +3,11 @@ package truffle_scheme6.runtime;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.TruffleObject;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 @ExportLibrary(InteropLibrary.class)
 public class SPair implements TruffleObject, Iterable<Object> {
