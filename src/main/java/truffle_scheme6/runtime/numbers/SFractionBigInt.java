@@ -15,10 +15,12 @@ public record SFractionBigInt(BigInteger numerator,
                               BigInteger denominator) implements SFraction, Comparable<SFractionBigInt>, TruffleObject {
     public SFractionBigInt(BigInteger numerator, BigInteger denominator) {
         this.numerator = numerator;
-        this.denominator = denominator;
 
-        if (denominator.compareTo(BigInteger.ONE) < 0)
+        if (denominator.compareTo(BigInteger.ONE) < 0) {
             throw new IllegalArgumentException("denominator must be greater than zero");
+        } else {
+            this.denominator = this.numerator.equals(BigInteger.ZERO) ? BigInteger.ONE : denominator;
+        }
     }
 
     public SFractionBigInt(BigInteger numerator) {

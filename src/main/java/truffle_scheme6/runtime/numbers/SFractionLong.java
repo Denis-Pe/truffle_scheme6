@@ -15,10 +15,12 @@ public record SFractionLong(long numerator,
                             long denominator) implements SFraction, Comparable<SFractionLong>, TruffleObject {
     public SFractionLong(long numerator, long denominator) {
         this.numerator = numerator;
-        this.denominator = denominator;
 
-        if (denominator < 1)
+        if (denominator < 1) {
             throw new IllegalArgumentException("denominator must be greater than zero");
+        } else {
+            this.denominator = this.numerator == 0 ? 1L : denominator;
+        }
     }
 
     public SFractionLong(long numerator) {
@@ -221,7 +223,7 @@ public record SFractionLong(long numerator,
 
             while (a % 2 == 0) a = Math.divideExact(a, 2L);
         }
-        
+
         if (d >= 63L) throw new ArithmeticException();
         return Math.multiplyExact(2L << d, a);
     }
