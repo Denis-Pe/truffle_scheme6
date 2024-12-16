@@ -7,7 +7,9 @@ import truffle_scheme6.SchemeNode;
 import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.builtins.SBuiltin;
 import truffle_scheme6.nodes.STypesStrong;
-import truffle_scheme6.runtime.numbers.*;
+import truffle_scheme6.runtime.numbers.SBigDec;
+import truffle_scheme6.runtime.numbers.SBigInt;
+import truffle_scheme6.runtime.numbers.SFraction;
 
 @BuiltinInfo(name = "finite?")
 @NodeChild(value = "arg", type = SchemeNode.class)

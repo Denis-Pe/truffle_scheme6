@@ -4,7 +4,6 @@ import com.oracle.truffle.api.dsl.GeneratePackagePrivate;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.dsl.TypeSystemReference;
 import com.oracle.truffle.api.nodes.Node;
-import jdk.dynalink.beans.StaticClass;
 import truffle_scheme6.nodes.STypesStrong;
 import truffle_scheme6.runtime.numbers.*;
 

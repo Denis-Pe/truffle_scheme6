@@ -2,9 +2,8 @@ package truffle_scheme6.builtins.numerical;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.interop.ArityException;
-import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.SchemeNode;
+import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.builtins.SBuiltin;
 
 @BuiltinInfo(name = "-", lastVarArgs = true)
