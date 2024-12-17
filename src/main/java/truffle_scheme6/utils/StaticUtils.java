@@ -1,10 +1,8 @@
 package truffle_scheme6.utils;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import truffle_scheme6.SchemeNode;
 import truffle_scheme6.nodes.MaterializedFrameUser;
-import truffle_scheme6.nodes.atoms.SSymbolLiteralNode;
 import truffle_scheme6.runtime.numbers.*;
 
 import java.math.BigDecimal;
