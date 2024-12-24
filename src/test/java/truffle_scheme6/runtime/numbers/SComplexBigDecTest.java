@@ -31,10 +31,24 @@ class SComplexBigDecTest {
 
     @Test
     void subtract() {
+        assertEquals(new SComplexBigDec(BigDecimal.valueOf(15), BigDecimal.valueOf(0)),
+                new SComplexBigDec(BigDecimal.valueOf(30), BigDecimal.valueOf(9999))
+                        .subtract(new SComplexBigDec(BigDecimal.valueOf(15), BigDecimal.valueOf(9999))));
+        
+        assertEquals(new SComplexBigDec(BigDecimal.valueOf(45), BigDecimal.valueOf(10)),
+                new SComplexBigDec(BigDecimal.valueOf(30), BigDecimal.valueOf(5))
+                .subtract(new SComplexBigDec(BigDecimal.valueOf(-15), BigDecimal.valueOf(-5))));
     }
 
     @Test
     void multiply() {
+        assertEquals(new SComplexBigDec(BigDecimal.valueOf(0), BigDecimal.valueOf(20)),
+                new SComplexBigDec(BigDecimal.valueOf(2), BigDecimal.valueOf(4))
+                        .multiply(new SComplexBigDec(BigDecimal.valueOf(4), BigDecimal.valueOf(2))));
+        
+        assertEquals(new SComplexBigDec(BigDecimal.valueOf(27), BigDecimal.valueOf(36)),
+                new SComplexBigDec(BigDecimal.valueOf(-3), BigDecimal.valueOf(6))
+                        .multiply(new SComplexBigDec(BigDecimal.valueOf(3), BigDecimal.valueOf(-6))));
     }
 
     @Test
