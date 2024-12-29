@@ -3,6 +3,7 @@ package truffle_scheme6.runtime.numbers;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -53,13 +54,27 @@ class SComplexBigDecTest {
 
     @Test
     void divide() {
+        assertEquals(new SComplexBigDec(BigDecimal.valueOf(4).divide(BigDecimal.valueOf(5), MathContext.DECIMAL128), BigDecimal.valueOf(-3).divide(BigDecimal.valueOf(5), MathContext.DECIMAL128)),
+                new SComplexBigDec(BigDecimal.valueOf(2), BigDecimal.valueOf(1))
+                        .divide(new SComplexBigDec(BigDecimal.valueOf(1), BigDecimal.valueOf(2))));
+        
+        assertEquals(new SComplexBigDec(BigDecimal.valueOf(-1), BigDecimal.ZERO),
+                new SComplexBigDec(BigDecimal.valueOf(6), BigDecimal.valueOf(-3))
+                        .divide(new SComplexBigDec(BigDecimal.valueOf(-6), BigDecimal.valueOf(3))));
     }
 
     @Test
     void negate() {
+        assertEquals(new SComplexBigDec(BigDecimal.valueOf(1), BigDecimal.valueOf(1)),
+                new SComplexBigDec(BigDecimal.valueOf(-1), BigDecimal.valueOf(-1)).negate());
+        
+        assertEquals(new SComplexBigDec(BigDecimal.valueOf(-99), BigDecimal.ZERO),
+                new SComplexBigDec(BigDecimal.valueOf(99), BigDecimal.ZERO).negate());
     }
 
     @Test
     void inverse() {
+        assertEquals(new SComplexBigDec(new BigDecimal("0.1"), new BigDecimal("-0.2")),
+                new SComplexBigDec(BigDecimal.valueOf(2), BigDecimal.valueOf(4)).inverse());
     }
 }
