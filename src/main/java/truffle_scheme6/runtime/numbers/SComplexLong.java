@@ -7,6 +7,10 @@ import com.oracle.truffle.api.library.ExportMessage;
 
 @ExportLibrary(InteropLibrary.class)
 public record SComplexLong(SFractionLong real, SFractionLong imag) implements SComplexRational, TruffleObject {
+    public SComplexLong(long real, long imag) {
+        this(new SFractionLong(real), new SFractionLong(imag));
+    }
+    
     @Override
     public boolean isRealValued() {
         return imag.isZero();
