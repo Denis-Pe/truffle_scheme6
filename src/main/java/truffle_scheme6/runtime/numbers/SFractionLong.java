@@ -194,7 +194,7 @@ public record SFractionLong(long numerator,
             while (a % 2 == 0) a /= 2;
         }
 
-        return (2L << d) * a;
+        return (1L << d) * a;
     }
 
     /**
@@ -225,7 +225,7 @@ public record SFractionLong(long numerator,
         }
 
         if (d >= 63L) throw new ArithmeticException();
-        return Math.multiplyExact(2L << d, a);
+        return Math.multiplyExact(1L << d, a);
     }
 
     public SFractionLong simplified() {
