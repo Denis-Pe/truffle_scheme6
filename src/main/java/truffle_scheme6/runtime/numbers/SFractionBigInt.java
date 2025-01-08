@@ -147,15 +147,7 @@ public record SFractionBigInt(BigInteger numerator,
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof SFractionBigInt other) {
-            var thisQR = this.numerator.divideAndRemainder(this.denominator);
-            var otherQR = other.numerator.divideAndRemainder(other.denominator);
-            var thisQuot = thisQR[0];
-            var thisRem = thisQR[1];
-            var otherQuot = otherQR[0];
-            var otherRem = otherQR[1];
-            return thisQuot.equals(otherQuot) && thisRem.equals(otherRem);
-        } else return false;
+        return obj instanceof SFractionBigInt other && numerator.compareTo(other.numerator) == 0;
     }
 
     @ExportMessage
