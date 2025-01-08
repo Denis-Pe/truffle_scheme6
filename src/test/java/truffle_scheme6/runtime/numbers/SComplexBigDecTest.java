@@ -76,5 +76,8 @@ class SComplexBigDecTest {
     void inverse() {
         assertEquals(new SComplexBigDec(new BigDecimal("0.1"), new BigDecimal("-0.2")),
                 new SComplexBigDec(BigDecimal.valueOf(2), BigDecimal.valueOf(4)).inverse());
+        
+        assertEquals(new SComplexBigDec(BigDecimal.valueOf(1).divide(BigDecimal.valueOf(15), MathContext.DECIMAL128), BigDecimal.valueOf(2).divide(BigDecimal.valueOf(15), MathContext.DECIMAL128)),
+                new SComplexBigDec(BigDecimal.valueOf(3), BigDecimal.valueOf(-6)).inverse());
     }
 }
