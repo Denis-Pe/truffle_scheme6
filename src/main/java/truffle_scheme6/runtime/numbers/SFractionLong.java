@@ -242,6 +242,15 @@ public record SFractionLong(long numerator,
     public String toString() {
         return "%d/%d".formatted(numerator, denominator);
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof SFractionLong other) 
+            return this.numerator / this.denominator == other.numerator / other.denominator
+                    && this.numerator % this.denominator == other.numerator % other.denominator;
+        else
+            return false;
+    }
 
     @ExportMessage
     boolean isNumber() {
