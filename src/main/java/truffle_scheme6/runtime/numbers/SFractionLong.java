@@ -171,6 +171,9 @@ public record SFractionLong(long numerator,
      * Returns the highest <b>positive</b> greatest common divisor
      */
     public long gcd() {
+        if (numerator == 0) return denominator;
+        if (denominator == 0) return Math.abs(numerator);
+        
         long a = Math.abs(numerator);
         long b = denominator;
 
@@ -201,6 +204,9 @@ public record SFractionLong(long numerator,
      * Like gcd(), but using exact math operations
      */
     public long gcdExact() {
+        if (numerator == 0) return denominator;
+        if (denominator == 0) return Math.abs(numerator);
+        
         long a = Math.absExact(numerator);
         long b = denominator;
 
