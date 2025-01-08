@@ -147,7 +147,7 @@ public record SFractionBigInt(BigInteger numerator,
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof SFractionBigInt other && numerator.compareTo(other.numerator) == 0;
+        return obj instanceof SFractionBigInt other && this.compareTo(other) == 0;
     }
 
     @ExportMessage
