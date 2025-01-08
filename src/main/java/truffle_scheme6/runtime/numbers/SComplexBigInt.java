@@ -6,8 +6,14 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 
+import java.math.BigInteger;
+
 @ExportLibrary(InteropLibrary.class)
 public record SComplexBigInt(SFractionBigInt real, SFractionBigInt imag) implements SComplexRational, TruffleObject {
+    public SComplexBigInt(BigInteger real, BigInteger imag) {
+        this(new SFractionBigInt(real), new SFractionBigInt(imag));
+    }
+    
     @Override
     public boolean isRealValued() {
         return imag.isZero();
