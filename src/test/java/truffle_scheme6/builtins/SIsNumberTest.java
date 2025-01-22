@@ -15,5 +15,9 @@ class SIsNumberTest extends BuiltInTest {
         assertTrue(eval("(number? -1/255555555555555555555555555555555555555555555555555555555555)").asBoolean());
         assertTrue(eval("(number? #e1.2555)").asBoolean());
         assertTrue(eval("(number? 1/5+i)").asBoolean());
+        assertFalse(eval("(number? 'thisisaninvitation)").asBoolean());
+        assertFalse(eval("(number? #\\r)").asBoolean());
+        assertFalse(eval("(number? \"the same lie a thousand times\")").asBoolean());
+        assertTrue(eval("(number? #e1.5)").asBoolean());
     }
 }
