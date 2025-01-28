@@ -9,8 +9,10 @@ import truffle_scheme6.builtins.SBuiltin;
 @BuiltinInfo(name = "-", lastVarArgs = true)
 @NodeChild(value = "args", type = SchemeNode.class)
 public abstract class SNumsMinus extends SBuiltin {
-    private UUnaryNegation negator = UUnaryNegationNodeGen.create();
-    private UBinarySubtraction subtractor = UBinarySubtractionNodeGen.create();
+    @Child
+    protected UUnaryNegation negator = UUnaryNegationNodeGen.create();
+    @Child
+    protected UBinarySubtraction subtractor = UBinarySubtractionNodeGen.create();
 
     @Specialization
     public Object doObjectArr(Object[] args) {

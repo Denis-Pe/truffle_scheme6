@@ -9,6 +9,7 @@ import truffle_scheme6.builtins.SBuiltin;
 @BuiltinInfo(name = "=", lastVarArgs = true)
 @NodeChild(value = "args", type = SchemeNode.class)
 public abstract class SNumsEqual extends SBuiltin {
+    @Child
     protected UComplexComparator comparator = UComplexComparatorNodeGen.create();
 
     @Specialization

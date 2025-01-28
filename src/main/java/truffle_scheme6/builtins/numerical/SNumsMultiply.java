@@ -12,7 +12,7 @@ import truffle_scheme6.utils.StaticUtils;
 @NodeChild(value = "args", type = SchemeNode.class)
 public abstract class SNumsMultiply extends SBuiltin {
     @Child
-    private UBinaryMultiplication multiplier = UBinaryMultiplicationNodeGen.create();
+    protected UBinaryMultiplication multiplier = UBinaryMultiplicationNodeGen.create();
     
     @Specialization
     public Object doObjectArr(Object[] args) {
