@@ -7,13 +7,14 @@ import truffle_scheme6.runtime.SNil;
 import truffle_scheme6.utils.StringFormatting;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class SBeginNode extends SSpecialNode {
     @Children
     private SchemeNode[] nodes;
 
     public SBeginNode(SchemeNode[] nodes) {
-        this.nodes = nodes;
+        this.nodes = Objects.requireNonNull(nodes);
     }
 
     @Override

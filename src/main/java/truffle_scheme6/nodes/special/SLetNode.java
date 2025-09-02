@@ -12,6 +12,7 @@ import truffle_scheme6.nodes.atoms.SSymbolLiteralNode;
 import truffle_scheme6.utils.StringFormatting;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class SLetNode extends SSpecialNode {
 
@@ -98,6 +99,7 @@ public class SLetNode extends SSpecialNode {
     private SchemeNode[] body;
 
     public SLetNode(Pair<SSymbolLiteralNode, SchemeNode>[] bindings, SchemeNode[] body) {
+        Objects.requireNonNull(bindings);
         this.bindings = new BindingNode[bindings.length];
         for (int i = 0; i < bindings.length; i++) {
             var p = bindings[i];
@@ -108,7 +110,7 @@ public class SLetNode extends SSpecialNode {
             );
         }
 
-        this.body = body;
+        this.body = Objects.requireNonNull(body);
     }
 
     @Override

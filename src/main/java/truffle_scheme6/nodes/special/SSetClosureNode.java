@@ -6,6 +6,8 @@ import truffle_scheme6.SchemeNode;
 import truffle_scheme6.nodes.MaterializedFrameUser;
 import truffle_scheme6.nodes.atoms.SSymbolLiteralNode;
 
+import java.util.Objects;
+
 public class SSetClosureNode extends SSpecialNode implements MaterializedFrameUser {
     @Child
     private SSetLocalNode localNode;
@@ -13,9 +15,9 @@ public class SSetClosureNode extends SSpecialNode implements MaterializedFrameUs
     private final String rootName;
 
     public SSetClosureNode(String rootName, SSymbolLiteralNode identifier, SchemeNode value) {
-        this.localNode = new SSetLocalNode(identifier, value);
+        this.localNode = new SSetLocalNode(Objects.requireNonNull(identifier), Objects.requireNonNull(value));
         this.materializedFrame = null;
-        this.rootName = rootName;
+        this.rootName = Objects.requireNonNull(rootName);
     }
 
     @Override

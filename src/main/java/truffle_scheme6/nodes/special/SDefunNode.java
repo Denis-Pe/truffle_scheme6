@@ -12,6 +12,8 @@ import truffle_scheme6.runtime.SLambda;
 import truffle_scheme6.utils.StaticUtils;
 import truffle_scheme6.utils.StringFormatting;
 
+import java.util.Objects;
+
 public class SDefunNode extends SSpecialNode {
     @Child
     private SSymbolLiteralNode identifier;
@@ -25,11 +27,11 @@ public class SDefunNode extends SSpecialNode {
     private final boolean isVariadic;
 
     public SDefunNode(SSymbolLiteralNode identifier, SSymbolLiteralNode[] arguments, SchemeNode[] body, FrameDescriptor frameDescriptor, String name, boolean isVariadic) {
-        this.identifier = identifier;
-        this.arguments = arguments;
-        this.body = body;
-        this.frameDescriptor = frameDescriptor;
-        this.name = name;
+        this.identifier = Objects.requireNonNull(identifier);
+        this.arguments = Objects.requireNonNull(arguments);
+        this.body = Objects.requireNonNull(body);
+        this.frameDescriptor = Objects.requireNonNull(frameDescriptor);
+        this.name = Objects.requireNonNull(name);
         this.isVariadic = isVariadic;
 
         if (body.length > 0) body[body.length - 1].setIsTail();
@@ -42,8 +44,8 @@ public class SDefunNode extends SSpecialNode {
         var sl = SchemeLanguage.get(this);
         var context = SchemeLanguageContext.get(this);
         var lambda = new SLambda(
-                new SLambdaRoot(sl, frameDescriptor, identifier.getSymbol().toString(), body).getCallTarget(), 
-                isVariadic ? arguments.length - 1 : arguments.length, 
+                new SLambdaRoot(sl, frameDescriptor, identifier.getSymbol().toString(), body).getCallTarget(),
+                isVariadic ? arguments.length - 1 : arguments.length,
                 isVariadic);
         context.globalScope.setVar(identifier.getSymbol(), lambda);
 

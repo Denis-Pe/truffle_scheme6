@@ -5,6 +5,8 @@ import truffle_scheme6.Constants;
 import truffle_scheme6.SchemeNode;
 import truffle_scheme6.nodes.atoms.SSymbolLiteralNode;
 
+import java.util.Objects;
+
 public class SSetGlobalNode extends SSpecialNode {
     @Child
     private SSymbolLiteralNode identifier;
@@ -12,8 +14,8 @@ public class SSetGlobalNode extends SSpecialNode {
     private SchemeNode value;
 
     public SSetGlobalNode(SSymbolLiteralNode identifier, SchemeNode value) {
-        this.identifier = identifier;
-        this.value = value;
+        this.identifier = Objects.requireNonNull(identifier);
+        this.value = Objects.requireNonNull(value);
     }
 
     @Override

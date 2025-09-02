@@ -5,11 +5,15 @@ import truffle_scheme6.Constants;
 import truffle_scheme6.SchemeNode;
 import truffle_scheme6.nodes.atoms.SSymbolLiteralNode;
 
+import java.util.Objects;
+
 public class SSetLocalNode extends SSpecialNode {
     @Child
     private SLetNode.BindingNode bindingNode;
 
     public SSetLocalNode(SSymbolLiteralNode identifier, SchemeNode value) {
+        Objects.requireNonNull(identifier);
+        Objects.requireNonNull(value);
         // given that this node is reused by the closure one 
         var dispatch = identifier.getVarDispatch();
         int slot = switch (dispatch) {

@@ -3,11 +3,13 @@ package truffle_scheme6.nodes.special;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import truffle_scheme6.SchemeNode;
 
+import java.util.Objects;
+
 public class SQuoteNode extends SSpecialNode {
     @Child private SchemeNode child;
 
     public SQuoteNode(SchemeNode child) {
-        this.child = child;
+        this.child = Objects.requireNonNull(child);
     }
 
     @Override

@@ -16,7 +16,7 @@ repositories {
 }
 
 ext {
-    graal_version = '22.3.1'
+    graal_version = '24.0.2' // todo go over the changelog and upgrade even higher, tests still work on 24 but remember I built everything on 22
 }
 
 sourceSets {

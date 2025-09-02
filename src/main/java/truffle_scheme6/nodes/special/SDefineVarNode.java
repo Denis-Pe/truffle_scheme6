@@ -5,6 +5,8 @@ import truffle_scheme6.Constants;
 import truffle_scheme6.SchemeNode;
 import truffle_scheme6.nodes.atoms.SSymbolLiteralNode;
 
+import java.util.Objects;
+
 public class SDefineVarNode extends SSpecialNode {
     @Child
     private SSymbolLiteralNode symbol;
@@ -12,7 +14,7 @@ public class SDefineVarNode extends SSpecialNode {
     private SchemeNode expr; // nullable
 
     public SDefineVarNode(SSymbolLiteralNode symbol, SchemeNode expr) {
-        this.symbol = symbol;
+        this.symbol = Objects.requireNonNull(symbol);
         this.expr = expr;
     }
 

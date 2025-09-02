@@ -5,18 +5,20 @@ import com.oracle.truffle.api.profiles.ConditionProfile;
 import truffle_scheme6.Constants;
 import truffle_scheme6.SchemeNode;
 
+import java.util.Objects;
+
 public class SIfNode extends SSpecialNode {
     @Child
     private SchemeNode conditionNode;
     @Child
     private SchemeNode thenNode;
     @Child
-    private SchemeNode elseNode; // nullable
+    private SchemeNode elseNode;
     private final ConditionProfile condition = ConditionProfile.createCountingProfile();
 
     public SIfNode(SchemeNode conditionNode, SchemeNode thenNode, SchemeNode elseNode) {
-        this.conditionNode = conditionNode;
-        this.thenNode = thenNode;
+        this.conditionNode = Objects.requireNonNull(conditionNode);
+        this.thenNode = Objects.requireNonNull(thenNode);
         this.elseNode = elseNode;
     }
 

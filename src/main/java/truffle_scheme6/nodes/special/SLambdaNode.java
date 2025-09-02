@@ -10,6 +10,8 @@ import truffle_scheme6.runtime.SLambda;
 import truffle_scheme6.utils.StaticUtils;
 import truffle_scheme6.utils.StringFormatting;
 
+import java.util.Objects;
+
 public class SLambdaNode extends SSpecialNode {
     @Children
     private SSymbolLiteralNode[] arguments;
@@ -21,10 +23,10 @@ public class SLambdaNode extends SSpecialNode {
     private final boolean isVariadic;
 
     public SLambdaNode(SSymbolLiteralNode[] arguments, SchemeNode[] body, FrameDescriptor frameDescriptor, String name, boolean isVariadic) {
-        this.arguments = arguments;
-        this.body = body;
-        this.frameDescriptor = frameDescriptor;
-        this.name = name;
+        this.arguments = Objects.requireNonNull(arguments);
+        this.body = Objects.requireNonNull(body);
+        this.frameDescriptor = Objects.requireNonNull(frameDescriptor);
+        this.name = Objects.requireNonNull(name);
         this.isVariadic = isVariadic;
 
         if (body.length > 0) body[body.length - 1].setIsTail();
