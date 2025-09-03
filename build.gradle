@@ -35,6 +35,7 @@ sourceSets {
 
 dependencies {
     implementation "org.graalvm.truffle:truffle-api:$graal_version"
+    implementation "org.graalvm.truffle:truffle-runtime:$graal_version"
     implementation "org.clojure:clojure:1.11.1"
     implementation "instaparse:instaparse:1.4.12"
     implementation "org.clojure:core.match:1.0.1"
