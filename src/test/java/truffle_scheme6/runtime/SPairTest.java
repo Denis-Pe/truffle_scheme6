@@ -14,23 +14,22 @@ class SPairTest {
     @Test
     public void construction() {
         assertEquals(
-                SPair.from(0, SNil.SINGLETON),
-                new SPair(0, SNil.SINGLETON)
+                new SPair(0, SNil.SINGLETON),
+                SPair.from(0, SNil.SINGLETON)
         );
 
         assertEquals(
-                SPair.from(IntStream.of(1, 2, 3).boxed().toArray()),
-                new SPair(1, new SPair(2, 3))
+                new SPair(1, new SPair(2, 3)),
+                SPair.from(IntStream.of(1, 2, 3).boxed().toArray())
         );
 
         assertEquals(
-                SPair.from(SSymbol.get("some-quoted-thing"), 1, 2, 3, SNil.SINGLETON),
                 new SPair(SSymbol.get("some-quoted-thing"),
                         new SPair(1,
                                 new SPair(2,
                                         new SPair(3,
-                                                SNil.SINGLETON))))
-        );
+                                                SNil.SINGLETON)))),
+                SPair.from(SSymbol.get("some-quoted-thing"), 1, 2, 3, SNil.SINGLETON));
     }
 
     @Test
@@ -46,18 +45,18 @@ class SPairTest {
     @Test
     public void counting() {
         assertEquals(
-                SPair.from(1, 2, SNil.SINGLETON).getArraySize(),
-                2
+                2,
+                SPair.from(1, 2, SNil.SINGLETON).getArraySize()
         );
 
         assertEquals(
-                new SPair(1, SNil.SINGLETON).getArraySize(),
-                1
+                1,
+                new SPair(1, SNil.SINGLETON).getArraySize()
         );
 
         assertEquals(
-                SPair.list(1, 2, 3, 4).getArraySize(),
-                4
+                4,
+                SPair.list(1, 2, 3, 4).getArraySize()
         );
     }
 
@@ -89,14 +88,14 @@ class SPairTest {
         assertThrows(IndexOutOfBoundsException.class, () -> improper.nthImproper(10));
 
         proper.setNth(0, 11);
-        assertEquals(proper.getCar(), 11);
+        assertEquals(11, proper.getCar());
         proper.setNth(9, 66);
-        assertEquals(proper.nth(9), 66);
+        assertEquals(66, proper.nth(9));
 
         improper.setNthImproper(0, 11);
-        assertEquals(improper.getCar(), 11);
+        assertEquals(11, improper.getCar());
         improper.setNthImproper(9, 66);
-        assertEquals(improper.nthImproper(9), 66);
+        assertEquals(66, improper.nthImproper(9));
 
         assertThrows(IndexOutOfBoundsException.class, () -> proper.nth(-1));
         assertThrows(IndexOutOfBoundsException.class, () -> improper.nthImproper(-2));
