@@ -297,7 +297,7 @@
                  (node-array (map to-java body-forms))
                  (.build frame-desc-builder)
                  fun-name
-                 (if-let [lf (last formals)] (:rest-arg? lf) false))))
+                 (if-let [lf (last formals)] (:rest-arg? (:read-var-dispatch lf)) false))))
 
 (defn ->DefineFunNode [identifier formals body-forms]
   (DefineFunNode. identifier
@@ -342,7 +342,7 @@
                   (node-array (map to-java body-forms))
                   (.build frame-desc-builder)
                   lambda-name
-                  (if-let [lf (last arguments)] (:rest-arg? lf) false))))
+                  (if-let [lf (last arguments)] (:rest-arg? (:read-var-dispatch lf)) false))))
 
 (defn ->LambdaNode [arguments body-forms]
   (LambdaNode. arguments
