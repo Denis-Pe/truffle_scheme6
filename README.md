@@ -1,1 +1,50 @@
 # truffle_scheme6
+
+## MILESTONES
+
+- [ ] Core R6RS Standard (using 11. Base Library as a reference)
+  - [ ] Base Types
+  - [ ] Definitions
+  - [ ] Bodies
+  - [ ] Expressions
+  - [ ] Equivalence Predicates
+  - [ ] Procedure Predicate
+  - [ ] Arithmetic
+  - [ ] Booleans
+  - [ ] Pairs and Lists
+  - [ ] Symbols
+  - [ ] Characters
+  - [ ] Strings
+  - [ ] Vectors
+  - [ ] Errors and Violations
+  - [ ] Control Features
+  - [ ] Iteration
+  - [ ] Quasiquotation
+  - [ ] Binding Constructs for Syntactic Keywords
+  - [ ] Macro Transformers
+  - [ ] Tail Calls
+- [ ] Standard Libraries
+  - [ ] Unicode
+  - [ ] Bytevectors
+  - [ ] List Util
+  - [ ] Sorting
+  - [ ] Control Structures
+  - [ ] Records
+  - [ ] Exceptions and Conditions
+  - [ ] I/O
+  - [ ] File System
+  - [ ] Command-line Access and Exit Values
+  - [ ] Arithmetic
+  - [ ] `syntax-case`
+  - [ ] Hashtables
+  - [ ] Enumerations
+  - [ ] Composite Libraries
+  - [ ] `eval`
+  - [ ] Mutable Pairs
+  - [ ] Mutable Strings
+  - [ ] R5RS Compatibility
+- [ ] Non-Normative Appendices
+- [ ] Java Host Interop
+- [ ] Python Interop
+- Research
+  - Extensions from Scheme/using Truffle from Scheme
