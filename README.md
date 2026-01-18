@@ -4,6 +4,15 @@
 
 - [ ] Core R6RS Standard (using 11. Base Library as a reference)
   - [ ] Base Types
+    - [ ] `boolean?`
+    - [x] `symbol?`
+    - [ ] `char?`
+    - [ ] `vector?`
+    - [ ] `null?`
+    - [ ] `pair?`
+    - [x] `number?`
+    - [ ] `string?`
+    - [ ] `procedure?`
   - [ ] Definitions
   - [ ] Bodies
   - [ ] Expressions
