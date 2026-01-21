@@ -7,9 +7,9 @@
     - [x] `boolean?`
     - [x] `symbol?`
     - [x] `char?`
-    - [ ] `vector?`
-    - [ ] `null?`
-    - [ ] `pair?`
+    - [x] `vector?`
+    - [x] `null?`
+    - [x] `pair?`
     - [x] `number?`
     - [ ] `string?`
     - [ ] `procedure?`
