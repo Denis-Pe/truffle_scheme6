@@ -6,7 +6,7 @@
   - [ ] Base Types
     - [x] `boolean?`
     - [x] `symbol?`
-    - [ ] `char?`
+    - [x] `char?`
     - [ ] `vector?`
     - [ ] `null?`
     - [ ] `pair?`

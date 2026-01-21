@@ -7,6 +7,7 @@ import com.oracle.truffle.api.nodes.Node;
 import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.builtins.*;
 import truffle_scheme6.builtins.booleans.SIsBooleanFactory;
+import truffle_scheme6.builtins.characters.SIsCharFactory;
 import truffle_scheme6.builtins.numerical.*;
 import truffle_scheme6.builtins.pairs.*;
 import truffle_scheme6.builtins.symbols.SIsSymbolFactory;
@@ -37,6 +38,8 @@ public class SchemeLanguageContext {
     }
 
     private void installBuiltins() {
+        installBuiltin(SIsCharFactory.getInstance());
+
         installBuiltin(SIsBooleanFactory.getInstance());
 
         installBuiltin(SIsSymbolFactory.getInstance());
