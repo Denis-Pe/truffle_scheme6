@@ -13,7 +13,7 @@ import truffle_scheme6.nodes.STypesStrong;
 @TypeSystemReference(STypesStrong.class)
 public abstract class SIsBoolean extends SBuiltin {
     @Specialization
-    public boolean isSymbol(Object arg) {
+    public boolean isBoolean(Object arg) {
         return arg instanceof Boolean;
     }
 }
