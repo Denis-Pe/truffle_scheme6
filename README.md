@@ -4,7 +4,7 @@
 
 - [ ] Core R6RS Standard (using 11. Base Library as a reference)
   - [ ] Base Types
-    - [ ] `boolean?`
+    - [x] `boolean?`
     - [x] `symbol?`
     - [ ] `char?`
     - [ ] `vector?`

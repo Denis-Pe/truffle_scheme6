@@ -6,8 +6,10 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.nodes.Node;
 import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.builtins.*;
+import truffle_scheme6.builtins.booleans.SIsBooleanFactory;
 import truffle_scheme6.builtins.numerical.*;
 import truffle_scheme6.builtins.pairs.*;
+import truffle_scheme6.builtins.symbols.SIsSymbolFactory;
 import truffle_scheme6.nodes.functions.SReadArgNode;
 import truffle_scheme6.nodes.functions.SReadArgSlotNode;
 import truffle_scheme6.nodes.functions.SReadVarArgsNode;
@@ -35,6 +37,8 @@ public class SchemeLanguageContext {
     }
 
     private void installBuiltins() {
+        installBuiltin(SIsBooleanFactory.getInstance());
+
         installBuiltin(SIsSymbolFactory.getInstance());
 
         /* NUMERICAL */
