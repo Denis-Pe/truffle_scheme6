@@ -14,6 +14,8 @@
     - [x] `string?`
     - [x] `procedure?`
   - [ ] Definitions
+    - [x] Variable Definitions
+    - [ ] Syntax Definitions
   - [ ] Bodies
   - [ ] Expressions
   - [ ] Equivalence Predicates

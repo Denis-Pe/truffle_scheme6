@@ -37,6 +37,9 @@ public class SListNode extends SchemeNode {
     @Override
     @ExplodeLoop
     public Object execute(VirtualFrame frame) {
+        // TODO perhaps should revise whether this is even necessary
+        //   given that an improper list should be impossible to
+        //   begin with if you use the constructor
         if (!(this.args[args.length - 1] instanceof SNilLiteralNode)) {
             throw new RuntimeException("Invalid syntax: execution of improper list " + this.toStringPairs());
         }
