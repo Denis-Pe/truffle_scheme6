@@ -11,6 +11,7 @@ import truffle_scheme6.builtins.characters.SIsCharFactory;
 import truffle_scheme6.builtins.numerical.*;
 import truffle_scheme6.builtins.pairs.*;
 import truffle_scheme6.builtins.symbols.SIsSymbolFactory;
+import truffle_scheme6.builtins.vectors.SIsVectorFactory;
 import truffle_scheme6.nodes.functions.SReadArgNode;
 import truffle_scheme6.nodes.functions.SReadArgSlotNode;
 import truffle_scheme6.nodes.functions.SReadVarArgsNode;
@@ -38,6 +39,8 @@ public class SchemeLanguageContext {
     }
 
     private void installBuiltins() {
+        installBuiltin(SIsVectorFactory.getInstance());
+
         installBuiltin(SIsCharFactory.getInstance());
 
         installBuiltin(SIsBooleanFactory.getInstance());
