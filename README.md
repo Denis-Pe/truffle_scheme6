@@ -11,7 +11,7 @@
     - [x] `null?`
     - [x] `pair?`
     - [x] `number?`
-    - [ ] `string?`
+    - [x] `string?`
     - [ ] `procedure?`
   - [ ] Definitions
   - [ ] Bodies
