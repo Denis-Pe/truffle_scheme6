@@ -10,6 +10,7 @@ import truffle_scheme6.builtins.booleans.SIsBooleanFactory;
 import truffle_scheme6.builtins.characters.SIsCharFactory;
 import truffle_scheme6.builtins.numerical.*;
 import truffle_scheme6.builtins.pairs.*;
+import truffle_scheme6.builtins.procedures.SIsProcedureFactory;
 import truffle_scheme6.builtins.strings.SIsStringFactory;
 import truffle_scheme6.builtins.symbols.SIsSymbolFactory;
 import truffle_scheme6.builtins.vectors.SIsVectorFactory;
@@ -40,6 +41,8 @@ public class SchemeLanguageContext {
     }
 
     private void installBuiltins() {
+        installBuiltin(SIsProcedureFactory.getInstance());
+
         installBuiltin(SIsStringFactory.getInstance());
 
         installBuiltin(SIsVectorFactory.getInstance());

@@ -3,7 +3,7 @@
 ## MILESTONES
 
 - [ ] Core R6RS Standard (using 11. Base Library as a reference)
-  - [ ] Base Types
+  - [x] Base Types
     - [x] `boolean?`
     - [x] `symbol?`
     - [x] `char?`
@@ -12,7 +12,7 @@
     - [x] `pair?`
     - [x] `number?`
     - [x] `string?`
-    - [ ] `procedure?`
+    - [x] `procedure?`
   - [ ] Definitions
   - [ ] Bodies
   - [ ] Expressions
