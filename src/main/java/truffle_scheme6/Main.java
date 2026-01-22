@@ -11,19 +11,25 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
-        System.out.println(eval("""
-                (define (f x)
-                  (+ x 42))
-                (define (g p x)
-                  (p x))
-                (g f 23)
-                """));
+//        System.out.println(eval("""
+//                (define (f x)
+//                  (+ x 42))
+//                (define (g p x)
+//                  (p x))
+//                (g f 23)
+//                """));
+//
+//        System.out.println(eval("""
+//                (define (h op x y)
+//                  (op x y))
+//                (h + 23 42)
+//                (h * 23 42)
+//                """));
 
         System.out.println(eval("""
-                (define (h op x y)
-                  (op x y))
-                (h + 23 42)
-                (h * 23 42)
+                (define (definition-yo one two . lil-args)
+                  (list? lil-args))
+                (definition-yo 1 2 3 4 5)
                 """));
     }
 }
