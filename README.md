@@ -24,6 +24,10 @@
   - [ ] Booleans
   - [ ] Pairs and Lists
   - [ ] Symbols
+    - [x] `symbol?`
+    - [ ] `symbol->string`
+    - [ ] `symbol=?`
+    - [ ] `string->symbol`
   - [ ] Characters
   - [ ] Strings
   - [ ] Vectors
@@ -33,7 +37,7 @@
   - [ ] Quasiquotation
   - [ ] Binding Constructs for Syntactic Keywords
   - [ ] Macro Transformers
-  - [ ] Tail Calls
+  - [x] Tail Calls
 - [ ] Standard Libraries
   - [ ] Unicode
   - [ ] Bytevectors
