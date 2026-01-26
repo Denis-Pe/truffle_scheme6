@@ -6,10 +6,15 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 
 @ExportLibrary(InteropLibrary.class)
-public class SNil implements TruffleObject {
+public class SNil extends SList implements TruffleObject {
     public static final SNil SINGLETON = new SNil();
 
     private SNil() {
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return true;
     }
 
     @ExportMessage

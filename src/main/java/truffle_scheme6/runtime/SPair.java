@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 @ExportLibrary(InteropLibrary.class)
-public class SPair implements TruffleObject, Iterable<Object> {
+public class SPair extends SList implements TruffleObject, Iterable<Object> {
     private Object car;
     private Object cdr;
 
@@ -24,23 +24,6 @@ public class SPair implements TruffleObject, Iterable<Object> {
             var curr = new SPair(secondLast, last);
 
             for (int i = objects.length - 3; i >= 0; i--) {
-                curr = new SPair(objects[i], curr);
-            }
-
-            return curr;
-        }
-    }
-
-    // nil WILL be automatically appended
-    public static SPair list(Object... objects) {
-        if (objects.length < 1) {
-            throw new IllegalArgumentException("Can't create pair from empty array");
-        } else {
-            var last = SNil.SINGLETON;
-            var secondLast = objects[objects.length - 1];
-            var curr = new SPair(secondLast, last);
-
-            for (int i = objects.length - 2; i >= 0; i--) {
                 curr = new SPair(objects[i], curr);
             }
 
@@ -76,6 +59,11 @@ public class SPair implements TruffleObject, Iterable<Object> {
             throw new IllegalArgumentException("Can't set cdr to Java null");
         }
         this.cdr = cdr;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return false;
     }
 
     public Object nth(long index) {
@@ -140,7 +128,7 @@ public class SPair implements TruffleObject, Iterable<Object> {
             }
         }
     }
-    
+
     public void setNthImproper(long index, Object value) {
         var curr = this;
 
@@ -253,7 +241,7 @@ public class SPair implements TruffleObject, Iterable<Object> {
                 sb.append(curr.cdr);
                 break;
             }
-            
+
             sb.append(" ");
         }
 

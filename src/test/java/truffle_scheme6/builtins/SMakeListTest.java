@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class SListTest extends BuiltInTest {
+class SMakeListTest extends BuiltInTest {
     @Test
     void test() {
         var a_7_c = eval("(list 'a (+ 3 4) 'c)");

@@ -1,6 +1,7 @@
 package truffle_scheme6.nodes.functions;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
+import truffle_scheme6.runtime.SList;
 import truffle_scheme6.runtime.SPair;
 
 // the argument after is to specify how many arguments
@@ -16,16 +17,16 @@ public class SReadVarArgsNode extends SReadArgNode {
     }
 
     @Override
-    public SPair execute(VirtualFrame frame) {
+    public SList execute(VirtualFrame frame) {
         if (after == 0) {
-            return SPair.list(frame.getArguments());
+            return SList.list(frame.getArguments());
         } else {
             var args = frame.getArguments();
             var res = new Object[Math.max(args.length - after, 0)];
 
             System.arraycopy(args, after, res, 0, res.length);
 
-            return SPair.list(res);
+            return SList.list(res);
         }
     }
 }
