@@ -114,4 +114,16 @@ class SPairTest {
 
         assertThrows(RuntimeException.class, () -> StreamSupport.stream(improper1to5.spliterator(), false).toList());
     }
+
+    @Test
+    void contains() {
+        var onetotenk = SPair.list(IntStream.range(0, 10_000).boxed().toArray());
+        assertTrue(onetotenk.contains(0));
+        assertTrue(onetotenk.contains(1));
+        assertTrue(onetotenk.contains(100));
+        assertTrue(onetotenk.contains(9998));
+        assertTrue(onetotenk.contains(9999));
+        assertFalse(onetotenk.contains(10_000));
+        assertFalse(onetotenk.contains(-1));
+    }
 }
