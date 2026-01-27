@@ -6,6 +6,8 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -77,8 +79,25 @@ public class SPair extends SList implements TruffleObject, Iterable<Object> {
         this.cdr = cdr;
     }
 
+    public int size() {
+        return Math.toIntExact(count());
+    }
+
     @Override
     public boolean isEmpty() {
+        return false;
+    }
+
+    public boolean contains(Object o) {
+        if (car.equals(o)) return true;
+        var node = this;
+        var elm = car;
+        while (node.getCdr() instanceof SPair) {
+            node = (SPair) node.getCdr();
+            elm = node.car;
+            if (elm.equals(o)) return true;
+        }
+
         return false;
     }
 
@@ -227,6 +246,19 @@ public class SPair extends SList implements TruffleObject, Iterable<Object> {
     @Override
     public Iterator<Object> iterator() {
         return properIterator();
+    }
+
+    public Object[] toArray() {
+        var dynamicArray = new ArrayList<Object>();
+
+        dynamicArray.add(car);
+        var node = this;
+        while (node.getCdr() instanceof SPair) {
+            node = (SPair) node.getCdr();
+            dynamicArray.add(node.car);
+        }
+
+        return dynamicArray.toArray();
     }
 
     @Override
