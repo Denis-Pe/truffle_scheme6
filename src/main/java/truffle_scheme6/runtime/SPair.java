@@ -31,6 +31,22 @@ public class SPair extends SList implements TruffleObject, Iterable<Object> {
         }
     }
 
+    public static SPair list(Object... objects) {
+        if (objects.length == 0) {
+            throw new IllegalArgumentException("Can't create pair from empty array");
+        } else {
+            var last = SNil.SINGLETON;
+            var secondLast = objects[objects.length - 1];
+            var curr = new SPair(secondLast, last);
+
+            for (int i = objects.length - 2; i >= 0; i--) {
+                curr = new SPair(objects[i], curr);
+            }
+
+            return curr;
+        }
+    }
+
     public SPair(Object car, Object cdr) {
         if (car == null || cdr == null) {
             throw new IllegalArgumentException("Can't create pair using Java null");
