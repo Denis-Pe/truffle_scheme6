@@ -29,20 +29,13 @@ public abstract class SNumsAdd extends SBuiltin {
                 if (!StaticUtils.isNumber(car)) { // validating in case the list only has one element (node wouldn't run and therefore wouldn't check)
                     throw new RuntimeException(UnsupportedTypeException.create(pair.toArray(), "Value given is not a valid number: " + car + " of type " + car.getClass() + " within " + pair));
                 }
-                var a = new Object[]{pair.iterator()};
 
                 var result = car;
-                System.out.println("Result init: " + result);
                 SPair node = pair;
-                System.out.println("Node init: " + node);
                 while (node.getCdr() instanceof SPair) {
                     node = (SPair) (node.getCdr());
                     car = node.getCar();
-                    System.out.println("car loop:" + car);
-                    System.out.println("Result loop: " + result);
-                    System.out.println("Node loop: " + node);
                     result = adder.execute(result, car);
-                    System.out.println("Result loop end: " + result);
                 }
 
                 yield result;
