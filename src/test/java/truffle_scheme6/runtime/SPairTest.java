@@ -56,13 +56,13 @@ class SPairTest {
 
         assertEquals(
                 4,
-                SList.list(1, 2, 3, 4).getArraySize()
+                SPair.list(1, 2, 3, 4).getArraySize()
         );
     }
 
     @Test
     public void nth() {
-        var proper = SList.list(IntStream.range(0, 10).boxed().toArray());
+        var proper = SPair.list(IntStream.range(0, 10).boxed().toArray());
 
         for (int i = 0; i < 10; i++) {
             assertEquals(proper.nth(i), i);
