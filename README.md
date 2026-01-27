@@ -1,6 +1,6 @@
 # truffle_scheme6
 
-## MILESTONES
+## STANDARD MILESTONES
 
 - [ ] Core R6RS Standard (using 11. Base Library as a reference)
   - [x] Base Types
@@ -63,3 +63,7 @@
 - [ ] Python Interop
 - Research
   - Extensions from Scheme/using Truffle from Scheme
+
+## IMPLEMENTATION MILESTONES
+
+- [ ] Bytecode
