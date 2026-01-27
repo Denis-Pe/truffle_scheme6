@@ -31,7 +31,7 @@ public class StaticUtils {
             case SFractionBigInt fb -> true;
             case Float f -> true;
             case Double d -> true;
-            case BigDecimal bd -> true;
+            case SBigDec bd -> true;
             case SComplexLong cl -> true;
             case SComplexBigInt cb -> true;
             case SComplexFloat cf -> true;
