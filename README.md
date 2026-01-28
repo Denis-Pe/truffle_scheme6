@@ -67,3 +67,4 @@
 ## IMPLEMENTATION MILESTONES
 
 - [ ] Bytecode
+- [ ] Inlining and extra annotations on Specialization
