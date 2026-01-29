@@ -23,7 +23,7 @@ public abstract class SNumsDecreasing extends SBuiltin {
             case SNil _nil -> 0;
             case SPair pair -> {
                 var car = pair.getCar();
-                if (!StaticUtils.isNumber(car)) { // validating in case the list only has one element (node wouldn't run and therefore wouldn't check)
+                if (!StaticUtils.isNumber(car)) { // validating in case the list only has one element (loop wouldn't run and therefore wouldn't check)
                     throw new RuntimeException(UnsupportedTypeException.create(pair.toArray(), "Value given is not a valid number: " + car + " of type " + car.getClass() + " within " + pair));
                 }
 
