@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.function.Consumer;
 
 @ExportLibrary(InteropLibrary.class)
 public class SPair extends SList implements TruffleObject, Iterable<Object> {
@@ -246,6 +247,21 @@ public class SPair extends SList implements TruffleObject, Iterable<Object> {
     @Override
     public Iterator<Object> iterator() {
         return properIterator();
+    }
+
+    /**
+     * Do something on each car of this list
+     *
+     * @param action action to perform on each element of the list
+     */
+    public void forEach(Consumer<Object> action) {
+        action.accept(this.car);
+        SPair node = this;
+        while (node.getCdr() instanceof SPair) {
+            node = (SPair) (node.getCdr());
+            car = node.getCar();
+            action.accept(car);
+        }
     }
 
     public Object[] toArray() {

@@ -2,6 +2,7 @@ package truffle_scheme6.runtime;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Spliterators;
 import java.util.stream.IntStream;
@@ -125,5 +126,15 @@ class SPairTest {
         assertTrue(onetotenk.contains(9999));
         assertFalse(onetotenk.contains(10_000));
         assertFalse(onetotenk.contains(-1));
+    }
+
+    @Test
+    void forEach() {
+        var hundredList = SPair.list(IntStream.range(0, 100).boxed().toArray());
+        var arrayList = new ArrayList<Object>();
+
+        hundredList.forEach(arrayList::add);
+
+        assertEquals(arrayList, IntStream.range(0, 100).boxed().toList());
     }
 }
