@@ -68,3 +68,5 @@
 
 - [ ] Bytecode
 - [ ] Inlining and extra annotations on Specialization
+- Research
+  - Persistent data structures
