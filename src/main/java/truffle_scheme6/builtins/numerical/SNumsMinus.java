@@ -2,9 +2,15 @@ package truffle_scheme6.builtins.numerical;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.interop.ArityException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import truffle_scheme6.SchemeNode;
 import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.builtins.SBuiltin;
+import truffle_scheme6.runtime.SList;
+import truffle_scheme6.runtime.SNil;
+import truffle_scheme6.runtime.SPair;
+import truffle_scheme6.utils.StaticUtils;
 
 @BuiltinInfo(name = "-", lastVarArgs = true)
 @NodeChild(value = "args", type = SchemeNode.class)
@@ -15,19 +21,30 @@ public abstract class SNumsMinus extends SBuiltin {
     protected UBinarySubtraction subtractor = UBinarySubtractionNodeGen.create();
 
     @Specialization
-    public Object doObjectArr(Object[] args) {
-        if (args.length == 0) {
-            throw new RuntimeException("Not enough arguments provided");
-        } else if (args.length == 1) {
-            return negator.execute(args[0]);
-        } else {
-            Object res = args[0];
+    public Object doPair(SList args) {
+        return switch (args) {
+            case SNil _nil -> ArityException.create(1, -1, 0);
+            case SPair pair -> {
+                var car = pair.getCar();
+                if (!StaticUtils.isNumber(car)) { // validating in case the list only has one element (loop wouldn't run and therefore wouldn't check)
+                    throw new RuntimeException(UnsupportedTypeException.create(pair.toArray(), "Value given is not a valid number: " + car + " of type " + car.getClass() + " within " + pair));
+                }
 
-            for (int i = 1; i < args.length; i++) {
-                res = subtractor.execute(res, args[i]);
+                var result = car;
+                SPair node = pair;
+                if (node.getCdr() instanceof SPair) {
+                    while (node.getCdr() instanceof SPair) {
+                        node = (SPair) (node.getCdr());
+                        car = node.getCar();
+                        result = subtractor.execute(result, car);
+                    }
+                } else {
+                    result = negator.execute(result);
+                }
+
+                yield result;
             }
-
-            return res;
-        }
+            default -> throw new IllegalArgumentException("Invalid args");
+        };
     }
 }
