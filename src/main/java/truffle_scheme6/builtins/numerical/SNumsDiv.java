@@ -21,13 +21,13 @@ public abstract class SNumsDiv extends SBuiltin {
     protected UBinaryDivision divider = UBinaryDivisionNodeGen.create();
 
     @Specialization
-    public Object doPair(SList args) throws UnsupportedTypeException, ArityException {
+    public Object doPair(SList args) {
         return switch (args) {
-            case SNil _nil -> throw ArityException.create(1, -1, 0);
+            case SNil _nil -> throw new RuntimeException(ArityException.create(1, -1, 0));
             case SPair pair -> {
                 var car = pair.getCar();
                 if (!StaticUtils.isNumber(car)) { // validating in case the list only has one element (loop wouldn't run and therefore wouldn't check)
-                    throw UnsupportedTypeException.create(pair.toArray(), "Value given is not a valid number: " + car + " of type " + car.getClass() + " within " + pair);
+                    throw new RuntimeException(UnsupportedTypeException.create(pair.toArray(), "Value given is not a valid number: " + car + " of type " + car.getClass() + " within " + pair));
                 }
 
                 Object result = car;

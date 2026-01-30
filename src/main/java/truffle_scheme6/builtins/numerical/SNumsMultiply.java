@@ -2,6 +2,7 @@ package truffle_scheme6.builtins.numerical;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import truffle_scheme6.SchemeNode;
 import truffle_scheme6.annotations.BuiltinInfo;
@@ -18,13 +19,13 @@ public abstract class SNumsMultiply extends SBuiltin {
     protected UBinaryMultiplication multiplier = UBinaryMultiplicationNodeGen.create();
 
     @Specialization
-    public Object doPair(SList args) throws UnsupportedTypeException {
+    public Object doPair(SList args) {
         return switch (args) {
             case SNil _nil -> 1;
             case SPair pair -> {
                 var car = pair.getCar();
                 if (!StaticUtils.isNumber(car)) { // validating in case the list only has one element (loop wouldn't run and therefore wouldn't check)
-                    throw UnsupportedTypeException.create(pair.toArray(), "Value given is not a valid number: " + car + " of type " + car.getClass() + " within " + pair);
+                    throw new RuntimeException(UnsupportedTypeException.create(pair.toArray(), "Value given is not a valid number: " + car + " of type " + car.getClass() + " within " + pair));
                 }
 
                 var result = car;
