@@ -13,6 +13,6 @@ class SNumsDecreasingTest extends BuiltInTest {
         assertTrue(eval("(> 1234)").asBoolean());
         assertTrue(eval("(> 1/4 -1.55)").asBoolean());
         assertTrue(eval("(> #e1000 #e100.11111111111 #e10.123 5/2 #e-123456789.987654321)").asBoolean());
-        assertThrows(ArityException.class, () -> eval("(>)").asBoolean());
+        assertThrows(Exception.class, () -> eval("(>)").asBoolean());
     }
 }

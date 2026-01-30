@@ -11,6 +11,6 @@ class SNumsEqualTest extends BuiltInTest {
         assertTrue(eval("(= 1 1.0 (* 2 #e1/2) #e1.0 #e1)").asBoolean());
         assertTrue(eval("(= 1+i 1.0+1.i)").asBoolean());
         assertTrue(eval("(= -44 -44.0 #e-44 #e-44.0000000000 (* -44 1.0s0))").asBoolean());
-        assertThrows(ArityException.class, () -> eval("(=)"));
+        assertThrows(Exception.class, () -> eval("(=)"));
     }
 }

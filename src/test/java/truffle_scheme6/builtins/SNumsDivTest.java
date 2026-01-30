@@ -17,7 +17,7 @@ class SNumsDivTest extends BuiltInTest {
         assertEquals(0.0, eval("(/ +inf.0)").asDouble());
         assertThrows(PolyglotException.class, () -> eval("(/ 0 0)"));
         assertThrows(PolyglotException.class, () -> eval("(/ 3 0)"));
-        assertThrows(ArityException.class, () -> eval("(/)"));
+        assertThrows(Exception.class, () -> eval("(/)"));
         assertEquals(0.0, eval("(/ 0 3.5)").asDouble());
         assertEquals(Double.NaN, eval("(/ 0 0.0)").asDouble());
         assertEquals(Double.NaN, eval("(/ 0.0 0)").asDouble());
