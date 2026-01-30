@@ -18,13 +18,13 @@ public abstract class SNumsMultiply extends SBuiltin {
     protected UBinaryMultiplication multiplier = UBinaryMultiplicationNodeGen.create();
 
     @Specialization
-    public Object doPair(SList args) {
+    public Object doPair(SList args) throws UnsupportedTypeException {
         return switch (args) {
-            case SNil _nil -> 0;
+            case SNil _nil -> 1;
             case SPair pair -> {
                 var car = pair.getCar();
                 if (!StaticUtils.isNumber(car)) { // validating in case the list only has one element (loop wouldn't run and therefore wouldn't check)
-                    throw new RuntimeException(UnsupportedTypeException.create(pair.toArray(), "Value given is not a valid number: " + car + " of type " + car.getClass() + " within " + pair));
+                    throw UnsupportedTypeException.create(pair.toArray(), "Value given is not a valid number: " + car + " of type " + car.getClass() + " within " + pair);
                 }
 
                 var result = car;
