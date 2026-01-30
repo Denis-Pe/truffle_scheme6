@@ -6,6 +6,9 @@ import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import truffle_scheme6.SchemeNode;
 import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.builtins.SBuiltin;
+import truffle_scheme6.runtime.SList;
+import truffle_scheme6.runtime.SNil;
+import truffle_scheme6.runtime.SPair;
 import truffle_scheme6.utils.StaticUtils;
 
 @BuiltinInfo(name = "*", lastVarArgs = true)
@@ -13,25 +16,28 @@ import truffle_scheme6.utils.StaticUtils;
 public abstract class SNumsMultiply extends SBuiltin {
     @Child
     protected UBinaryMultiplication multiplier = UBinaryMultiplicationNodeGen.create();
-    
+
     @Specialization
-    public Object doObjectArr(Object[] args) {
-        if (args.length == 0) {
-            return 1;
-        } else if (args.length == 1) {
-            if (StaticUtils.isNumber(args[0])) {
-                return args[0];
-            } else {
-                throw new RuntimeException(UnsupportedTypeException.create(args, "Value given is not a valid number"));
+    public Object doPair(SList args) {
+        return switch (args) {
+            case SNil _nil -> 0;
+            case SPair pair -> {
+                var car = pair.getCar();
+                if (!StaticUtils.isNumber(car)) { // validating in case the list only has one element (loop wouldn't run and therefore wouldn't check)
+                    throw new RuntimeException(UnsupportedTypeException.create(pair.toArray(), "Value given is not a valid number: " + car + " of type " + car.getClass() + " within " + pair));
+                }
+
+                var result = car;
+                SPair node = pair;
+                while (node.getCdr() instanceof SPair) {
+                    node = (SPair) (node.getCdr());
+                    car = node.getCar();
+                    result = multiplier.execute(result, car);
+                }
+
+                yield result;
             }
-        } else {
-            var result = args[0];
-            
-            for (int i = 1; i < args.length; i++) {
-                result = multiplier.execute(result, args[i]);
-            }
-            
-            return result;
-        }
+            default -> throw new IllegalArgumentException("Invalid args");
+        };
     }
 }
