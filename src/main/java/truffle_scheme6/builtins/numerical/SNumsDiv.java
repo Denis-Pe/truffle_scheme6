@@ -2,9 +2,14 @@ package truffle_scheme6.builtins.numerical;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import truffle_scheme6.SchemeNode;
 import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.builtins.SBuiltin;
+import truffle_scheme6.runtime.SList;
+import truffle_scheme6.runtime.SNil;
+import truffle_scheme6.runtime.SPair;
+import truffle_scheme6.utils.StaticUtils;
 
 @BuiltinInfo(name = "/", lastVarArgs = true)
 @NodeChild(value = "args", type = SchemeNode.class)
@@ -15,19 +20,30 @@ public abstract class SNumsDiv extends SBuiltin {
     protected UBinaryDivision divider = UBinaryDivisionNodeGen.create();
 
     @Specialization
-    public Object doObjectArr(Object[] args) {
-        if (args.length == 0) {
-            throw new RuntimeException("insufficient args given");
-        } else if (args.length == 1) {
-            return inverter.execute(args[0]);
-        } else {
-            var result = args[0];
+    public Object doPair(SList args) {
+        return switch (args) {
+            case SNil _nil -> 0;
+            case SPair pair -> {
+                var car = pair.getCar();
+                if (!StaticUtils.isNumber(car)) { // validating in case the list only has one element (loop wouldn't run and therefore wouldn't check)
+                    throw new RuntimeException(UnsupportedTypeException.create(pair.toArray(), "Value given is not a valid number: " + car + " of type " + car.getClass() + " within " + pair));
+                }
 
-            for (int i = 1; i < args.length; i++) {
-                result = divider.execute(result, args[i]);
+                Object result = car;
+                SPair node = pair;
+                if (node.getCdr() instanceof SPair) {
+                    while (node.getCdr() instanceof SPair) {
+                        node = (SPair) (node.getCdr());
+                        car = node.getCar();
+                        result = divider.execute(result, car);
+                    }
+                } else {
+                    result = inverter.execute(result);
+                }
+
+                yield result;
             }
-
-            return result;
-        }
+            default -> throw new IllegalArgumentException("Invalid args");
+        };
     }
 }
