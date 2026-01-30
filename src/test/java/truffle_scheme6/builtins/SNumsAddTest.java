@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class SNumsAddTest extends BuiltInTest {
     @Test
     void test() {
+        assertEquals(0, eval("(+)").asLong());
         assertEquals(1, eval("(+ 1)").asLong());
         assertEquals(-2L, eval("(+ -4 2)").asLong());
         assertEquals(2.222, eval("(+ #e2.0 #e0.2 #e0.02 #e0.002)").asDouble());

@@ -1,5 +1,6 @@
 package truffle_scheme6.builtins;
 
+import com.oracle.truffle.api.interop.ArityException;
 import org.graalvm.polyglot.PolyglotException;
 import org.junit.jupiter.api.Test;
 
@@ -16,6 +17,7 @@ class SNumsDivTest extends BuiltInTest {
         assertEquals(0.0, eval("(/ +inf.0)").asDouble());
         assertThrows(PolyglotException.class, () -> eval("(/ 0 0)"));
         assertThrows(PolyglotException.class, () -> eval("(/ 3 0)"));
+        assertThrows(ArityException.class, () -> eval("(/)"));
         assertEquals(0.0, eval("(/ 0 3.5)").asDouble());
         assertEquals(Double.NaN, eval("(/ 0 0.0)").asDouble());
         assertEquals(Double.NaN, eval("(/ 0.0 0)").asDouble());
