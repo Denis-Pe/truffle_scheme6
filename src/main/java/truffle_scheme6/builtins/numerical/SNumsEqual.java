@@ -2,9 +2,14 @@ package truffle_scheme6.builtins.numerical;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import truffle_scheme6.SchemeNode;
 import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.builtins.SBuiltin;
+import truffle_scheme6.runtime.SList;
+import truffle_scheme6.runtime.SNil;
+import truffle_scheme6.runtime.SPair;
+import truffle_scheme6.utils.StaticUtils;
 
 @BuiltinInfo(name = "=", lastVarArgs = true)
 @NodeChild(value = "args", type = SchemeNode.class)
@@ -13,17 +18,26 @@ public abstract class SNumsEqual extends SBuiltin {
     protected UComplexComparator comparator = UComplexComparatorNodeGen.create();
 
     @Specialization
-    public boolean doObjectArr(Object[] args) {
-        if (args.length == 0) {
-            throw new RuntimeException("Not enough arguments given");
-        } else if (args.length == 1) {
-            return true;
-        } else {
-            var equal = true;
-            for (int i = 1; i < args.length; i++) {
-                equal = equal && comparator.execute(args[i - 1], args[i]) == UComparisonResult.Equal;
+    public Object doPair(SList args) {
+        return switch (args) {
+            case SNil _nil -> 0;
+            case SPair pair -> {
+                var car = pair.getCar();
+                if (!StaticUtils.isNumber(car)) { // validating in case the list only has one element (loop wouldn't run and therefore wouldn't check)
+                    throw new RuntimeException(UnsupportedTypeException.create(pair.toArray(), "Value given is not a valid number: " + car + " of type " + car.getClass() + " within " + pair));
+                }
+
+                var isEqual = true;
+                SPair node = pair;
+                while (node.getCdr() instanceof SPair) {
+                    node = (SPair) (node.getCdr());
+                    isEqual = isEqual && comparator.execute(car, node.getCar()) == UComparisonResult.Equal;
+                    car = node.getCar();
+                }
+
+                yield isEqual;
             }
-            return equal;
-        }
+            default -> throw new IllegalArgumentException("Invalid args");
+        };
     }
 }
