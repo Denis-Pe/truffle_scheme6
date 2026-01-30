@@ -13,6 +13,7 @@ import truffle_scheme6.builtins.pairs.*;
 import truffle_scheme6.builtins.procedures.SIsProcedureFactory;
 import truffle_scheme6.builtins.strings.SIsStringFactory;
 import truffle_scheme6.builtins.symbols.SIsSymbolFactory;
+import truffle_scheme6.builtins.symbols.SSymbolToStringFactory;
 import truffle_scheme6.builtins.vectors.SIsVectorFactory;
 import truffle_scheme6.nodes.functions.SReadArgNode;
 import truffle_scheme6.nodes.functions.SReadArgSlotNode;
@@ -41,8 +42,6 @@ public class SchemeLanguageContext {
     }
 
     private void installBuiltins() {
-
-
         installBuiltin(SIsProcedureFactory.getInstance());
 
         installBuiltin(SIsStringFactory.getInstance());
@@ -52,8 +51,6 @@ public class SchemeLanguageContext {
         installBuiltin(SIsCharFactory.getInstance());
 
         installBuiltin(SIsBooleanFactory.getInstance());
-
-        installBuiltin(SIsSymbolFactory.getInstance());
 
         /* NUMERICAL */
 
@@ -117,6 +114,12 @@ public class SchemeLanguageContext {
         installBuiltin(SMakeListFactory.getInstance());
 
         installBuiltin(SLengthFactory.getInstance());
+
+        /* SYMBOLS */
+
+        installBuiltin(SIsSymbolFactory.getInstance());
+
+        installBuiltin(SSymbolToStringFactory.getInstance());
     }
 
     private void installBuiltin(NodeFactory<? extends SBuiltin> factory) {
