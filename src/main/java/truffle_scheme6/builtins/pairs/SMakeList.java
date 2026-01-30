@@ -13,11 +13,7 @@ import truffle_scheme6.runtime.SPair;
 @NodeChild(value = "args", type = SchemeNode.class)
 public abstract class SMakeList extends SBuiltin {
     @Specialization
-    public Object doObjectArr(Object[] args) {
-        if (args.length == 0) {
-            return SNil.SINGLETON;
-        } else {
-            return SList.list(args);
-        }
+    public SList doList(SList args) {
+        return args;
     }
 }
