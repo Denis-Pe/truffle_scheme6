@@ -16,7 +16,7 @@ import truffle_scheme6.runtime.SSymbol;
 @NodeChild(value = "arg", type = SchemeNode.class)
 public abstract class SAreSymbolsEqual extends SBuiltin {
     @Specialization
-    public Object doList(SList arg) {
+    public boolean doList(SList arg) {
         return switch (arg) {
             case SNil _nil -> throw new RuntimeException(ArityException.create(2, -1, 0));
             case SPair pair -> {
