@@ -23,11 +23,7 @@
   - [ ] Arithmetic
   - [ ] Booleans
   - [ ] Pairs and Lists
-  - [ ] Symbols
-    - [x] `symbol?`
-    - [x] `symbol->string`
-    - [x] `symbol=?`
-    - [x] `string->symbol`
+  - [x] Symbols
   - [ ] Characters
   - [ ] Strings
   - [ ] Vectors
