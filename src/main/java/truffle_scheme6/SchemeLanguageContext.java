@@ -13,6 +13,7 @@ import truffle_scheme6.builtins.pairs.*;
 import truffle_scheme6.builtins.procedures.SIsProcedureFactory;
 import truffle_scheme6.builtins.strings.SIsStringFactory;
 import truffle_scheme6.builtins.symbols.SIsSymbolFactory;
+import truffle_scheme6.builtins.symbols.SStringToSymbolFactory;
 import truffle_scheme6.builtins.symbols.SSymbolToStringFactory;
 import truffle_scheme6.builtins.vectors.SIsVectorFactory;
 import truffle_scheme6.nodes.functions.SReadArgNode;
@@ -120,6 +121,8 @@ public class SchemeLanguageContext {
         installBuiltin(SIsSymbolFactory.getInstance());
 
         installBuiltin(SSymbolToStringFactory.getInstance());
+
+        installBuiltin(SStringToSymbolFactory.getInstance());
     }
 
     private void installBuiltin(NodeFactory<? extends SBuiltin> factory) {
