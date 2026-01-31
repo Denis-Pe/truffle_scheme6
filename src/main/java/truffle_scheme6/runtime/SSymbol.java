@@ -21,10 +21,11 @@ import java.util.stream.IntStream;
 public class SSymbol implements TruffleObject {
     private final TruffleString value;
     private static final TruffleString.ToJavaStringNode converter = TruffleString.ToJavaStringNode.create();
+    private static final TruffleString.EqualNode equal = TruffleString.EqualNode.create();
 
     private static final TruffleStringBuilder.AppendCodePointNode builderAppend = TruffleStringBuilder.AppendCodePointNode.create();
     private static final TruffleStringBuilder.ToStringNode builderToString = TruffleStringBuilder.ToStringNode.create();
-    
+
     private static final Set<SSymbol> registeredSymbols = new HashSet<>();
 
     private SSymbol(TruffleString value) {
@@ -116,7 +117,7 @@ public class SSymbol implements TruffleObject {
         if (o == null || getClass() != o.getClass()) return false;
 
         SSymbol that = (SSymbol) o;
-        return value.equals(that.value);
+        return value.equals(that.value); // todo use the equal node, same for the string and char and others
     }
 
     @Override
