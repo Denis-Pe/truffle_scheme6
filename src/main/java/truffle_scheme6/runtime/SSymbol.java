@@ -8,7 +8,9 @@ import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.api.strings.TruffleStringBuilder;
 import truffle_scheme6.Constants;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.IntStream;
 
@@ -16,14 +18,15 @@ import java.util.stream.IntStream;
 // > Symbols
 // > Unlike strings, two symbols whose names are spelled the same way are never distinguishable.
 // Therefore, the API for symbols at runtime has private constructors, with the static methods to create
-// them hooking into a set of symbols to make sure that no two symbols have the same value
+// them hooking into a global set of symbols to make sure that no two symbols have the same value
 @ExportLibrary(InteropLibrary.class)
 public class SSymbol implements TruffleObject {
     private final TruffleString value;
     private static final TruffleString.ToJavaStringNode converter = TruffleString.ToJavaStringNode.create();
     private static final TruffleString.EqualNode equal = TruffleString.EqualNode.create();
 
-    private static final TruffleStringBuilder.AppendCodePointNode builderAppend = TruffleStringBuilder.AppendCodePointNode.create();
+    private static final TruffleStringBuilder.AppendCodePointNode builderAppendCodePoint = TruffleStringBuilder.AppendCodePointNode.create();
+    private static final TruffleString.FromJavaStringNode fromJavaStringNode = TruffleString.FromJavaStringNode.create();
     private static final TruffleStringBuilder.ToStringNode builderToString = TruffleStringBuilder.ToStringNode.create();
 
     private static final Set<SSymbol> registeredSymbols = new HashSet<>();
@@ -36,7 +39,7 @@ public class SSymbol implements TruffleObject {
         TruffleStringBuilder builder = TruffleStringBuilder.create(Constants.ENCODING);
 
         for (var c : codepoints) {
-            builderAppend.execute(builder, c);
+            builderAppendCodePoint.execute(builder, c);
         }
 
         this.value = builderToString.execute(builder);
@@ -47,7 +50,7 @@ public class SSymbol implements TruffleObject {
     }
 
     private SSymbol(String str) {
-        this(str.codePoints());
+        this.value = fromJavaStringNode.execute(str, Constants.ENCODING);
     }
 
     public static SSymbol get(TruffleString value) {
