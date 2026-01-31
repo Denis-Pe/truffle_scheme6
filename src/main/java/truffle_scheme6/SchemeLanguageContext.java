@@ -12,6 +12,7 @@ import truffle_scheme6.builtins.numerical.*;
 import truffle_scheme6.builtins.pairs.*;
 import truffle_scheme6.builtins.procedures.SIsProcedureFactory;
 import truffle_scheme6.builtins.strings.SIsStringFactory;
+import truffle_scheme6.builtins.symbols.SAreSymbolsEqualFactory;
 import truffle_scheme6.builtins.symbols.SIsSymbolFactory;
 import truffle_scheme6.builtins.symbols.SStringToSymbolFactory;
 import truffle_scheme6.builtins.symbols.SSymbolToStringFactory;
@@ -121,6 +122,8 @@ public class SchemeLanguageContext {
         installBuiltin(SIsSymbolFactory.getInstance());
 
         installBuiltin(SSymbolToStringFactory.getInstance());
+
+        installBuiltin(SAreSymbolsEqualFactory.getInstance());
 
         installBuiltin(SStringToSymbolFactory.getInstance());
     }

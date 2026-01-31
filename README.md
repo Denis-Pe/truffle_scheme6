@@ -25,9 +25,9 @@
   - [ ] Pairs and Lists
   - [ ] Symbols
     - [x] `symbol?`
-    - [ ] `symbol->string`
-    - [ ] `symbol=?`
-    - [ ] `string->symbol`
+    - [x] `symbol->string`
+    - [x] `symbol=?`
+    - [x] `string->symbol`
   - [ ] Characters
   - [ ] Strings
   - [ ] Vectors
