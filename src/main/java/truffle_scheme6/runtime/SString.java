@@ -14,10 +14,10 @@ import java.util.stream.IntStream;
 public class SString implements TruffleObject {
     private final TruffleString value;
     private final TruffleString.ToJavaStringNode converter = TruffleString.ToJavaStringNode.create();
-    ;
 
     private static final TruffleStringBuilder.AppendCodePointNode builderAppend = TruffleStringBuilder.AppendCodePointNode.create();
     private static final TruffleStringBuilder.ToStringNode builderToString = TruffleStringBuilder.ToStringNode.create();
+    private static final TruffleString.FromJavaStringNode builderFromJavaString = TruffleString.FromJavaStringNode.create();
 
     public SString(TruffleString value) {
         this.value = value;
@@ -39,7 +39,7 @@ public class SString implements TruffleObject {
     }
 
     public SString(String str) {
-        this(str.codePoints());
+        this.value = builderFromJavaString.execute(str, Constants.ENCODING);
     }
 
     public TruffleString getValue() {
