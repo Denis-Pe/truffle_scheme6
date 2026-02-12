@@ -10,28 +10,18 @@ import truffle_scheme6.Constants;
 
 @ExportLibrary(InteropLibrary.class)
 public class SChar implements TruffleObject {
-    private final TruffleString value;
-    private static final TruffleString.ToJavaStringNode converter = TruffleString.ToJavaStringNode.create();
-    private static final TruffleStringBuilder.AppendCodePointNode builderAppend = TruffleStringBuilder.AppendCodePointNode.create();
-    private static final TruffleStringBuilder.ToStringNode builderToString = TruffleStringBuilder.ToStringNode.create();
+    private final int value;
+    private static final TruffleString.FromJavaStringNode truffleStringFromJavaString = TruffleString.FromJavaStringNode.create();
 
     public SChar(int codepoint) {
-        TruffleStringBuilder builder = TruffleStringBuilder.create(Constants.ENCODING);
-
-        builderAppend.execute(builder, codepoint);
-
-        this.value = builderToString.execute(builder);
+        this.value = codepoint;
     }
 
     public SChar(char c) {
         this((int) c);
     }
 
-    public SChar(TruffleString value) {
-        this.value = value;
-    }
-
-    public TruffleString getValue() {
+    public int getValue() {
         return value;
     }
 
@@ -42,12 +32,12 @@ public class SChar implements TruffleObject {
 
     @ExportMessage
     String asString() {
-        return converter.execute(value);
+        return this.toString();
     }
 
     @ExportMessage
     TruffleString asTruffleString() {
-        return value;
+        return truffleStringFromJavaString.execute(this.toString(), Constants.ENCODING);
     }
 
     @ExportMessage
@@ -57,7 +47,7 @@ public class SChar implements TruffleObject {
 
     @Override
     public String toString() {
-        return "#\\" + converter.execute(value);
+        return "#\\" + Character.toString(value);
     }
 
 }
