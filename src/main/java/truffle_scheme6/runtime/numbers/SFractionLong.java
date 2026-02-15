@@ -53,6 +53,16 @@ public record SFractionLong(long numerator,
     }
 
     @Override
+    public SBigInt bigIntValue() {
+        return new SBigInt(longValue());
+    }
+
+    @Override
+    public long longValue() {
+        return numerator / denominator;
+    }
+
+    @Override
     public SFractionBigInt asBigInt() {
         return new SFractionBigInt(
                 BigInteger.valueOf(numerator),
@@ -173,7 +183,7 @@ public record SFractionLong(long numerator,
     public long gcd() {
         if (numerator == 0) return denominator;
         if (denominator == 0) return Math.abs(numerator);
-        
+
         long a = Math.abs(numerator);
         long b = denominator;
 
@@ -206,7 +216,7 @@ public record SFractionLong(long numerator,
     public long gcdExact() {
         if (numerator == 0) return denominator;
         if (denominator == 0) return Math.abs(numerator);
-        
+
         long a = Math.absExact(numerator);
         long b = denominator;
 

@@ -57,6 +57,23 @@ public record SFractionBigInt(BigInteger numerator,
     }
 
     @Override
+    public SBigInt bigIntValue() {
+        return new SBigInt(numerator.divide(denominator));
+    }
+
+    /**
+     * Similarly to {@link java.math.BigInteger}, will return the lower bits of the number with no checks. See also {@link truffle_scheme6.runtime.numbers.SFractionBigInt#longValueExact()}
+     */
+    @Override
+    public long longValue() {
+        return bigIntValue().value().longValue();
+    }
+
+    public long longValueExact() {
+        return bigIntValue().value().longValueExact();
+    }
+
+    @Override
     public SFractionBigInt asBigInt() {
         return this;
     }
