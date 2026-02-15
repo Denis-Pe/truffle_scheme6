@@ -234,8 +234,7 @@
 (defn parse
   [^CharSequence source & {:keys [starting-at]}]
   (let [parse-strictly (if starting-at #(insta/parse parser % :start starting-at) (partial insta/parse parser))]
-    (->> source
-         parse-strictly)))
+    (parse-strictly source)))
 
 (defn produce-nodes
   [ast]
@@ -259,9 +258,9 @@
 
 (defn read-scheme
   [source]
-  (let [result (->> source
-                    (parse)
-                    (produce-nodes))]
+  (let [raw-tree (parse source)
+        raw-tree (insta/add-line-and-column-info-to-metadata source raw-tree)
+        result (produce-nodes raw-tree)]
     (if-let [failure (insta/get-failure result)]
       (throw (ParseException. (:index failure) (:line failure) (:column failure) (:text failure)))
       result)))
