@@ -7,6 +7,8 @@ import com.oracle.truffle.api.nodes.Node;
 import truffle_scheme6.annotations.BuiltinInfo;
 import truffle_scheme6.builtins.*;
 import truffle_scheme6.builtins.booleans.SIsBooleanFactory;
+import truffle_scheme6.builtins.characters.SCharToIntegerFactory;
+import truffle_scheme6.builtins.characters.SIntegerToCharFactory;
 import truffle_scheme6.builtins.characters.SIsCharFactory;
 import truffle_scheme6.builtins.numerical.*;
 import truffle_scheme6.builtins.pairs.*;
@@ -126,6 +128,12 @@ public class SchemeLanguageContext {
         installBuiltin(SAreSymbolsEqualFactory.getInstance());
 
         installBuiltin(SStringToSymbolFactory.getInstance());
+
+        /* CHARACTERS */
+
+        installBuiltin(SIntegerToCharFactory.getInstance());
+
+        installBuiltin(SCharToIntegerFactory.getInstance());
     }
 
     private void installBuiltin(NodeFactory<? extends SBuiltin> factory) {

@@ -8,10 +8,17 @@ import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.api.strings.TruffleStringBuilder;
 import truffle_scheme6.Constants;
 
+import java.util.Map;
+import java.util.Objects;
+
 @ExportLibrary(InteropLibrary.class)
 public class SChar implements TruffleObject {
     private final int value;
     private static final TruffleString.FromJavaStringNode truffleStringFromJavaString = TruffleString.FromJavaStringNode.create();
+    private final static Map<Integer, String> codepointToName = Map.of(
+            32, "space"
+            // TODO add rest
+    );
 
     public SChar(int codepoint) {
         this.value = codepoint;
@@ -47,7 +54,7 @@ public class SChar implements TruffleObject {
 
     @Override
     public String toString() {
-        return "#\\" + Character.toString(value);
+        var name = codepointToName.get(value);
+        return "#\\" + Objects.requireNonNullElseGet(name, () -> Character.toString(value));
     }
-
 }
