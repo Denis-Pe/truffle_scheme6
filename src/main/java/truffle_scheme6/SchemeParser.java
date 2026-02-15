@@ -2,10 +2,11 @@ package truffle_scheme6;
 
 import clojure.java.api.Clojure;
 import clojure.lang.IFn;
+import com.oracle.truffle.api.source.Source;
 import truffle_scheme6.nodes.roots.SchemeRoot;
 
 public interface SchemeParser {
-    SchemeRoot parseRoot(SchemeLanguage language, CharSequence input);
+    SchemeRoot parseRoot(SchemeLanguage language, Source input);
 
     SchemeParser clojureImpl = new SchemeParser() {
         final IFn clojureParseFn;
@@ -17,7 +18,7 @@ public interface SchemeParser {
         }
 
         @Override
-        public SchemeRoot parseRoot(SchemeLanguage language, CharSequence input) {
+        public SchemeRoot parseRoot(SchemeLanguage language, Source input) {
             return (SchemeRoot) clojureParseFn.invoke(language, input);
         }
     };
