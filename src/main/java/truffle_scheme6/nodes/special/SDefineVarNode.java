@@ -11,7 +11,11 @@ public class SDefineVarNode extends SSpecialNode {
     @Child
     private SSymbolLiteralNode symbol;
     @Child
-    private SchemeNode expr; // nullable
+    private SchemeNode expr; // nullable // TODO Implementation responsibilities:
+    //                                        Implementations should detect that the continuation of
+    //                                        expression is invoked more than once.
+    //                                        If the implementation detects this, it must raise
+    //                                        an exception with condition type &assertion.
 
     public SDefineVarNode(SSymbolLiteralNode symbol, SchemeNode expr) {
         this.symbol = Objects.requireNonNull(symbol);
