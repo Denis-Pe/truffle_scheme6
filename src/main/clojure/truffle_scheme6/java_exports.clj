@@ -9,12 +9,13 @@
 (defn parse
   [l ^Source s]
   (let [frame-desc-builder (FrameDescriptor/newBuilder)
-        root-forms (->> s
-                        (.getCharacters)
+        source-text (.getCharacters s)
+        root-forms (->> source-text
                         (read-scheme)
                         (map specialize)
                         (map #(tagged % {} frame-desc-builder [SchemeRoot/FRAME_NAME]))
                         (map #(to-java % {:source s}))
                         (into-array SchemeNode))
         built (.build frame-desc-builder)]
-    (SchemeRoot. l built root-forms)))
+    (doto (SchemeRoot. l built root-forms)
+      (.setSourceSection (.createSection s 0 (.length source-text))))))

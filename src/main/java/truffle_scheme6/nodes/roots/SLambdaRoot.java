@@ -3,6 +3,7 @@ package truffle_scheme6.nodes.roots;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
+import com.oracle.truffle.api.source.SourceSection;
 import truffle_scheme6.Constants;
 import truffle_scheme6.SchemeLanguage;
 import truffle_scheme6.SchemeNode;
@@ -11,6 +12,7 @@ public class SLambdaRoot extends RootNode {
     @Children
     private final SchemeNode[] nodes;
     private final String name;
+    private SourceSection sourceSection;
 
     public SLambdaRoot(SchemeLanguage language, FrameDescriptor frameDescriptor, SchemeNode... nodes) {
         super(language, frameDescriptor);
@@ -33,6 +35,15 @@ public class SLambdaRoot extends RootNode {
         }
 
         return res;
+    }
+
+    public void setSourceSection(SourceSection sourceSection) {
+        this.sourceSection = sourceSection;
+    }
+
+    @Override
+    public SourceSection getSourceSection() {
+        return sourceSection;
     }
 
     @Override

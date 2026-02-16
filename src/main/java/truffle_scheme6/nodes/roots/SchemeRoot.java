@@ -3,6 +3,7 @@ package truffle_scheme6.nodes.roots;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
+import com.oracle.truffle.api.source.SourceSection;
 import truffle_scheme6.Constants;
 import truffle_scheme6.SchemeLanguage;
 import truffle_scheme6.SchemeNode;
@@ -11,7 +12,9 @@ import truffle_scheme6.utils.StringFormatting;
 
 public class SchemeRoot extends RootNode {
     public final static String FRAME_NAME = "root";
-    
+
+    private SourceSection sourceSection;
+
     @Children
     private final SchemeNode[] nodes;
 
@@ -31,6 +34,15 @@ public class SchemeRoot extends RootNode {
         }
 
         return res;
+    }
+
+    public void setSourceSection(SourceSection sourceSection) {
+        this.sourceSection = sourceSection;
+    }
+
+    @Override
+    public SourceSection getSourceSection() {
+        return sourceSection;
     }
 
     @Override

@@ -37,9 +37,11 @@ public class SLambdaNode extends SSpecialNode {
         StaticUtils.tagClosureReaders(frame, name, body);
 
         var sl = SchemeLanguage.get(this);
+        var lambdaRoot = new SLambdaRoot(sl, frameDescriptor, body);
+        lambdaRoot.setSourceSection(this.getSourceSection());
         return new SLambda(
-                new SLambdaRoot(sl, frameDescriptor, body).getCallTarget(), 
-                isVariadic ? arguments.length - 1 : arguments.length, 
+                lambdaRoot.getCallTarget(),
+                isVariadic ? arguments.length - 1 : arguments.length,
                 isVariadic);
     }
 
