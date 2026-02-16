@@ -18,7 +18,7 @@
   - [ ] Characters
   - [ ] Strings
   - [ ] Vectors
-  - [ ] Errors and Violations
+  - [ ] Errors and Violations (depends on records)
   - [ ] Control Features
   - [ ] Iteration
   - [ ] Quasiquotation
