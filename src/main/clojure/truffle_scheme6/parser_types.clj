@@ -1,5 +1,6 @@
 (ns truffle-scheme6.parser-types
-  (:require [clojure.core.match :refer [match]])
+  (:require [clojure.core.match :refer [match]]
+            [clojure.pprint :as pprint])
   (:import (com.oracle.truffle.api.frame FrameDescriptor FrameSlotKind)
            (java.math MathContext)
            (org.graalvm.collections Pair)
@@ -15,6 +16,28 @@
 (defn- node-array
   [aseq]
   (into-array SchemeNode aseq))
+
+(defmacro cmet
+  "Convenience macro: copy meta from a `this` object the caller assumes exists"
+  [arg]
+  `(with-meta
+     ~arg
+     (meta ~'this)))
+
+(defmacro setsrc
+  "Convenience macro: inject source into arg from the metadata of a `this` object the caller assumes exists"
+  [src arg]
+  `(let [x# ~arg
+         m# (meta ~'this)]
+     (when (and m# (map? m#))
+       (.setSourceSection
+         x#
+         (.createSection
+           ~src
+           (m# :instaparse.gll/start-index)
+           (- (m# :instaparse.gll/end-index)
+              (m# :instaparse.gll/start-index)))))
+     x#))
 
 (defn all-unique?
   [sequential]
@@ -38,13 +61,13 @@
   ; organized in the order that they would be run from a top-level parser
   (specialize [this] "Transforms a list node into an appropriate special node, otherwise returns the same thing")
   (tagged [this symbol-codepoints->dispatch frame-desc-builder frame-names] "Transform child symbols according to specified dispatch. Should be run on child nodes")
-  (to-java [this] "Transforms a given node to a Java object"))
+  (to-java [this opts] "Transforms a given node to a Java object"))
 
 (extend-protocol PSchemeNode
   nil
   (specialize [this] nil)
   (tagged [this _ _ _] nil)
-  (to-java [this] nil))
+  (to-java [this opts] nil))
 
 (defn except-unsupported [node op-name]
   (UnsupportedOperationException.
@@ -54,25 +77,25 @@
   PSchemeNode
   (specialize [this] (throw (except-unsupported this "PSchemeNode/specialize")))
   (tagged [this _ _ _] (throw (except-unsupported this "PSchemeNode/tagged")))
-  (to-java [this] (SSymbolLiteralNode$ReadGlobal.)))
+  (to-java [this _] (SSymbolLiteralNode$ReadGlobal.)))
 
 (defrecord ReadLocalDispatch [frame-name int-key]
   PSchemeNode
   (specialize [this] (throw (except-unsupported this "PSchemeNode/specialize")))
   (tagged [this _ _ _] (throw (except-unsupported this "PSchemeNode/tagged")))
-  (to-java [this] (SSymbolLiteralNodeFactory$ReadLocalNodeGen/create int-key)))
+  (to-java [this _] (SSymbolLiteralNodeFactory$ReadLocalNodeGen/create int-key)))
 
 (defrecord ReadClosureDispatch [frame-name int-key]
   PSchemeNode
   (specialize [this] (throw (except-unsupported this "PSchemeNode/specialize")))
   (tagged [this _ _ _] (throw (except-unsupported this "PSchemeNode/tagged")))
-  (to-java [this] (SSymbolLiteralNode$ReadFromMaterialized. frame-name nil int-key)))
+  (to-java [this _] (SSymbolLiteralNode$ReadFromMaterialized. frame-name nil int-key)))
 
 (defrecord ReadArgDispatch [position rest-arg?]
   PSchemeNode
   (specialize [this] (throw (except-unsupported this "PSchemeNode/specialize")))
   (tagged [this _ _ _] (throw (except-unsupported this "PSchemeNode/tagged")))
-  (to-java [this]
+  (to-java [this _]
     (if rest-arg?
       (SSymbolLiteralNode$ReadArgDispatch. (SReadVarArgsNode. position)) ; after pos, which is also the # of args preceding it
       (SSymbolLiteralNode$ReadArgDispatch. (SReadArgSlotNode. position)))))
@@ -81,122 +104,135 @@
   PSchemeNode
   (specialize [this] this)
   (tagged [this _ _ _] this)
-  (to-java [this]
-    (SFalseLiteralNode.)))
+  (to-java [this {src :source}]
+    (setsrc src
+      (SFalseLiteralNode.))))
 
 (defrecord TrueLiteral []
   PSchemeNode
   (specialize [this] this)
   (tagged [this _ _ _] this)
-  (to-java [this]
-    (STrueLiteralNode.)))
+  (to-java [this {src :source}]
+    (setsrc src
+      (STrueLiteralNode.))))
 
 (defrecord IntegerLiteral [exact? radix sign uint-str]
   PSchemeNode
   (specialize [this] this)
   (tagged [this _ _ _] this)
-  (to-java [this]
-    (let [val (if (false? exact?)
-                (SInexactReal64Node. (.doubleValue (BigInteger. ^String uint-str ^int radix)))
-                (let [n (parse-arbitrary-integer uint-str radix)]
-                  (if (instance? BigInteger n)
-                    (SExactBigIntegerNode. n)
-                    (SExactFixnumNode. n))))]
-      (if (= sign "-")
-        (.negate val)
-        val))))
+  (to-java [this {src :source}]
+    (setsrc src
+      (let [val (if (false? exact?)
+                  (SInexactReal64Node. (.doubleValue (BigInteger. ^String uint-str ^int radix)))
+                  (let [n (parse-arbitrary-integer uint-str radix)]
+                    (if (instance? BigInteger n)
+                      (SExactBigIntegerNode. n)
+                      (SExactFixnumNode. n))))]
+        (if (= sign "-")
+          (.negate val)
+          val)))))
 
 (defrecord FractionLiteral [numerator-int-literal denominator-int-literal]
   PSchemeNode
   (specialize [this] this)
   (tagged [this _ _ _] this)
-  (to-java [this]
-    (let [exact? (:exact? numerator-int-literal)
-          sign (:sign numerator-int-literal)]
-      (if (false? exact?)
-        (let [num-bigdec (bigdec (parse-arbitrary-integer (:uint-str numerator-int-literal)
-                                                          (:radix numerator-int-literal)))
-              deno-bigdec (bigdec (parse-arbitrary-integer (:uint-str denominator-int-literal)
-                                                           (:radix denominator-int-literal)))
-              val (-> num-bigdec (.divide deno-bigdec MathContext/DECIMAL64) (.doubleValue) (SInexactReal64Node.))]
-          (if (= sign "-") (.negate val) val))
-        (SFractionLiteralNode. (to-java numerator-int-literal) (to-java denominator-int-literal))))))
+  (to-java [this {src :source :as opts}]
+    (setsrc src
+      (let [exact? (:exact? numerator-int-literal)
+            sign (:sign numerator-int-literal)]
+        (if (false? exact?)
+          (let [num-bigdec (bigdec (parse-arbitrary-integer (:uint-str numerator-int-literal)
+                                                            (:radix numerator-int-literal)))
+                deno-bigdec (bigdec (parse-arbitrary-integer (:uint-str denominator-int-literal)
+                                                             (:radix denominator-int-literal)))
+                val (-> num-bigdec (.divide deno-bigdec MathContext/DECIMAL64) (.doubleValue) (SInexactReal64Node.))]
+            (if (= sign "-") (.negate val) val))
+          (SFractionLiteralNode. (to-java numerator-int-literal opts) (to-java denominator-int-literal opts)))))))
 
 (defrecord DecimalLiteral [exact? sign decimal-str exp-mark exp-val mantissa-width] ; mantissa is ignored for now
   PSchemeNode
   (specialize [this] this)
   (tagged [this _ _ _] this)
-  (to-java [this]
-    (let [val (cond exact? (SExactRealNode. ^BigDecimal (BigDecimal. ^String decimal-str))
-                    (some #{"s" "S" "f" "F"} [exp-mark]) (SInexactReal32Node. (Float/parseFloat decimal-str))
-                    :else (SInexactReal64Node. (Double/parseDouble decimal-str)))
-          val (if exp-val (.applyExp val exp-val) val)
-          val (if (= sign "-") (.negate val) val)]
-      val)))
+  (to-java [this {src :source}]
+    (setsrc src
+      (let [val (cond exact? (SExactRealNode. ^BigDecimal (BigDecimal. ^String decimal-str))
+                      (some #{"s" "S" "f" "F"} [exp-mark]) (SInexactReal32Node. (Float/parseFloat decimal-str))
+                      :else (SInexactReal64Node. (Double/parseDouble decimal-str)))
+            val (if exp-val (.applyExp val exp-val) val)
+            val (if (= sign "-") (.negate val) val)]
+        val))))
 
 (defrecord NanInfLiteral [sign literal]
   PSchemeNode
   (specialize [this] this)
   (tagged [this _ _ _] this)
-  (to-java [this]
-    (let [num (condp = [sign literal]
-                ["-" "inf.0"] Float/NEGATIVE_INFINITY
-                ["+" "inf.0"] Float/POSITIVE_INFINITY
-                Float/NaN)]
-      (SInexactReal32Node. num))))
+  (to-java [this {src :source}]
+    (setsrc src
+      (let [num (condp = [sign literal]
+                  ["-" "inf.0"] Float/NEGATIVE_INFINITY
+                  ["+" "inf.0"] Float/POSITIVE_INFINITY
+                  Float/NaN)]
+        (SInexactReal32Node. num)))))
 
 (defrecord ComplexLiteral [real-literal imaginary-literal]
   PSchemeNode
   (specialize [this] this)
   (tagged [this _ _ _] this)
-  (to-java [this]
-    (SComplexLiteralNode. (to-java real-literal) (to-java imaginary-literal))))
+  (to-java [this {src :source :as opts}]
+    (setsrc src
+      (SComplexLiteralNode. (to-java real-literal opts) (to-java imaginary-literal opts)))))
 
 (defrecord OctetLiteral [radix octet-str]
   PSchemeNode
   (specialize [this] this)
   (tagged [this _ _ _] this)
-  (to-java [this]
-    (let [parsed (Integer/parseUnsignedInt octet-str radix)]
-      (if (and (>= parsed 0) (<= parsed 255))
-        (SOctetLiteralNode. (unchecked-byte parsed))
-        (throw (Exception. "Octet given was not valid. Must be an unsigned 8-bit integer"))))))
+  (to-java [this {src :source}]
+    (setsrc src
+      (let [parsed (Integer/parseUnsignedInt octet-str radix)]
+        (if (and (>= parsed 0) (<= parsed 255))
+          (SOctetLiteralNode. (unchecked-byte parsed))
+          (throw (Exception. "Octet given was not valid. Must be an unsigned 8-bit integer")))))))
 
 (defrecord CharacterLiteral [utf32value]
   PSchemeNode
   (specialize [this] this)
   (tagged [this _ _ _] this)
-  (to-java [this]
-    (SCharacterLiteralNode. ^int utf32value)))
+  (to-java [this {src :source}]
+    (setsrc src
+      (SCharacterLiteralNode. ^int utf32value))))
 
 (defrecord StringLiteral [utf32codepoints]
   PSchemeNode
   (specialize [this] this)
   (tagged [this _ _ _] this)
-  (to-java [this]
-    (SStringLiteralNode. (int-array utf32codepoints))))
+  (to-java [this {src :source}]
+    (setsrc src
+      (SStringLiteralNode. (int-array utf32codepoints)))))
 
 (defrecord SymbolLiteral [utf32codepoints read-var-dispatch]
   PSchemeNode
   (specialize [this] this)
   (tagged [this symbol-codepoints->dispatch _frame-desc-builder frame-names]
-    (->SymbolLiteral
-      utf32codepoints
-      (if-let [d (symbol-codepoints->dispatch utf32codepoints)]
-        (if (and (instance? ReadLocalDispatch d) (not= (last frame-names) (:frame-name d)))
-          (->ReadClosureDispatch (last frame-names) (:int-key d))
-          d)
-        read-var-dispatch)))
-  (to-java [this]
-    (SSymbolLiteralNode. (int-array utf32codepoints)
-                         (to-java read-var-dispatch))))
+    (cmet
+      (->SymbolLiteral
+        utf32codepoints
+        (if-let [d (symbol-codepoints->dispatch utf32codepoints)]
+          (if (and (instance? ReadLocalDispatch d) (not= (last frame-names) (:frame-name d)))
+            (->ReadClosureDispatch (last frame-names) (:int-key d))
+            d)
+          read-var-dispatch))))
+  (to-java [this {src :source :as opts}]
+    (setsrc src
+      (SSymbolLiteralNode. ^ints (int-array utf32codepoints)
+                           (to-java read-var-dispatch opts)))))
 
 (defrecord NilLiteral []
   PSchemeNode
   (specialize [this] this)
   (tagged [this _ _ _] this)
-  (to-java [this]
-    (SNilLiteralNode.)))
+  (to-java [this {src :source}]
+    (setsrc src
+      (SNilLiteralNode.))))
 
 ;; special nodes
 
@@ -204,100 +240,116 @@
   PSchemeNode
   (specialize [this] this)
   (tagged [this symbol-codepoints->dispatch frame-desc-builder frame-names]
-    (->QuoteNode (tagged x symbol-codepoints->dispatch frame-desc-builder frame-names)))
-  (to-java [this]
-    (SQuoteNode. (to-java x))))
+    (cmet
+      (->QuoteNode (tagged x symbol-codepoints->dispatch frame-desc-builder frame-names))))
+  (to-java [this {src :source :as opts}]
+    (setsrc src
+      (SQuoteNode. (to-java x opts)))))
 
 (defmulti detect-slot-kind
-  "Given a node, returns an appropriate FrameSlotKind for that node"
-  (fn [node] (type node)))
+          "Given a node, returns an appropriate FrameSlotKind for that node"
+          (fn [node] (type node)))
 
 (defrecord LetNode [bindings body-forms]
   PSchemeNode
   (specialize [this]
-    (->LetNode
-      (mapv (fn [[sym val]] [sym (specialize val)]) bindings)
-      (map specialize body-forms)))
+    (cmet
+      (->LetNode
+        (mapv (fn [[sym val]] [sym (specialize val)]) bindings)
+        (map specialize body-forms))))
   (tagged [this symbol-codepoints->dispatch frame-desc-builder frame-names]
     (let [sc->new-dispatch
           (->> bindings
                (map (fn [[sym value]]
                       [(:utf32codepoints sym) (->ReadLocalDispatch
                                                 (last frame-names)
-                                                (.addSlot frame-desc-builder,
-                                                          (detect-slot-kind value),
+                                                (.addSlot frame-desc-builder
+                                                          (detect-slot-kind value)
                                                           nil, nil))]))
                (reduce
                  (fn [m [codepoints dispatch]]
                    (assoc m codepoints dispatch))
                  symbol-codepoints->dispatch))]
-      (->LetNode
-        (mapv (fn [[sym val]] [(tagged sym sc->new-dispatch frame-desc-builder frame-names)
-                               (tagged val symbol-codepoints->dispatch frame-desc-builder frame-names)])
-              bindings)
-        (map #(tagged % sc->new-dispatch frame-desc-builder frame-names)
-             body-forms))))
-  (to-java [this]
-    (SLetNode.
-      (into-array
-        Pair
-        (map (fn [[sym val]] (Pair/create (to-java sym)
-                                          (to-java val)))
-             bindings))
-      (node-array (map to-java body-forms)))))
+      (cmet
+        (->LetNode
+          (mapv (fn [[sym val]]
+                  [(tagged sym sc->new-dispatch frame-desc-builder frame-names)
+                   (tagged val symbol-codepoints->dispatch frame-desc-builder frame-names)])
+                bindings)
+          (map #(tagged % sc->new-dispatch frame-desc-builder frame-names)
+               body-forms)))))
+  (to-java [this {src :source :as opts}]
+    (setsrc src
+      (SLetNode.
+        (into-array
+          Pair
+          (map (fn [[sym val]] (Pair/create (to-java sym opts)
+                                            (to-java val opts)))
+               bindings))
+        (node-array (map #(to-java % opts) body-forms))))))
 
 (defrecord SetNode [identifier value]
   PSchemeNode
-  (specialize [this] (->SetNode identifier (specialize value)))
+  (specialize [this] (cmet
+                       (->SetNode identifier (specialize value))))
   (tagged [this symbol-codepoints->dispatch frame-desc-builder frame-names]
-    (->SetNode (tagged identifier symbol-codepoints->dispatch frame-desc-builder frame-names)
-               (tagged value symbol-codepoints->dispatch frame-desc-builder frame-names)))
-  (to-java [this]
-    (let [dispatch (:read-var-dispatch identifier)
-          identifier (to-java identifier)
-          value (to-java value)]
-      (condp instance? dispatch
-        ReadLocalDispatch (SSetLocalNode. identifier value)
-        ReadClosureDispatch (SSetClosureNode. (:frame-name dispatch) identifier value)
-        ReadGlobalDispatch (SSetGlobalNode. identifier value)))))
+    (cmet
+      (->SetNode (tagged identifier symbol-codepoints->dispatch frame-desc-builder frame-names)
+                 (tagged value symbol-codepoints->dispatch frame-desc-builder frame-names))))
+  (to-java [this {src :source :as opts}]
+    (setsrc src
+      (let [dispatch (:read-var-dispatch identifier)
+            identifier (to-java identifier opts)
+            value (to-java value opts)]
+        (condp instance? dispatch
+          ReadLocalDispatch (SSetLocalNode. identifier value)
+          ReadClosureDispatch (SSetClosureNode. (:frame-name dispatch) identifier value)
+          ReadGlobalDispatch (SSetGlobalNode. identifier value))))))
 
 (defrecord DefineVarNode [identifier value]
   PSchemeNode
-  (specialize [this] (->DefineVarNode identifier (specialize value)))
+  (specialize [this] (cmet
+                       (->DefineVarNode identifier (specialize value))))
   (tagged [this symbol-codepoints->dispatch frame-desc-builder frame-names]
     (let [f #(tagged % symbol-codepoints->dispatch frame-desc-builder frame-names)]
-      (->DefineVarNode (f identifier) (f value))))
-  (to-java [this]
-    (SDefineVarNode. (to-java identifier) (to-java value))))
+      (cmet
+        (->DefineVarNode (f identifier) (f value)))))
+  (to-java [this {src :source :as opts}]
+    (setsrc src
+      (SDefineVarNode. (to-java identifier opts) (to-java value opts)))))
 
 (defrecord DefineFunNode [identifier formals body-forms frame-desc-builder fun-name]
   PSchemeNode
   (specialize [this]
-    (DefineFunNode. identifier
-                    formals
-                    [(specialize (->LetNode
-                                   (partition 2 (interleave formals formals))
-                                   body-forms))]
-                    frame-desc-builder
-                    fun-name))
+    (cmet
+      (DefineFunNode. identifier
+                      formals
+                      [(specialize (cmet
+                                     (->LetNode
+                                       (partition 2 (interleave formals formals))
+                                       body-forms)))]
+                      frame-desc-builder
+                      fun-name)))
   (tagged [this symbol-codepoints->dispatch _parent-frame-desc-builder frame-names]
     (let [sc->new-dispatch (reduce
                              (fn [sc->d a] (assoc sc->d (:utf32codepoints a) (:read-var-dispatch a)))
                              symbol-codepoints->dispatch
                              formals)
           frame-names (conj frame-names fun-name)]
-      (DefineFunNode. identifier
-                      formals
-                      (mapv #(tagged % sc->new-dispatch frame-desc-builder frame-names) body-forms)
-                      frame-desc-builder
-                      fun-name)))
-  (to-java [this]
-    (SDefunNode. (to-java identifier)
-                 (into-array SSymbolLiteralNode (map to-java formals))
-                 (node-array (map to-java body-forms))
-                 (.build frame-desc-builder)
-                 fun-name
-                 (if-let [lf (last formals)] (:rest-arg? (:read-var-dispatch lf)) false))))
+      (cmet
+        (DefineFunNode. identifier
+                        formals
+                        (mapv #(tagged % sc->new-dispatch frame-desc-builder frame-names) body-forms)
+                        frame-desc-builder
+                        fun-name))))
+  (to-java [this {src :source :as opts}]
+    (setsrc src
+      (SDefunNode. (to-java identifier opts)
+                   (into-array SSymbolLiteralNode (map #(to-java % opts) formals))
+                   (node-array (map #(to-java % opts) body-forms))
+                   (.build frame-desc-builder)
+                   fun-name
+                   (if-let [lf (last formals)] (:rest-arg? (:read-var-dispatch lf)) false)))))
 
 (defn ->DefineFunNode [identifier formals body-forms]
   (DefineFunNode. identifier
@@ -308,12 +360,15 @@
 
 (defrecord BeginNode [nodes]
   PSchemeNode
-  (specialize [this] (->BeginNode (map specialize nodes)))
+  (specialize [this] (cmet
+                       (->BeginNode (map specialize nodes))))
   (tagged [this symbol-codepoints->dispatch frame-desc-builder frame-names]
-    (->BeginNode (map #(tagged % symbol-codepoints->dispatch frame-desc-builder frame-names)
-                      nodes)))
-  (to-java [this]
-    (SBeginNode. (node-array (map to-java nodes)))))
+    (cmet
+      (->BeginNode (map #(tagged % symbol-codepoints->dispatch frame-desc-builder frame-names)
+                        nodes))))
+  (to-java [this {src :source :as opts}]
+    (setsrc src
+      (SBeginNode. (node-array (map #(to-java % opts) nodes))))))
 
 (defrecord LambdaNode [arguments body-forms frame-desc-builder lambda-name]
   PSchemeNode
@@ -322,9 +377,10 @@
                  ;; a little trick I learnt from SimpleLanguage:
                  ;;  arguments, unlike slots, don't have a mechanism for specializations
                  ;;  which is why we store them in local slots
-                 [(specialize (->LetNode
-                                (partition 2 (interleave arguments arguments))
-                                body-forms))]
+                 [(specialize (cmet
+                                (->LetNode
+                                  (partition 2 (interleave arguments arguments))
+                                  body-forms)))]
                  frame-desc-builder
                  lambda-name))
   (tagged [this symbol-codepoints->dispatch _parent-frame-desc-builder frame-names]
@@ -337,12 +393,15 @@
                    (mapv #(tagged % sc->new-dispatch frame-desc-builder frame-names) body-forms)
                    frame-desc-builder
                    lambda-name)))
-  (to-java [this]
-    (SLambdaNode. (into-array SSymbolLiteralNode (map to-java arguments))
-                  (node-array (map to-java body-forms))
-                  (.build frame-desc-builder)
-                  lambda-name
-                  (if-let [lf (last arguments)] (:rest-arg? (:read-var-dispatch lf)) false))))
+  (to-java [this {src :source :as opts}]
+    (setsrc src
+      (SLambdaNode. (into-array SSymbolLiteralNode (map #(to-java % opts) arguments))
+                    (node-array (map #(to-java % opts) body-forms))
+                    (.build frame-desc-builder)
+                    lambda-name
+                    (if-let [lf (last arguments)]
+                      (:rest-arg? (:read-var-dispatch lf))
+                      false)))))
 
 (defn ->LambdaNode [arguments body-forms]
   (LambdaNode. arguments
@@ -352,20 +411,23 @@
 
 (defrecord IfNode [condition then else]
   PSchemeNode
-  (specialize [this] (->IfNode (specialize condition)
-                               (specialize then)
-                               (specialize else)))
+  (specialize [this] (cmet
+                       (->IfNode (specialize condition)
+                                 (specialize then)
+                                 (specialize else))))
   (tagged [this symbol-codepoints->dispatch frame-desc-builder frame-names]
     (let [f #(tagged % symbol-codepoints->dispatch frame-desc-builder frame-names)]
-      (->IfNode (f condition) (f then) (f else))))
-  (to-java [this]
-    (SIfNode. (to-java condition) (to-java then) (to-java else))))
+      (cmet
+        (->IfNode (f condition) (f then) (f else)))))
+  (to-java [this {src :source :as opts}]
+    (setsrc src
+      (SIfNode. (to-java condition opts) (to-java then opts) (to-java else opts)))))
 
 (defmulti specialize-list
-  "Return a special form node if the args given match
-  the pattern of a syntax, otherwise returns nil"
-  (fn [special-syntax-name & rest-nodes]
-    special-syntax-name))
+          "Return a special form node if the args given match
+          the pattern of a syntax, otherwise returns nil"
+          (fn [special-syntax-name & rest-nodes]
+            special-syntax-name))
 
 (defrecord ListNode [forms dotted?]
   PSchemeNode
@@ -375,35 +437,39 @@
         (let [cps (int-array (:utf32codepoints f))
               as-str (String. cps 0 (count cps))]
           (if-let [spec-form (apply specialize-list as-str rs)]
-            (specialize spec-form)                          ; specialize children nodes too
-            (->ListNode (map specialize forms) dotted?)))
-        (->ListNode (map specialize forms) dotted?))))
+            (specialize (cmet spec-form))                   ; specialize children nodes too
+            (cmet (->ListNode (map specialize forms) dotted?))))
+        (cmet (->ListNode (map specialize forms) dotted?)))))
   (tagged [this symbol-codepoints->dispatch frame-desc-builder frame-names]
-    (->ListNode (map #(tagged % symbol-codepoints->dispatch frame-desc-builder frame-names)
-                     forms)
-                dotted?))
-  (to-java [this]
-    (let [[f & rs] forms
-          rs (if dotted? rs (concat rs [(->NilLiteral)]))
-          f (to-java f)
-          rs (map to-java rs)]
-      (SListNode. f (node-array rs)))))
+    (cmet
+      (->ListNode (map #(tagged % symbol-codepoints->dispatch frame-desc-builder frame-names)
+                       forms)
+                  dotted?)))
+  (to-java [this {src :source :as opts}]
+    (setsrc src
+      (let [[f & rs] forms
+            rs (if dotted? rs (concat rs [(->NilLiteral)]))
+            f (to-java f opts)
+            rs (map #(to-java % opts) rs)]
+        (SListNode. f (node-array rs))))))
 
 (defrecord VectorNode [xs]
   PSchemeNode
-  (specialize [this] (->VectorNode (map specialize xs)))
+  (specialize [this] (cmet (->VectorNode (map specialize xs))))
   (tagged [this symbol-codepoints->dispatch frame-desc-builder frame-names]
-    (->VectorNode (map #(tagged % symbol-codepoints->dispatch frame-desc-builder frame-names)
-                       xs)))
-  (to-java [this]
-    (SVectorLiteralNode. (node-array (map to-java xs)))))
+    (cmet (->VectorNode (map #(tagged % symbol-codepoints->dispatch frame-desc-builder frame-names)
+                             xs))))
+  (to-java [this {src :source :as opts}]
+    (setsrc src
+      (SVectorLiteralNode. (node-array (map #(to-java % opts) xs))))))
 
 (defrecord ByteVectorNode [octets]
   PSchemeNode
   (specialize [this] this)
   (tagged [this _ _ _] this)                                ;; can't have anything other than octets at the parser level
-  (to-java [this]
-    (SByteVectorLiteralNode. (into-array SOctetLiteralNode (map to-java octets)))))
+  (to-java [this {src :source :as opts}]
+    (setsrc src
+      (SByteVectorLiteralNode. (into-array SOctetLiteralNode (map #(to-java % opts) octets))))))
 
 (defn parse-formals
   "Given a ListNode of formals for a function, returns

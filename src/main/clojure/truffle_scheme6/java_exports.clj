@@ -14,7 +14,7 @@
                         (read-scheme)
                         (map specialize)
                         (map #(tagged % {} frame-desc-builder [SchemeRoot/FRAME_NAME]))
-                        (map to-java)
+                        (map #(to-java % {:source s}))
                         (into-array SchemeNode))
         built (.build frame-desc-builder)]
     (SchemeRoot. l built root-forms)))

@@ -5,6 +5,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
+import com.oracle.truffle.api.source.SourceSection;
 import truffle_scheme6.nodes.STypes;
 import truffle_scheme6.nodes.STypesGen;
 
@@ -12,6 +13,8 @@ import truffle_scheme6.nodes.STypesGen;
 @TypeSystemReference(STypes.class)
 public abstract class SchemeNode extends Node {
     private boolean isTail = false;
+
+    private SourceSection sourceSection;
 
     public abstract Object execute(VirtualFrame frame);
 
@@ -22,7 +25,7 @@ public abstract class SchemeNode extends Node {
     public byte executeByte(VirtualFrame frame) throws UnexpectedResultException {
         return STypesGen.expectByte(execute(frame));
     }
-    
+
     public long executeLong(VirtualFrame frame) throws UnexpectedResultException {
         return STypesGen.expectLong(execute(frame));
     }
@@ -47,5 +50,14 @@ public abstract class SchemeNode extends Node {
 
     public SchemeLanguageContext getCurrentContext() {
         return SchemeLanguageContext.get(this);
+    }
+
+    public void setSourceSection(SourceSection sourceSection) {
+        this.sourceSection = sourceSection;
+    }
+
+    @Override
+    public SourceSection getSourceSection() {
+        return sourceSection;
     }
 }

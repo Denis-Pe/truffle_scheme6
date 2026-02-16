@@ -259,7 +259,6 @@
 (defn read-scheme
   [source]
   (let [raw-tree (parse source)
-        raw-tree (insta/add-line-and-column-info-to-metadata source raw-tree)
         result (produce-nodes raw-tree)]
     (if-let [failure (insta/get-failure result)]
       (throw (ParseException. (:index failure) (:line failure) (:column failure) (:text failure)))
