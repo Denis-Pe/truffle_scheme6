@@ -1,10 +1,20 @@
 package truffle_scheme6.runtime;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public final class GlobalScope {
-    private final Map<SSymbol, Object> vars = new HashMap<>();
+    private final Map<SSymbol, Object> vars = new IdentityHashMap<>();
+    private SLibrary activeLibrary;
+    public final List<SLibrary> availableLibraries = new ArrayList<>();
+
+    public GlobalScope(SLibrary activeLibrary) {
+        this.activeLibrary = activeLibrary;
+        var base = new SLibrary(SPair.list(
+                SSymbol.get("rnrs"),
+                SSymbol.get("base"),
+                SList.list(6)));
+        availableLibraries.add(base);
+    }
 
     /**
      * @param name name of the variable
@@ -17,5 +27,19 @@ public final class GlobalScope {
 
     public Object getVar(SSymbol name) {
         return vars.get(name);
+    }
+
+    public SLibrary getActiveLibrary() {
+        return activeLibrary;
+    }
+
+    public void setActiveLibrary(SLibrary activeLibrary) {
+        this.activeLibrary = activeLibrary;
+    }
+
+    public SLibrary getBase() {
+        // assuming that base is the first library added
+        // as seen in the constructor
+        return availableLibraries.getFirst();
     }
 }

@@ -23,9 +23,10 @@ import truffle_scheme6.nodes.functions.SReadArgNode;
 import truffle_scheme6.nodes.functions.SReadArgSlotNode;
 import truffle_scheme6.nodes.functions.SReadVarArgsNode;
 import truffle_scheme6.nodes.roots.SLambdaRoot;
-import truffle_scheme6.runtime.GlobalScope;
-import truffle_scheme6.runtime.SLambda;
-import truffle_scheme6.runtime.SSymbol;
+import truffle_scheme6.runtime.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SchemeLanguageContext {
     private final SchemeLanguage language;
@@ -39,104 +40,107 @@ public class SchemeLanguageContext {
 
     public final GlobalScope globalScope;
 
+    // language runtime initialization
     public SchemeLanguageContext(SchemeLanguage language) {
         this.language = language;
-        this.globalScope = new GlobalScope();
-        installBuiltins();
+        this.globalScope = new GlobalScope(null);
+        installBase();
     }
 
-    private void installBuiltins() {
-        installBuiltin(SIsProcedureFactory.getInstance());
+    private void installBase() {
+        var base = globalScope.getBase();
 
-        installBuiltin(SIsStringFactory.getInstance());
+        installBaseBuiltin(SIsProcedureFactory.getInstance());
 
-        installBuiltin(SIsVectorFactory.getInstance());
+        installBaseBuiltin(SIsStringFactory.getInstance());
 
-        installBuiltin(SIsCharFactory.getInstance());
+        installBaseBuiltin(SIsVectorFactory.getInstance());
 
-        installBuiltin(SIsBooleanFactory.getInstance());
+        installBaseBuiltin(SIsCharFactory.getInstance());
+
+        installBaseBuiltin(SIsBooleanFactory.getInstance());
 
         /* NUMERICAL */
 
-        installBuiltin(SIsNumberFactory.getInstance());
-        installBuiltin(SIsComplexFactory.getInstance());
-        installBuiltin(SIsRealFactory.getInstance());
-        installBuiltin(SIsRationalFactory.getInstance());
-        installBuiltin(SIsIntegerFactory.getInstance());
+        installBaseBuiltin(SIsNumberFactory.getInstance());
+        installBaseBuiltin(SIsComplexFactory.getInstance());
+        installBaseBuiltin(SIsRealFactory.getInstance());
+        installBaseBuiltin(SIsRationalFactory.getInstance());
+        installBaseBuiltin(SIsIntegerFactory.getInstance());
 
-        installBuiltin(SIsRealValuedFactory.getInstance());
-        installBuiltin(SIsRationalValuedFactory.getInstance());
-        installBuiltin(SIsIntegerValuedFactory.getInstance());
+        installBaseBuiltin(SIsRealValuedFactory.getInstance());
+        installBaseBuiltin(SIsRationalValuedFactory.getInstance());
+        installBaseBuiltin(SIsIntegerValuedFactory.getInstance());
 
-        installBuiltin(SIsExactFactory.getInstance());
-        installBuiltin(SIsInexactFactory.getInstance());
+        installBaseBuiltin(SIsExactFactory.getInstance());
+        installBaseBuiltin(SIsInexactFactory.getInstance());
 
-        installBuiltin(SExactFactory.getInstance());
-        installBuiltin(SInexactFactory.getInstance());
+        installBaseBuiltin(SExactFactory.getInstance());
+        installBaseBuiltin(SInexactFactory.getInstance());
 
-        installBuiltin(SNumsEqualFactory.getInstance());
-        installBuiltin(SNumsIncreasingFactory.getInstance());
-        installBuiltin(SNumsDecreasingFactory.getInstance());
-        installBuiltin(SNumsNonDecreasingFactory.getInstance());
-        installBuiltin(SNumsNonIncreasingFactory.getInstance());
+        installBaseBuiltin(SNumsEqualFactory.getInstance());
+        installBaseBuiltin(SNumsIncreasingFactory.getInstance());
+        installBaseBuiltin(SNumsDecreasingFactory.getInstance());
+        installBaseBuiltin(SNumsNonDecreasingFactory.getInstance());
+        installBaseBuiltin(SNumsNonIncreasingFactory.getInstance());
 
-        installBuiltin(SIsZeroFactory.getInstance());
-        installBuiltin(SIsPositiveFactory.getInstance());
-        installBuiltin(SIsNegativeFactory.getInstance());
-        installBuiltin(SIsOddFactory.getInstance());
-        installBuiltin(SIsEvenFactory.getInstance());
-        installBuiltin(SIsFiniteFactory.getInstance());
-        installBuiltin(SIsInfiniteFactory.getInstance());
-        installBuiltin(SIsNanFactory.getInstance());
+        installBaseBuiltin(SIsZeroFactory.getInstance());
+        installBaseBuiltin(SIsPositiveFactory.getInstance());
+        installBaseBuiltin(SIsNegativeFactory.getInstance());
+        installBaseBuiltin(SIsOddFactory.getInstance());
+        installBaseBuiltin(SIsEvenFactory.getInstance());
+        installBaseBuiltin(SIsFiniteFactory.getInstance());
+        installBaseBuiltin(SIsInfiniteFactory.getInstance());
+        installBaseBuiltin(SIsNanFactory.getInstance());
 
-        installBuiltin(SNumsAddFactory.getInstance());
-        installBuiltin(SNumsMultiplyFactory.getInstance());
+        installBaseBuiltin(SNumsAddFactory.getInstance());
+        installBaseBuiltin(SNumsMultiplyFactory.getInstance());
 
-        installBuiltin(SNumsMinusFactory.getInstance());
+        installBaseBuiltin(SNumsMinusFactory.getInstance());
 
-        installBuiltin(SNumsDivFactory.getInstance());
+        installBaseBuiltin(SNumsDivFactory.getInstance());
 
-        installBuiltin(SAbsFactory.getInstance());
-        
-        installBuiltin(SNumeratorFactory.getInstance());
-        installBuiltin(SDenominatorFactory.getInstance());
+        installBaseBuiltin(SAbsFactory.getInstance());
+
+        installBaseBuiltin(SNumeratorFactory.getInstance());
+        installBaseBuiltin(SDenominatorFactory.getInstance());
 
         /* PAIRS AND LISTS */
 
-        installBuiltin(SIsPairFactory.getInstance());
+        installBaseBuiltin(SIsPairFactory.getInstance());
 
-        installBuiltin(SConsFactory.getInstance());
+        installBaseBuiltin(SConsFactory.getInstance());
 
-        installBuiltin(SCarFactory.getInstance());
+        installBaseBuiltin(SCarFactory.getInstance());
 
-        installBuiltin(SCdrFactory.getInstance());
+        installBaseBuiltin(SCdrFactory.getInstance());
 
-        installBuiltin(SIsNullFactory.getInstance());
+        installBaseBuiltin(SIsNullFactory.getInstance());
 
-        installBuiltin(SIsListFactory.getInstance());
+        installBaseBuiltin(SIsListFactory.getInstance());
 
-        installBuiltin(SMakeListFactory.getInstance());
+        installBaseBuiltin(SMakeListFactory.getInstance());
 
-        installBuiltin(SLengthFactory.getInstance());
+        installBaseBuiltin(SLengthFactory.getInstance());
 
         /* SYMBOLS */
 
-        installBuiltin(SIsSymbolFactory.getInstance());
+        installBaseBuiltin(SIsSymbolFactory.getInstance());
 
-        installBuiltin(SSymbolToStringFactory.getInstance());
+        installBaseBuiltin(SSymbolToStringFactory.getInstance());
 
-        installBuiltin(SAreSymbolsEqualFactory.getInstance());
+        installBaseBuiltin(SAreSymbolsEqualFactory.getInstance());
 
-        installBuiltin(SStringToSymbolFactory.getInstance());
+        installBaseBuiltin(SStringToSymbolFactory.getInstance());
 
         /* CHARACTERS */
 
-        installBuiltin(SIntegerToCharFactory.getInstance());
+        installBaseBuiltin(SIntegerToCharFactory.getInstance());
 
-        installBuiltin(SCharToIntegerFactory.getInstance());
+        installBaseBuiltin(SCharToIntegerFactory.getInstance());
     }
 
-    private void installBuiltin(NodeFactory<? extends SBuiltin> factory) {
+    private void installBaseBuiltin(NodeFactory<? extends SBuiltin> factory) {
         var info = factory.getNodeClass().getAnnotation(BuiltinInfo.class);
         var name = info.name();
         var lastVarArgs = info.lastVarArgs();
@@ -153,9 +157,14 @@ public class SchemeLanguageContext {
             }
         }
 
+        var funName = SSymbol.get(name);
         var funNode = factory.createNode(argReaders);
         var lambdaRoot = new SLambdaRoot(language, new FrameDescriptor(), name, funNode);
-        if (!this.globalScope.setVar(SSymbol.get(name), new SLambda(lambdaRoot.getCallTarget(), lastVarArgs ? numArgs - 1 : numArgs, lastVarArgs)))
-            throw new IllegalStateException("Base library installation failed: name `" + name + "` already bound");
+        var lambda = new SLambda(lambdaRoot.getCallTarget(),
+                lastVarArgs ? numArgs - 1 : numArgs, lastVarArgs);
+        if (!globalScope.setVar(funName, lambda))
+            throw new IllegalStateException("Base library installation failed: name `"
+                    + name + "` already bound");
+        globalScope.getBase().addExport(funName, lambda); // useful later
     }
 }
