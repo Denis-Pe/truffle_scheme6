@@ -8,13 +8,15 @@ import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.api.strings.TruffleStringBuilder;
 import truffle_scheme6.Constants;
 
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 @ExportLibrary(InteropLibrary.class)
 public class SString implements TruffleObject {
     private final TruffleString value;
-    private final TruffleString.ToJavaStringNode converter = TruffleString.ToJavaStringNode.create();
 
+    private static final TruffleString.ToJavaStringNode converter = TruffleString.ToJavaStringNode.create();
+    private static final TruffleString.EqualNode equal = TruffleString.EqualNode.create();
     private static final TruffleStringBuilder.AppendCodePointNode builderAppend = TruffleStringBuilder.AppendCodePointNode.create();
     private static final TruffleStringBuilder.ToStringNode builderToString = TruffleStringBuilder.ToStringNode.create();
     private static final TruffleString.FromJavaStringNode builderFromJavaString = TruffleString.FromJavaStringNode.create();
@@ -90,5 +92,17 @@ public class SString implements TruffleObject {
                 + "\"";
     }
 
-    // todo equals() using equality node from TruffleString
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SString that = (SString) o;
+        return equal.execute(this.value, that.value, Constants.ENCODING);
+    }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
 }

@@ -16,7 +16,7 @@ import java.util.Objects;
 public class SChar implements TruffleObject {
     private final int value;
     private static final TruffleString.FromJavaStringNode truffleStringFromJavaString = TruffleString.FromJavaStringNode.create();
-    private final static Map<Integer, String> codepointToName;
+    private static final Map<Integer, String> codepointToName;
 
     static {
         codepointToName = new HashMap<>();
@@ -70,5 +70,19 @@ public class SChar implements TruffleObject {
     public String toString() {
         var name = codepointToName.get(value);
         return "#\\" + Objects.requireNonNullElseGet(name, () -> Character.toString(value));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SChar sChar = (SChar) o;
+        return value == sChar.value;
+    }
+
+    @Override
+    public int hashCode() {
+        return value;
     }
 }

@@ -6,6 +6,7 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.api.strings.TruffleStringBuilder;
+import org.w3c.dom.ls.LSOutput;
 import truffle_scheme6.Constants;
 
 import java.util.HashMap;
@@ -22,9 +23,9 @@ import java.util.stream.IntStream;
 @ExportLibrary(InteropLibrary.class)
 public class SSymbol implements TruffleObject {
     private final TruffleString value;
+
     private static final TruffleString.ToJavaStringNode converter = TruffleString.ToJavaStringNode.create();
     private static final TruffleString.EqualNode equal = TruffleString.EqualNode.create();
-
     private static final TruffleStringBuilder.AppendCodePointNode builderAppendCodePoint = TruffleStringBuilder.AppendCodePointNode.create();
     private static final TruffleString.FromJavaStringNode fromJavaStringNode = TruffleString.FromJavaStringNode.create();
     private static final TruffleStringBuilder.ToStringNode builderToString = TruffleStringBuilder.ToStringNode.create();
@@ -116,7 +117,12 @@ public class SSymbol implements TruffleObject {
 
     @Override
     public boolean equals(Object o) {
-        return this == o; // symbols are all singletons
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SSymbol that = (SSymbol) o;
+
+        return equal.execute(this.value, that.value, Constants.ENCODING);
     }
 
     @Override
