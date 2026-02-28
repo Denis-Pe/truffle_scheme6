@@ -116,11 +116,7 @@ public class SSymbol implements TruffleObject {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        SSymbol that = (SSymbol) o;
-        return value.equals(that.value); // todo use the equal node, same for the string and char and others
+        return this == o; // symbols are all singletons
     }
 
     @Override

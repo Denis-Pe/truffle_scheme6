@@ -89,4 +89,6 @@ public class SString implements TruffleObject {
                 .replace("\\", "\\\\")
                 + "\"";
     }
+
+    // todo equals() using equality node from TruffleString
 }
