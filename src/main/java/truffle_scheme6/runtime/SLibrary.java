@@ -15,6 +15,8 @@ import java.util.Map;
 //  it exports what other libraries want to import, etc
 //  in reality, it is part of a broader problem in knowing what should be loaded first,
 //  or perhaps that problem could be bypassed by laziness
+// todo
+//  this is currently quite heavy
 public class SLibrary {
     private static class Definition {
         public boolean isExported = false;
@@ -64,7 +66,7 @@ public class SLibrary {
     /**
      * Makes a new definition from within this library.
      * Can also bind a previously unbound definition of the library.
-     *
+     * <p>
      * If the identifier was present, the {@code isExported} argument
      * will be ignored.
      *
@@ -118,5 +120,10 @@ public class SLibrary {
 
     public Object getDefinition(SSymbol identifier) {
         return getDefinition(identifier, SchemeLanguageContext.get(null).globalScope.getActiveLibrary());
+    }
+
+    @Override
+    public String toString() {
+        return name.toString();
     }
 }
