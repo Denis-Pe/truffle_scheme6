@@ -159,7 +159,7 @@ public class SchemeLanguageContext {
         var lambdaRoot = new SLambdaRoot(language, new FrameDescriptor(), name, funNode);
         var lambda = new SLambda(lambdaRoot.getCallTarget(),
                 lastVarArgs ? numArgs - 1 : numArgs, lastVarArgs);
-        if (!globalScope.getBase().addDefinition(funName, lambda))
+        if (!globalScope.getBase().addDefinition(funName, lambda, true))
             throw new IllegalStateException("Base library installation failed: name `"
                     + name + "` already bound");
         globalScope.getBase().addDefinition(funName, lambda); // useful later

@@ -13,6 +13,8 @@ import java.util.Map;
 //  I should make their actual instantiation and evaluation as lazy as possible
 //  due to the nature of dependencies and making sure a library exists,
 //  it exports what other libraries want to import, etc
+//  in reality, it is part of a broader problem in knowing what should be loaded first,
+//  or perhaps that problem could be bypassed by laziness
 public class SLibrary {
     private static class Definition {
         public boolean isExported = false;
@@ -61,6 +63,10 @@ public class SLibrary {
 
     /**
      * Makes a new definition from within this library.
+     * Can also bind a previously unbound definition of the library.
+     *
+     * If the identifier was exported but unbound, the {@code isExported} argument
+     * will be ignored.
      *
      * @return true if the variable is newly bound
      */
@@ -74,18 +80,17 @@ public class SLibrary {
             return true;
         } else {
             def.value = value;
-            def.isExported = isExported;
             return false;
         }
     }
 
     /**
-     * Makes a new definition within this library.
+     * Makes a new definition within this library. <b>Not</b> exported by default.
      *
      * @return true if the variable is newly bound
      */
     public boolean addDefinition(SSymbol identifier, Object value) {
-        return addDefinition(identifier, value, true);
+        return addDefinition(identifier, value, false);
     }
 
     private Definition requestDefinition(SSymbol identifier, SLibrary requestSource) {
