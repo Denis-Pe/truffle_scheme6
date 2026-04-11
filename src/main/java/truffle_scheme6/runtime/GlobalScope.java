@@ -22,19 +22,6 @@ public final class GlobalScope {
         this.activeLibrary = activeLibrary;
     }
 
-//    /**
-//     * @param name name of the variable
-//     * @param val  value of the variable
-//     * @return true if the variable is new. false if it is changing the value of an existing variable
-//     */
-//    public boolean setVar(SSymbol name, Object val) {
-//        return vars.put(name, val) == null;
-//    }
-//
-//    public Object getVar(SSymbol name) {
-//        return activeLibrary.getExport(name);
-//    }
-
     public SLibrary getActiveLibrary() {
         return activeLibrary;
     }

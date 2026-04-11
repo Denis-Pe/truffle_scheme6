@@ -119,7 +119,7 @@ public final class SSymbolLiteralNode extends SchemeNode {
     public static class ReadGlobal extends ReadVarDispatch {
         @Override
         public Object execute(VirtualFrame frame) {
-            var val = this.getCurrentContext().globalScope.getActiveLibrary().getExport(parent.symbol);
+            var val = this.getCurrentContext().globalScope.getActiveLibrary().getDefinition(parent.symbol);
             if (val != null) {
                 return val;
             } else {

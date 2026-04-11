@@ -20,7 +20,7 @@ public class SSetGlobalNode extends SSpecialNode {
 
     @Override
     public Object execute(VirtualFrame frame) {
-        this.getCurrentContext().globalScope.getActiveLibrary().addExport(
+        this.getCurrentContext().globalScope.getActiveLibrary().addDefinition(
                 identifier.getSymbol(),
                 value.execute(frame)
         );

@@ -25,9 +25,6 @@ import truffle_scheme6.nodes.functions.SReadVarArgsNode;
 import truffle_scheme6.nodes.roots.SLambdaRoot;
 import truffle_scheme6.runtime.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class SchemeLanguageContext {
     private final SchemeLanguage language;
 
@@ -162,9 +159,9 @@ public class SchemeLanguageContext {
         var lambdaRoot = new SLambdaRoot(language, new FrameDescriptor(), name, funNode);
         var lambda = new SLambda(lambdaRoot.getCallTarget(),
                 lastVarArgs ? numArgs - 1 : numArgs, lastVarArgs);
-        if (!globalScope.getBase().addExport(funName, lambda))
+        if (!globalScope.getBase().addDefinition(funName, lambda))
             throw new IllegalStateException("Base library installation failed: name `"
                     + name + "` already bound");
-        globalScope.getBase().addExport(funName, lambda); // useful later
+        globalScope.getBase().addDefinition(funName, lambda); // useful later
     }
 }
