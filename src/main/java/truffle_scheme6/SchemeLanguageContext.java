@@ -43,7 +43,7 @@ public class SchemeLanguageContext {
     // language runtime initialization
     public SchemeLanguageContext(SchemeLanguage language) {
         this.language = language;
-        this.globalScope = new GlobalScope(null);
+        this.globalScope = new GlobalScope();
         installBase();
     }
 
@@ -162,7 +162,7 @@ public class SchemeLanguageContext {
         var lambdaRoot = new SLambdaRoot(language, new FrameDescriptor(), name, funNode);
         var lambda = new SLambda(lambdaRoot.getCallTarget(),
                 lastVarArgs ? numArgs - 1 : numArgs, lastVarArgs);
-        if (!globalScope.setVar(funName, lambda))
+        if (!globalScope.getBase().addExport(funName, lambda))
             throw new IllegalStateException("Base library installation failed: name `"
                     + name + "` already bound");
         globalScope.getBase().addExport(funName, lambda); // useful later

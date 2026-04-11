@@ -47,7 +47,7 @@ public class SDefunNode extends SSpecialNode {
                 new SLambdaRoot(sl, frameDescriptor, identifier.getSymbol().toString(), body).getCallTarget(),
                 isVariadic ? arguments.length - 1 : arguments.length,
                 isVariadic);
-        context.globalScope.setVar(identifier.getSymbol(), lambda);
+        context.globalScope.getActiveLibrary().addExport(identifier.getSymbol(), lambda);
 
         return Constants.UNSPECIFIED;
     }

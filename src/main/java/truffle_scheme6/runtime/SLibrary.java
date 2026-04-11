@@ -19,8 +19,8 @@ public class SLibrary {
 
     // for imports, I do not yet find it necessary to include metadata about
     // where they come from. Might change in the future
-    private final Map<SSymbol, Object> runImports =  new IdentityHashMap<>();
-    private final Map<SSymbol, Object> expandImports =  new IdentityHashMap<>();
+    private final Map<SSymbol, Object> runImports = new IdentityHashMap<>();
+    private final Map<SSymbol, Object> expandImports = new IdentityHashMap<>();
 
     private final Map<SSymbol, Object> definitions = new IdentityHashMap<>();
 
@@ -29,9 +29,13 @@ public class SLibrary {
     }
 
     /**
-     * @return whether the identifier was already bound
+     * @return true if the variable is newly bound
      */
     public boolean addExport(SSymbol identifier, Object value) {
         return exports.put(identifier, value) == null;
+    }
+
+    public Object getExport(SSymbol identifier) {
+        return exports.get(identifier);
     }
 }

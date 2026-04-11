@@ -7,27 +7,33 @@ public final class GlobalScope {
     private SLibrary activeLibrary;
     public final List<SLibrary> availableLibraries = new ArrayList<>();
 
-    public GlobalScope(SLibrary activeLibrary) {
-        this.activeLibrary = activeLibrary;
+    public GlobalScope() {
         var base = new SLibrary(SPair.list(
                 SSymbol.get("rnrs"),
                 SSymbol.get("base"),
                 SList.list(6)));
         availableLibraries.add(base);
+        this.activeLibrary = base;
     }
 
-    /**
-     * @param name name of the variable
-     * @param val  value of the variable
-     * @return true if the variable is new. false if it is changing the value of an existing variable
-     */
-    public boolean setVar(SSymbol name, Object val) {
-        return vars.put(name, val) == null;
+    public GlobalScope(SLibrary activeLibrary) {
+        this();
+        Objects.requireNonNull(activeLibrary);
+        this.activeLibrary = activeLibrary;
     }
 
-    public Object getVar(SSymbol name) {
-        return vars.get(name);
-    }
+//    /**
+//     * @param name name of the variable
+//     * @param val  value of the variable
+//     * @return true if the variable is new. false if it is changing the value of an existing variable
+//     */
+//    public boolean setVar(SSymbol name, Object val) {
+//        return vars.put(name, val) == null;
+//    }
+//
+//    public Object getVar(SSymbol name) {
+//        return activeLibrary.getExport(name);
+//    }
 
     public SLibrary getActiveLibrary() {
         return activeLibrary;

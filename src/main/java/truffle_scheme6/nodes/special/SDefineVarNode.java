@@ -24,7 +24,7 @@ public class SDefineVarNode extends SSpecialNode {
 
     @Override
     public Object execute(VirtualFrame frame) {
-        this.getCurrentContext().globalScope.setVar(
+        this.getCurrentContext().globalScope.getActiveLibrary().addExport(
                 symbol.getSymbol(),
                 expr == null ? Constants.UNSPECIFIED : expr.execute(frame));
         return Constants.UNSPECIFIED;
