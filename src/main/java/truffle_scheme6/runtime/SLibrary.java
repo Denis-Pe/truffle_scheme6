@@ -65,7 +65,7 @@ public class SLibrary {
      * Makes a new definition from within this library.
      * Can also bind a previously unbound definition of the library.
      *
-     * If the identifier was exported but unbound, the {@code isExported} argument
+     * If the identifier was present, the {@code isExported} argument
      * will be ignored.
      *
      * @return true if the variable is newly bound
