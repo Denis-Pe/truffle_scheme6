@@ -16,7 +16,7 @@ import java.util.Map;
 //  in reality, it is part of a broader problem in knowing what should be loaded first,
 //  or perhaps that problem could be bypassed by laziness
 // todo
-//  this is currently quite heavy
+//  this is currently quite memory-heavy
 public class SLibrary {
     private static class Definition {
         public boolean isExported = false;
@@ -87,7 +87,9 @@ public class SLibrary {
     }
 
     /**
-     * Makes a new definition within this library. <b>Not</b> exported by default.
+     * Makes a new definition from within this library, <b>not</b> exported by default.
+     * Can also bind a previously unbound definition of the library, in which case
+     * the first declaration will determine whether it's exported or not.
      *
      * @return true if the variable is newly bound
      */
