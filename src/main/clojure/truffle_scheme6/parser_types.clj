@@ -49,6 +49,14 @@
     #{}
     sequential))
 
+(defn cdpts->str [codepoints]
+  (let [cdpts (int-array codepoints)
+        as-str (String. cdpts 0 (count cdpts))]
+    as-str))
+
+(defn sym-node->str [sym]
+  (cdpts->str (:utf32codepoints sym)))
+
 (defn parse-arbitrary-integer
   "If a value fits in a long number,
   returns a long, otherwise BigInteger"
@@ -434,8 +442,7 @@
   (specialize [this]
     (let [[f & rs] forms]
       (if (instance? SymbolLiteral f)
-        (let [cps (int-array (:utf32codepoints f))
-              as-str (String. cps 0 (count cps))]
+        (let [as-str (sym-node->str f)]
           (if-let [spec-form (apply specialize-list as-str rs)]
             (specialize (cmet spec-form))                   ; specialize children nodes too
             (cmet (->ListNode (map specialize forms) dotted?))))
